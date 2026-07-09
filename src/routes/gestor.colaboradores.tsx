@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { colaboradores } from "@/lib/safework-data";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/gestor/colaboradores")({
@@ -152,6 +152,26 @@ function NewColaboradorDialog() {
 
 function EditColaboradorDialog({ colaborador }: { colaborador: import("@/lib/safework-data").Colaborador }) {
   const [open, setOpen] = useState(false);
+  const [nome, setNome] = useState(colaborador.nome);
+  const [cpf, setCpf] = useState(colaborador.cpf);
+  const [matricula, setMatricula] = useState(colaborador.matricula);
+  const [cargo, setCargo] = useState(colaborador.cargo);
+  const [setor, setSetor] = useState(colaborador.setor);
+  const [email, setEmail] = useState(colaborador.email);
+  const [perfil, setPerfil] = useState(colaborador.perfil);
+
+  useEffect(() => {
+    if (open) {
+      setNome(colaborador.nome);
+      setCpf(colaborador.cpf);
+      setMatricula(colaborador.matricula);
+      setCargo(colaborador.cargo);
+      setSetor(colaborador.setor);
+      setEmail(colaborador.email);
+      setPerfil(colaborador.perfil);
+    }
+  }, [open, colaborador]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -170,18 +190,18 @@ function EditColaboradorDialog({ colaborador }: { colaborador: import("@/lib/saf
             setOpen(false);
           }}
         >
-          <Field label="Nome completo"><Input required defaultValue={colaborador.nome} /></Field>
+          <Field label="Nome completo"><Input required value={nome} onChange={(e) => setNome(e.target.value)} /></Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="CPF"><Input required defaultValue={colaborador.cpf} /></Field>
-            <Field label="Matrícula"><Input required defaultValue={colaborador.matricula} /></Field>
+            <Field label="CPF"><Input required value={cpf} onChange={(e) => setCpf(e.target.value)} /></Field>
+            <Field label="Matrícula"><Input required value={matricula} onChange={(e) => setMatricula(e.target.value)} /></Field>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Cargo"><Input required defaultValue={colaborador.cargo} /></Field>
-            <Field label="Setor"><Input required defaultValue={colaborador.setor} /></Field>
+            <Field label="Cargo"><Input required value={cargo} onChange={(e) => setCargo(e.target.value)} /></Field>
+            <Field label="Setor"><Input required value={setor} onChange={(e) => setSetor(e.target.value)} /></Field>
           </div>
-          <Field label="E-mail corporativo"><Input required type="email" defaultValue={colaborador.email} /></Field>
+          <Field label="E-mail corporativo"><Input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
           <Field label="Perfil de acesso">
-            <Select defaultValue={colaborador.perfil}>
+            <Select value={perfil} onValueChange={(v) => setPerfil(v as typeof colaborador.perfil)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Colaborador">Colaborador</SelectItem>
