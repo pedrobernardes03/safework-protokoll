@@ -84,7 +84,7 @@ function ColaboradoresPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button size="icon" variant="ghost"><Pencil className="h-4 w-4" /></Button>
+                      <EditColaboradorDialog colaborador={c} />
                       <Button size="icon" variant="ghost" className="text-danger hover:text-danger">
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -143,6 +143,56 @@ function NewColaboradorDialog() {
           <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
             <Button type="submit">Cadastrar</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditColaboradorDialog({ colaborador }: { colaborador: import("@/lib/safework-data").Colaborador }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="icon" variant="ghost"><Pencil className="h-4 w-4" /></Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Editar colaborador</DialogTitle>
+          <DialogDescription>Atualize as informações de {colaborador.nome}.</DialogDescription>
+        </DialogHeader>
+        <form
+          className="grid gap-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            toast.success("Dados do colaborador atualizados.");
+            setOpen(false);
+          }}
+        >
+          <Field label="Nome completo"><Input required defaultValue={colaborador.nome} /></Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="CPF"><Input required defaultValue={colaborador.cpf} /></Field>
+            <Field label="Matrícula"><Input required defaultValue={colaborador.matricula} /></Field>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Cargo"><Input required defaultValue={colaborador.cargo} /></Field>
+            <Field label="Setor"><Input required defaultValue={colaborador.setor} /></Field>
+          </div>
+          <Field label="E-mail corporativo"><Input required type="email" defaultValue={colaborador.email} /></Field>
+          <Field label="Perfil de acesso">
+            <Select defaultValue={colaborador.perfil}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Colaborador">Colaborador</SelectItem>
+                <SelectItem value="Gestor">Gestor</SelectItem>
+                <SelectItem value="Administrador">Administrador</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <DialogFooter className="mt-2">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+            <Button type="submit">Salvar alterações</Button>
           </DialogFooter>
         </form>
       </DialogContent>
