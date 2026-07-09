@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ColaboradorObservacaoRouteImport } from './routes/colaborador.observacao'
+import { Route as ColaboradorMeusEpisRouteImport } from './routes/colaborador.meus-epis'
+import { Route as ColaboradorHistoricoRouteImport } from './routes/colaborador.historico'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -28,35 +31,81 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ColaboradorObservacaoRoute = ColaboradorObservacaoRouteImport.update({
+  id: '/colaborador/observacao',
+  path: '/colaborador/observacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColaboradorMeusEpisRoute = ColaboradorMeusEpisRouteImport.update({
+  id: '/colaborador/meus-epis',
+  path: '/colaborador/meus-epis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColaboradorHistoricoRoute = ColaboradorHistoricoRouteImport.update({
+  id: '/colaborador/historico',
+  path: '/colaborador/historico',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/login': typeof LoginRoute
+  '/colaborador/historico': typeof ColaboradorHistoricoRoute
+  '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
+  '/colaborador/observacao': typeof ColaboradorObservacaoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/login': typeof LoginRoute
+  '/colaborador/historico': typeof ColaboradorHistoricoRoute
+  '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
+  '/colaborador/observacao': typeof ColaboradorObservacaoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/login': typeof LoginRoute
+  '/colaborador/historico': typeof ColaboradorHistoricoRoute
+  '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
+  '/colaborador/observacao': typeof ColaboradorObservacaoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/esqueci-senha' | '/login'
+  fullPaths:
+    | '/'
+    | '/esqueci-senha'
+    | '/login'
+    | '/colaborador/historico'
+    | '/colaborador/meus-epis'
+    | '/colaborador/observacao'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/esqueci-senha' | '/login'
-  id: '__root__' | '/' | '/esqueci-senha' | '/login'
+  to:
+    | '/'
+    | '/esqueci-senha'
+    | '/login'
+    | '/colaborador/historico'
+    | '/colaborador/meus-epis'
+    | '/colaborador/observacao'
+  id:
+    | '__root__'
+    | '/'
+    | '/esqueci-senha'
+    | '/login'
+    | '/colaborador/historico'
+    | '/colaborador/meus-epis'
+    | '/colaborador/observacao'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   LoginRoute: typeof LoginRoute
+  ColaboradorHistoricoRoute: typeof ColaboradorHistoricoRoute
+  ColaboradorMeusEpisRoute: typeof ColaboradorMeusEpisRoute
+  ColaboradorObservacaoRoute: typeof ColaboradorObservacaoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +131,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/colaborador/observacao': {
+      id: '/colaborador/observacao'
+      path: '/colaborador/observacao'
+      fullPath: '/colaborador/observacao'
+      preLoaderRoute: typeof ColaboradorObservacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/colaborador/meus-epis': {
+      id: '/colaborador/meus-epis'
+      path: '/colaborador/meus-epis'
+      fullPath: '/colaborador/meus-epis'
+      preLoaderRoute: typeof ColaboradorMeusEpisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/colaborador/historico': {
+      id: '/colaborador/historico'
+      path: '/colaborador/historico'
+      fullPath: '/colaborador/historico'
+      preLoaderRoute: typeof ColaboradorHistoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +159,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EsqueciSenhaRoute: EsqueciSenhaRoute,
   LoginRoute: LoginRoute,
+  ColaboradorHistoricoRoute: ColaboradorHistoricoRoute,
+  ColaboradorMeusEpisRoute: ColaboradorMeusEpisRoute,
+  ColaboradorObservacaoRoute: ColaboradorObservacaoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
