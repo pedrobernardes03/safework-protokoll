@@ -10,15 +10,27 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as GestorRouteImport } from './routes/gestor'
 import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GestorIndexRouteImport } from './routes/gestor.index'
+import { Route as GestorObservacoesRouteImport } from './routes/gestor.observacoes'
+import { Route as GestorEpisRouteImport } from './routes/gestor.epis'
+import { Route as GestorColaboradoresRouteImport } from './routes/gestor.colaboradores'
+import { Route as GestorCertificadosRouteImport } from './routes/gestor.certificados'
 import { Route as ColaboradorObservacaoRouteImport } from './routes/colaborador.observacao'
 import { Route as ColaboradorMeusEpisRouteImport } from './routes/colaborador.meus-epis'
 import { Route as ColaboradorHistoricoRouteImport } from './routes/colaborador.historico'
+import { Route as GestorObservacoesIdRouteImport } from './routes/gestor.observacoes.$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GestorRoute = GestorRouteImport.update({
+  id: '/gestor',
+  path: '/gestor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EsqueciSenhaRoute = EsqueciSenhaRouteImport.update({
@@ -30,6 +42,31 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const GestorIndexRoute = GestorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GestorRoute,
+} as any)
+const GestorObservacoesRoute = GestorObservacoesRouteImport.update({
+  id: '/observacoes',
+  path: '/observacoes',
+  getParentRoute: () => GestorRoute,
+} as any)
+const GestorEpisRoute = GestorEpisRouteImport.update({
+  id: '/epis',
+  path: '/epis',
+  getParentRoute: () => GestorRoute,
+} as any)
+const GestorColaboradoresRoute = GestorColaboradoresRouteImport.update({
+  id: '/colaboradores',
+  path: '/colaboradores',
+  getParentRoute: () => GestorRoute,
+} as any)
+const GestorCertificadosRoute = GestorCertificadosRouteImport.update({
+  id: '/certificados',
+  path: '/certificados',
+  getParentRoute: () => GestorRoute,
 } as any)
 const ColaboradorObservacaoRoute = ColaboradorObservacaoRouteImport.update({
   id: '/colaborador/observacao',
@@ -46,14 +83,26 @@ const ColaboradorHistoricoRoute = ColaboradorHistoricoRouteImport.update({
   path: '/colaborador/historico',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GestorObservacoesIdRoute = GestorObservacoesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => GestorObservacoesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
+  '/gestor': typeof GestorRouteWithChildren
   '/login': typeof LoginRoute
   '/colaborador/historico': typeof ColaboradorHistoricoRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/gestor/certificados': typeof GestorCertificadosRoute
+  '/gestor/colaboradores': typeof GestorColaboradoresRoute
+  '/gestor/epis': typeof GestorEpisRoute
+  '/gestor/observacoes': typeof GestorObservacoesRouteWithChildren
+  '/gestor/': typeof GestorIndexRoute
+  '/gestor/observacoes/$id': typeof GestorObservacoesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,25 +111,45 @@ export interface FileRoutesByTo {
   '/colaborador/historico': typeof ColaboradorHistoricoRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/gestor/certificados': typeof GestorCertificadosRoute
+  '/gestor/colaboradores': typeof GestorColaboradoresRoute
+  '/gestor/epis': typeof GestorEpisRoute
+  '/gestor/observacoes': typeof GestorObservacoesRouteWithChildren
+  '/gestor': typeof GestorIndexRoute
+  '/gestor/observacoes/$id': typeof GestorObservacoesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
+  '/gestor': typeof GestorRouteWithChildren
   '/login': typeof LoginRoute
   '/colaborador/historico': typeof ColaboradorHistoricoRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/gestor/certificados': typeof GestorCertificadosRoute
+  '/gestor/colaboradores': typeof GestorColaboradoresRoute
+  '/gestor/epis': typeof GestorEpisRoute
+  '/gestor/observacoes': typeof GestorObservacoesRouteWithChildren
+  '/gestor/': typeof GestorIndexRoute
+  '/gestor/observacoes/$id': typeof GestorObservacoesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/esqueci-senha'
+    | '/gestor'
     | '/login'
     | '/colaborador/historico'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/gestor/certificados'
+    | '/gestor/colaboradores'
+    | '/gestor/epis'
+    | '/gestor/observacoes'
+    | '/gestor/'
+    | '/gestor/observacoes/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,19 +158,33 @@ export interface FileRouteTypes {
     | '/colaborador/historico'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/gestor/certificados'
+    | '/gestor/colaboradores'
+    | '/gestor/epis'
+    | '/gestor/observacoes'
+    | '/gestor'
+    | '/gestor/observacoes/$id'
   id:
     | '__root__'
     | '/'
     | '/esqueci-senha'
+    | '/gestor'
     | '/login'
     | '/colaborador/historico'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/gestor/certificados'
+    | '/gestor/colaboradores'
+    | '/gestor/epis'
+    | '/gestor/observacoes'
+    | '/gestor/'
+    | '/gestor/observacoes/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EsqueciSenhaRoute: typeof EsqueciSenhaRoute
+  GestorRoute: typeof GestorRouteWithChildren
   LoginRoute: typeof LoginRoute
   ColaboradorHistoricoRoute: typeof ColaboradorHistoricoRoute
   ColaboradorMeusEpisRoute: typeof ColaboradorMeusEpisRoute
@@ -117,6 +200,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gestor': {
+      id: '/gestor'
+      path: '/gestor'
+      fullPath: '/gestor'
+      preLoaderRoute: typeof GestorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/esqueci-senha': {
       id: '/esqueci-senha'
       path: '/esqueci-senha'
@@ -130,6 +220,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/gestor/': {
+      id: '/gestor/'
+      path: '/'
+      fullPath: '/gestor/'
+      preLoaderRoute: typeof GestorIndexRouteImport
+      parentRoute: typeof GestorRoute
+    }
+    '/gestor/observacoes': {
+      id: '/gestor/observacoes'
+      path: '/observacoes'
+      fullPath: '/gestor/observacoes'
+      preLoaderRoute: typeof GestorObservacoesRouteImport
+      parentRoute: typeof GestorRoute
+    }
+    '/gestor/epis': {
+      id: '/gestor/epis'
+      path: '/epis'
+      fullPath: '/gestor/epis'
+      preLoaderRoute: typeof GestorEpisRouteImport
+      parentRoute: typeof GestorRoute
+    }
+    '/gestor/colaboradores': {
+      id: '/gestor/colaboradores'
+      path: '/colaboradores'
+      fullPath: '/gestor/colaboradores'
+      preLoaderRoute: typeof GestorColaboradoresRouteImport
+      parentRoute: typeof GestorRoute
+    }
+    '/gestor/certificados': {
+      id: '/gestor/certificados'
+      path: '/certificados'
+      fullPath: '/gestor/certificados'
+      preLoaderRoute: typeof GestorCertificadosRouteImport
+      parentRoute: typeof GestorRoute
     }
     '/colaborador/observacao': {
       id: '/colaborador/observacao'
@@ -152,12 +277,50 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ColaboradorHistoricoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gestor/observacoes/$id': {
+      id: '/gestor/observacoes/$id'
+      path: '/$id'
+      fullPath: '/gestor/observacoes/$id'
+      preLoaderRoute: typeof GestorObservacoesIdRouteImport
+      parentRoute: typeof GestorObservacoesRoute
+    }
   }
 }
+
+interface GestorObservacoesRouteChildren {
+  GestorObservacoesIdRoute: typeof GestorObservacoesIdRoute
+}
+
+const GestorObservacoesRouteChildren: GestorObservacoesRouteChildren = {
+  GestorObservacoesIdRoute: GestorObservacoesIdRoute,
+}
+
+const GestorObservacoesRouteWithChildren =
+  GestorObservacoesRoute._addFileChildren(GestorObservacoesRouteChildren)
+
+interface GestorRouteChildren {
+  GestorCertificadosRoute: typeof GestorCertificadosRoute
+  GestorColaboradoresRoute: typeof GestorColaboradoresRoute
+  GestorEpisRoute: typeof GestorEpisRoute
+  GestorObservacoesRoute: typeof GestorObservacoesRouteWithChildren
+  GestorIndexRoute: typeof GestorIndexRoute
+}
+
+const GestorRouteChildren: GestorRouteChildren = {
+  GestorCertificadosRoute: GestorCertificadosRoute,
+  GestorColaboradoresRoute: GestorColaboradoresRoute,
+  GestorEpisRoute: GestorEpisRoute,
+  GestorObservacoesRoute: GestorObservacoesRouteWithChildren,
+  GestorIndexRoute: GestorIndexRoute,
+}
+
+const GestorRouteWithChildren =
+  GestorRoute._addFileChildren(GestorRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EsqueciSenhaRoute: EsqueciSenhaRoute,
+  GestorRoute: GestorRouteWithChildren,
   LoginRoute: LoginRoute,
   ColaboradorHistoricoRoute: ColaboradorHistoricoRoute,
   ColaboradorMeusEpisRoute: ColaboradorMeusEpisRoute,

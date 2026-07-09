@@ -21,13 +21,13 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const nav = [
+const nav: Array<{ title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { title: "Dashboard", to: "/gestor", icon: LayoutDashboard, exact: true },
   { title: "Colaboradores", to: "/gestor/colaboradores", icon: Users },
   { title: "EPIs", to: "/gestor/epis", icon: HardHat },
   { title: "Certificados (CA)", to: "/gestor/certificados", icon: BadgeCheck },
   { title: "Observações", to: "/gestor/observacoes", icon: MessageSquareWarning },
-] as const;
+];
 
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
