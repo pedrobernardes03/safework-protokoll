@@ -84,7 +84,7 @@ function ColaboradoresPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button size="icon" variant="ghost"><Pencil className="h-4 w-4" /></Button>
+                      <EditColaboradorDialog colaborador={c} />
                       <Button size="icon" variant="ghost" className="text-danger hover:text-danger">
                         <Trash2 className="h-4 w-4" />
                       </Button>
