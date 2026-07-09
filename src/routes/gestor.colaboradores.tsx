@@ -155,7 +155,7 @@ function EditColaboradorDialog({ colaborador }: { colaborador: import("@/lib/saf
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="icon" variant="ghost"><Pencil className="h-4 w-4" /></Button>
+        <Button size="icon" variant="ghost"><Pencil className="h-4 w-4 text-yellow-500" /></Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
