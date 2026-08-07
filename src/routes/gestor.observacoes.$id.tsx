@@ -37,7 +37,7 @@ const statusStyle: Record<Observacao["status"], string> = {
 };
 
 function DetailPage() {
-  const { obs } = Route.useLoaderData();
+  const { obs } = Route.useLoaderData() as unknown as { obs: Observacao };
   const [status, setStatus] = useState<Observacao["status"]>(obs.status);
   const [acao, setAcao] = useState(obs.acaoTomada ?? "");
 

@@ -82,6 +82,8 @@ export const observacoes: Observacao[] = [
   },
 ];
 
+export type Perfil = "Colaborador" | "Gestor" | "Administrador";
+
 export interface Colaborador {
   id: string;
   nome: string;
@@ -90,7 +92,7 @@ export interface Colaborador {
   cargo: string;
   setor: string;
   email: string;
-  perfil: "Colaborador" | "Gestor" | "Administrador";
+  perfil: Perfil;
 }
 
 export const colaboradores: Colaborador[] = [

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { colaboradores } from "@/lib/safework-data";
+import { colaboradores, type Colaborador, type Perfil } from "@/lib/safework-data";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -20,9 +20,26 @@ export const Route = createFileRoute("/gestor/colaboradores")({
 
 function ColaboradoresPage() {
   const [q, setQ] = useState("");
-  const list = colaboradores.filter(
+  const [lista, setLista] = useState<Colaborador[]>(() => [...colaboradores]);
+
+  const list = lista.filter(
     (c) => c.nome.toLowerCase().includes(q.toLowerCase()) || c.matricula.includes(q),
   );
+
+  const handleSave = (updated: Colaborador) => {
+    setLista((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+    toast.success("Colaborador atualizado com sucesso.");
+  };
+
+  const handleAdd = (novo: Colaborador) => {
+    setLista((prev) => [novo, ...prev]);
+    toast.success("Colaborador cadastrado com sucesso.");
+  };
+
+  const handleDelete = (id: string) => {
+    setLista((prev) => prev.filter((c) => c.id !== id));
+    toast.success("Colaborador removido.");
+  };
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -31,7 +48,7 @@ function ColaboradoresPage() {
           <h2 className="truncate text-2xl font-bold tracking-tight">Colaboradores</h2>
           <p className="text-sm text-muted-foreground">Cadastre e gerencie sua equipe.</p>
         </div>
-        <NewColaboradorDialog />
+        <NewColaboradorDialog onAdd={handleAdd} />
       </div>
 
       <Card>
@@ -84,8 +101,13 @@ function ColaboradoresPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <EditColaboradorDialog colaborador={c} />
-                      <Button size="icon" variant="ghost" className="text-danger hover:text-danger">
+                      <EditColaboradorDialog colaborador={c} onSave={handleSave} />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="text-danger hover:text-danger"
+                        onClick={() => handleDelete(c.id)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -100,10 +122,28 @@ function ColaboradoresPage() {
   );
 }
 
-function NewColaboradorDialog() {
+function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Colaborador) => void }) {
   const [open, setOpen] = useState(false);
+  const [nome, setNome] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [matricula, setMatricula] = useState("");
+  const [cargo, setCargo] = useState("");
+  const [setor, setSetor] = useState("");
+  const [email, setEmail] = useState("");
+  const [perfil, setPerfil] = useState<Perfil>("Colaborador");
+
+  const reset = () => {
+    setNome("");
+    setCpf("");
+    setMatricula("");
+    setCargo("");
+    setSetor("");
+    setEmail("");
+    setPerfil("Colaborador");
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
       <DialogTrigger asChild>
         <Button className="shrink-0"><Plus className="mr-2 h-4 w-4" /> Novo colaborador</Button>
       </DialogTrigger>
@@ -116,22 +156,33 @@ function NewColaboradorDialog() {
           className="grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            toast.success("Colaborador cadastrado com sucesso.");
+            const novo: Colaborador = {
+              id: Math.random().toString(36).slice(2),
+              nome,
+              cpf,
+              matricula,
+              cargo,
+              setor,
+              email,
+              perfil,
+            };
+            onAdd(novo);
             setOpen(false);
+            reset();
           }}
         >
-          <Field label="Nome completo"><Input required /></Field>
+          <Field label="Nome completo"><Input required value={nome} onChange={(e) => setNome(e.target.value)} /></Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="CPF"><Input required placeholder="000.000.000-00" /></Field>
-            <Field label="Matrícula"><Input required /></Field>
+            <Field label="CPF"><Input required placeholder="000.000.000-00" value={cpf} onChange={(e) => setCpf(e.target.value)} /></Field>
+            <Field label="Matrícula"><Input required value={matricula} onChange={(e) => setMatricula(e.target.value)} /></Field>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Cargo"><Input required /></Field>
-            <Field label="Setor"><Input required /></Field>
+            <Field label="Cargo"><Input required value={cargo} onChange={(e) => setCargo(e.target.value)} /></Field>
+            <Field label="Setor"><Input required value={setor} onChange={(e) => setSetor(e.target.value)} /></Field>
           </div>
-          <Field label="E-mail corporativo"><Input required type="email" /></Field>
+          <Field label="E-mail corporativo"><Input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
           <Field label="Perfil de acesso">
-            <Select defaultValue="Colaborador">
+            <Select value={perfil} onValueChange={(v) => setPerfil(v as Perfil)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Colaborador">Colaborador</SelectItem>
@@ -150,7 +201,13 @@ function NewColaboradorDialog() {
   );
 }
 
-function EditColaboradorDialog({ colaborador }: { colaborador: import("@/lib/safework-data").Colaborador }) {
+function EditColaboradorDialog({
+  colaborador,
+  onSave,
+}: {
+  colaborador: Colaborador;
+  onSave: (colaborador: Colaborador) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState(colaborador.nome);
   const [cpf, setCpf] = useState(colaborador.cpf);
@@ -186,7 +243,16 @@ function EditColaboradorDialog({ colaborador }: { colaborador: import("@/lib/saf
           className="grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            toast.success("Dados do colaborador atualizados.");
+            onSave({
+              ...colaborador,
+              nome,
+              cpf,
+              matricula,
+              cargo,
+              setor,
+              email,
+              perfil,
+            });
             setOpen(false);
           }}
         >
@@ -201,7 +267,7 @@ function EditColaboradorDialog({ colaborador }: { colaborador: import("@/lib/saf
           </div>
           <Field label="E-mail corporativo"><Input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
           <Field label="Perfil de acesso">
-            <Select value={perfil} onValueChange={(v) => setPerfil(v as typeof colaborador.perfil)}>
+            <Select value={perfil} onValueChange={(v) => setPerfil(v as Perfil)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Colaborador">Colaborador</SelectItem>
