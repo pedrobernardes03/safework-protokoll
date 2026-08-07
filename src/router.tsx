@@ -14,3 +14,10 @@ export const getRouter = () => {
 
   return router;
 };
+
+declare module "@tanstack/router-core" {
+  interface Register {
+    router: Awaited<ReturnType<typeof getRouter>>;
+  }
+}
+
