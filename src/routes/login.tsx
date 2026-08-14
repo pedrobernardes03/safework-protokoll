@@ -1,5 +1,4 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-<<<<<<< HEAD
 import {
   ShieldCheck,
   Lock,
@@ -15,10 +14,6 @@ import {
   EyeOff,
   Loader2,
 } from "lucide-react";
-=======
-import { Logo } from "@/components/safework/Logo";
-import { Lock, User } from "lucide-react";
->>>>>>> 1e97bc130502ac930b953da4ba5b33cdbb0133e8
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -88,7 +83,7 @@ function LoginPage() {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       {/* Hero panel */}
-      <div className="relative hidden overflow-hidden bg-gradient-to-br from-[oklch(0.27_0.05_255)] via-primary to-[oklch(0.56_0.17_250)] lg:block">
+      <div className="relative hidden overflow-hidden bg-gradient-to-br from-[oklch(0.3_0.08_304)] via-primary to-[oklch(0.62_0.19_298)] lg:block">
         <div
           className="absolute inset-0 opacity-[0.07]"
           style={{
@@ -99,13 +94,12 @@ function LoginPage() {
         />
         <div className="absolute -left-24 -top-24 h-96 w-96 rounded-full bg-white/10 blur-3xl animate-blob" />
         <div
-          className="absolute -bottom-32 -right-16 h-[28rem] w-[28rem] rounded-full bg-accent/25 blur-3xl animate-blob"
+          className="absolute -bottom-32 -right-16 h-[28rem] w-[28rem] rounded-full bg-[oklch(0.7_0.16_220)]/20 blur-3xl animate-blob"
           style={{ animationDelay: "4s" }}
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,oklch(1_0_0/0.12),transparent_50%),radial-gradient(circle_at_80%_85%,oklch(1_0_0/0.08),transparent_50%)]" />
 
         <div className="relative z-10 flex h-full flex-col justify-between p-12 text-primary-foreground">
-<<<<<<< HEAD
           <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-700">
             <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary-foreground/15 backdrop-blur">
               <ShieldCheck className="h-5 w-5" />
@@ -133,10 +127,6 @@ function LoginPage() {
           </div>
 
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 [animation-delay:150ms] [animation-fill-mode:both]">
-=======
-          <Logo textClassName="text-3xl font-extrabold text-primary-foreground" imageClassName="h-24 w-24 object-contain rounded-2xl bg-primary-foreground/15 p-2 backdrop-blur" />
-          <div>
->>>>>>> 1e97bc130502ac930b953da4ba5b33cdbb0133e8
             <h1 className="text-4xl font-bold leading-tight">
               Segurança começa com informação em tempo real.
             </h1>
@@ -168,8 +158,11 @@ function LoginPage() {
       {/* Form panel */}
       <div className="flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md">
-          <div className="lg:hidden mb-8">
-            <Logo />
+          <div className="lg:hidden mb-8 flex items-center gap-2">
+            <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <span className="text-lg font-bold">SafeWork</span>
           </div>
 
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 [animation-fill-mode:both]">
