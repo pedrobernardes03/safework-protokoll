@@ -10,7 +10,7 @@ export const Route = createFileRoute("/gestor")({
 });
 
 const titleMap: Record<string, string> = {
-  "/gestor": "Dashboard",
+  "/gestor": "Visão Geral",
   "/gestor/colaboradores": "Cadastro de Colaboradores",
   "/gestor/epis": "Cadastro de EPIs",
   "/gestor/certificados": "Monitoramento de Certificados",
