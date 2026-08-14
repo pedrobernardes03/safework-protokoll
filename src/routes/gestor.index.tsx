@@ -29,7 +29,7 @@ const cards = [
     icon: BadgeCheck,
     title: "Monitoramento de CAs",
     desc: "Controlar validade dos CAs e histórico de entrega.",
-    color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    color: "bg-primary/10 text-primary dark:text-primary",
   },
   {
     to: "/gestor/observacoes",

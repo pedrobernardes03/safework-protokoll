@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ShieldCheck, Lock, User } from "lucide-react";
+import { Logo } from "@/components/safework/Logo";
+import { Lock, User } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,12 +22,7 @@ function LoginPage() {
       <div className="relative hidden overflow-hidden bg-primary lg:block">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,oklch(1_0_0/0.15),transparent_50%),radial-gradient(circle_at_80%_80%,oklch(1_0_0/0.1),transparent_50%)]" />
         <div className="relative z-10 flex h-full flex-col justify-between p-12 text-primary-foreground">
-          <div className="flex items-center gap-2">
-            <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary-foreground/15 backdrop-blur">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <span className="text-lg font-bold">SafeWork</span>
-          </div>
+          <Logo textClassName="text-3xl font-extrabold text-primary-foreground" imageClassName="h-24 w-24 object-contain rounded-2xl bg-primary-foreground/15 p-2 backdrop-blur" />
           <div>
             <h1 className="text-4xl font-bold leading-tight">
               Segurança começa com informação em tempo real.
@@ -42,11 +38,8 @@ function LoginPage() {
 
       <div className="flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md">
-          <div className="lg:hidden mb-8 flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <span className="text-lg font-bold">SafeWork</span>
+          <div className="lg:hidden mb-8">
+            <Logo />
           </div>
 
           <h2 className="text-2xl font-bold tracking-tight">Bem-vindo de volta</h2>
