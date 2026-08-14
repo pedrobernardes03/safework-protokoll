@@ -45,7 +45,7 @@ function Dashboard() {
   return (
     <div className="mx-auto max-w-6xl space-y-8">
       <section>
-        <p className="text-sm text-muted-foreground">Bem-vinda de volta, Ana 👋</p>
+        <p className="text-sm text-muted-foreground">Bem-vinda de volta, Ana.</p>
         <h2 className="mt-1 text-2xl font-bold tracking-tight">Painel de controle</h2>
       </section>
 
