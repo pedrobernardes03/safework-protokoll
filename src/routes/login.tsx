@@ -128,11 +128,11 @@ function LoginPage() {
 
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 [animation-delay:150ms] [animation-fill-mode:both]">
             <h1 className="text-4xl font-bold leading-tight">
-              Segurança começa com informação em tempo real.
+              Segurança começa com<br></br>informação em tempo real
             </h1>
             <p className="mt-4 max-w-md text-primary-foreground/80">
               A plataforma completa para gestão de EPIs, controle de Certificados de Aprovação e
-              comunicação com o time.
+              comunicação com o time
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
