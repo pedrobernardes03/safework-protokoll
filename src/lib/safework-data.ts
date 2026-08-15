@@ -128,4 +128,96 @@ export const dashboardStats = {
   vencidos: entregas.filter((e) => e.status === "vencido").length,
   proximos: entregas.filter((e) => e.status === "proximo").length,
   vigentes: entregas.filter((e) => e.status === "vigente").length,
+  totalColaboradores: 12,
+  admitidosMes: 2,
+  afastados: 0,
+  venceramHoje: 1,
+  colaboradorMaisProximo: "Carlos Menezes",
+  prazoMedioVencimento: "18 dias",
+  observacoesCriticas: 1,
+  ultimaObservacao: "OBS-1042 — Carlos Menezes",
+  episEntreguesMes: 14,
+  casCadastrados: 18,
+  colaboradoresSemEpiObrigatorio: 1,
+  taxaConformidade: 92.5,
+  entregasSemana: 4,
+  ultimoColaborador: "Fernando Costa (Manutenção)",
+  ultimoEpiEntregue: "Capacete de Segurança (Carlos M.)",
+  proximoCaVencer: "CA 12345 (Vence amanhã)",
+  episEmUso: 38,
+  tempoMedioVencimentoCas: "42 dias",
 };
+
+export interface Movimentacao {
+  id: string;
+  usuario: string;
+  acao: string;
+  detalhe: string;
+  dataHora: string;
+  tipo: "entrega" | "observacao" | "cadastro" | "ca" | "solicitacao";
+}
+
+export const ultimasMovimentacoes: Movimentacao[] = [
+  { id: "1", usuario: "João Silva", acao: "Recebeu Capacete de Proteção", detalhe: "CA 12345 • Unidade Obra A", dataHora: "Hoje, 09:30", tipo: "entrega" },
+  { id: "2", usuario: "Carlos Menezes", acao: "Cadastrou observação OBS-1042", detalhe: "Rachadura em capacete de segurança", dataHora: "Hoje, 08:15", tipo: "observacao" },
+  { id: "3", usuario: "Ana Beatriz", acao: "Adicionou colaborador", detalhe: "Fernando Costa (Manutenção)", dataHora: "Ontem, 16:40", tipo: "cadastro" },
+  { id: "4", usuario: "Sistema", acao: "CA 31402 atualizado", detalhe: "Nova validade emitida pelo MTE", dataHora: "12/08, 14:20", tipo: "ca" },
+  { id: "5", usuario: "Marina Alves", acao: "Recebeu Botina de Segurança", detalhe: "CA 40551 • Tam 38", dataHora: "10/08, 11:00", tipo: "entrega" },
+  { id: "6", usuario: "Juliana Prado", acao: "Solicitou substituição", detalhe: "Luvas isolantes desgastadas", dataHora: "09/08, 15:10", tipo: "solicitacao" },
+];
+
+export interface ColaboradorAtencao {
+  id: string;
+  nome: string;
+  cargo: string;
+  motivo: string;
+  prioridade: "alta" | "media" | "baixa";
+  acaoRotulo: string;
+  acaoHref: string;
+}
+
+export const colaboradoresAtencao: ColaboradorAtencao[] = [
+  { id: "1", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Sem EPI obrigatório (Luva Isolante)", prioridade: "alta", acaoRotulo: "Entregar EPI", acaoHref: "/gestor/certificados" },
+  { id: "2", nome: "Rafael Souza", cargo: "Soldador", motivo: "CA 50213 vencido (Máscara de Solda)", prioridade: "alta", acaoRotulo: "Renovar CA", acaoHref: "/gestor/certificados" },
+  { id: "3", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Observação pendente crítica (Rachadura)", prioridade: "media", acaoRotulo: "Analisar", acaoHref: "/gestor/observacoes" },
+  { id: "4", nome: "Fernando Costa", cargo: "Técnico de Manutenção", motivo: "Pendência de entrega no onboarding", prioridade: "media", acaoRotulo: "Agendar", acaoHref: "/gestor/colaboradores" },
+];
+
+export const resumoMensal = {
+  episEntregues: { valor: 14, variacao: "+18% vs mês ant." },
+  novosColaboradores: { valor: 2, variacao: "+100%" },
+  observacoesRegistradas: { valor: 6, variacao: "-25%" },
+  casVencidos: { valor: 2, variacao: "Estável" },
+  casRenovados: { valor: 5, variacao: "+25%" },
+};
+
+// Dados para gráficos
+export const graficoTiposEpi = [
+  { name: "Proteção Cabeça", quantidade: 12, fill: "#3b82f6" },
+  { name: "Proteção Ocular", quantidade: 8, fill: "#8b5cf6" },
+  { name: "Mãos & Braços", quantidade: 15, fill: "#ec4899" },
+  { name: "Calçados", quantidade: 10, fill: "#10b981" },
+  { name: "Auditivo & Outros", quantidade: 6, fill: "#f59e0b" },
+];
+
+export const graficoEvolucaoEntregas = [
+  { mes: "Mar", entregas: 8, devolucoes: 1 },
+  { mes: "Abr", entregas: 11, devolucoes: 2 },
+  { mes: "Mai", entregas: 9, devolucoes: 0 },
+  { mes: "Jun", entregas: 15, devolucoes: 3 },
+  { mes: "Jul", entregas: 12, devolucoes: 1 },
+  { mes: "Ago", entregas: 14, devolucoes: 2 },
+];
+
+export const graficoStatusCa = [
+  { status: "Vigentes", quantidade: 14, fill: "#10b981" },
+  { status: "A Vencer (30d)", quantidade: 2, fill: "#f59e0b" },
+  { status: "Vencidos", quantidade: 2, fill: "#ef4444" },
+];
+
+export const graficoStatusObservacoes = [
+  { status: "Resolvidas", quantidade: 5, fill: "#10b981" },
+  { status: "Em Análise", quantidade: 2, fill: "#3b82f6" },
+  { status: "Pendentes", quantidade: 1, fill: "#f59e0b" },
+];
+
