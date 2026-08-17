@@ -13,6 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as GestorRouteImport } from './routes/gestor'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PlanosRouteImport } from './routes/planos'
+import { Route as SobreRouteImport } from './routes/sobre'
+import { Route as SolucoesRouteImport } from './routes/solucoes'
 import { Route as ColaboradorHistoricoRouteImport } from './routes/colaborador.historico'
 import { Route as ColaboradorMeusEpisRouteImport } from './routes/colaborador.meus-epis'
 import { Route as ColaboradorObservacaoRouteImport } from './routes/colaborador.observacao'
@@ -41,6 +44,21 @@ const GestorRoute = GestorRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanosRoute = PlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolucoesRoute = SolucoesRouteImport.update({
+  id: '/solucoes',
+  path: '/solucoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ColaboradorHistoricoRoute = ColaboradorHistoricoRouteImport.update({
@@ -94,6 +112,9 @@ export interface FileRoutesByFullPath {
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/gestor': typeof GestorRouteWithChildren
   '/login': typeof LoginRoute
+  '/planos': typeof PlanosRoute
+  '/sobre': typeof SobreRoute
+  '/solucoes': typeof SolucoesRoute
   '/colaborador/historico': typeof ColaboradorHistoricoRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
@@ -108,6 +129,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/login': typeof LoginRoute
+  '/planos': typeof PlanosRoute
+  '/sobre': typeof SobreRoute
+  '/solucoes': typeof SolucoesRoute
   '/colaborador/historico': typeof ColaboradorHistoricoRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
@@ -124,6 +148,9 @@ export interface FileRoutesById {
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/gestor': typeof GestorRouteWithChildren
   '/login': typeof LoginRoute
+  '/planos': typeof PlanosRoute
+  '/sobre': typeof SobreRoute
+  '/solucoes': typeof SolucoesRoute
   '/colaborador/historico': typeof ColaboradorHistoricoRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
@@ -141,6 +168,9 @@ export interface FileRouteTypes {
     | '/esqueci-senha'
     | '/gestor'
     | '/login'
+    | '/planos'
+    | '/sobre'
+    | '/solucoes'
     | '/colaborador/historico'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
@@ -155,6 +185,9 @@ export interface FileRouteTypes {
     | '/'
     | '/esqueci-senha'
     | '/login'
+    | '/planos'
+    | '/sobre'
+    | '/solucoes'
     | '/colaborador/historico'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
@@ -170,6 +203,9 @@ export interface FileRouteTypes {
     | '/esqueci-senha'
     | '/gestor'
     | '/login'
+    | '/planos'
+    | '/sobre'
+    | '/solucoes'
     | '/colaborador/historico'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
@@ -186,6 +222,9 @@ export interface RootRouteChildren {
   EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   GestorRoute: typeof GestorRouteWithChildren
   LoginRoute: typeof LoginRoute
+  PlanosRoute: typeof PlanosRoute
+  SobreRoute: typeof SobreRoute
+  SolucoesRoute: typeof SolucoesRoute
   ColaboradorHistoricoRoute: typeof ColaboradorHistoricoRoute
   ColaboradorMeusEpisRoute: typeof ColaboradorMeusEpisRoute
   ColaboradorObservacaoRoute: typeof ColaboradorObservacaoRoute
@@ -219,6 +258,27 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planos': {
+      id: '/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof PlanosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solucoes': {
+      id: '/solucoes'
+      path: '/solucoes'
+      fullPath: '/solucoes'
+      preLoaderRoute: typeof SolucoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/colaborador/historico': {
@@ -322,6 +382,9 @@ const rootRouteChildren: RootRouteChildren = {
   EsqueciSenhaRoute: EsqueciSenhaRoute,
   GestorRoute: GestorRouteWithChildren,
   LoginRoute: LoginRoute,
+  PlanosRoute: PlanosRoute,
+  SobreRoute: SobreRoute,
+  SolucoesRoute: SolucoesRoute,
   ColaboradorHistoricoRoute: ColaboradorHistoricoRoute,
   ColaboradorMeusEpisRoute: ColaboradorMeusEpisRoute,
   ColaboradorObservacaoRoute: ColaboradorObservacaoRoute,
