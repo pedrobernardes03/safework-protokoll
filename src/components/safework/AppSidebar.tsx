@@ -1,11 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { Logo } from "@/components/safework/Logo";
 import {
   LayoutDashboard,
   Users,
   HardHat,
   BadgeCheck,
   MessageSquareWarning,
-  ShieldCheck,
   LogOut,
 } from "lucide-react";
 import {
@@ -37,10 +37,8 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <Link to="/gestor" className="flex items-center gap-2 px-2 py-2">
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
+        <Link to="/gestor" className="flex items-center gap-3 px-2 py-3">
+          <Logo showText={false} imageClassName="h-14 w-14 shrink-0 object-contain" />
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="text-sm font-bold leading-tight">SafeWork</p>
             <p className="truncate text-xs text-muted-foreground">Gestão de Segurança</p>

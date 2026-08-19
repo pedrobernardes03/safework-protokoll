@@ -94,8 +94,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "SafeWork — Gestão de Segurança do Trabalho" },
       { name: "twitter:description", content: "Plataforma corporativa para gestão de EPIs, monitoramento de CAs e comunicação entre colaboradores e gestores." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f5c07a26-5bd4-4aa1-98a6-5f742b536ecf/id-preview-3fa2c1b4--ebb8d484-24a9-4ba2-b740-231ce918487c.lovable.app-1783557440672.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f5c07a26-5bd4-4aa1-98a6-5f742b536ecf/id-preview-3fa2c1b4--ebb8d484-24a9-4ba2-b740-231ce918487c.lovable.app-1783557440672.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
