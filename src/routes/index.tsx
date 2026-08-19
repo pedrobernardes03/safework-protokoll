@@ -48,7 +48,7 @@ function Landing() {
         </div>
 
         {/* Hero Section */}
-        <main className="mx-auto max-w-7xl px-6 pb-24 pt-8">
+        <main className="mx-auto max-w-7xl px-4 pb-24 pt-8">
           <section className="grid gap-12 lg:grid-cols-12 lg:items-center">
             {/* Left Column Content */}
             <Reveal className="lg:col-span-5 space-y-6">
@@ -171,9 +171,9 @@ function Landing() {
                         <ClipboardList className="h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-[11px] font-semibold text-slate-700">Observações</p>
+                        <p className="text-[10px] font-semibold text-slate-700">Observações</p>
                         <p className="text-lg font-extrabold text-slate-900 leading-tight">3</p>
-                        <p className="text-[10px] text-slate-400">Pendências</p>
+                        <p className="text-[12px] text-slate-400">Pendências</p>
                       </div>
                     </div>
                   </div>
@@ -317,9 +317,9 @@ function Landing() {
               <Reveal
                 key={item.title}
                 delay={i * 100}
-                className="group flex items-start gap-4 pt-4 sm:pt-0 sm:px-4 first:pl-0"
+                className="group flex items-start gap-4 pt-4 sm:pt-0 sm:px-5 first:pl-0"
               >
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
+                <div className="grid h-10 w-12 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
                   <item.icon className="h-6 w-6" />
                 </div>
                 <div>
@@ -358,7 +358,7 @@ function Landing() {
               <span>LogSolution</span>
             </div>
 
-            <div className="flex items-center gap-2 font-extrabold text-slate-700 text-lg tracking-wider">
+            <div className="flex items-center gap-4 font-extrabold text-slate-700 text-lg tracking-wider">
               <Shield className="h-6 w-6 text-slate-500" />
               <span>MAIS SAFETY</span>
             </div>
