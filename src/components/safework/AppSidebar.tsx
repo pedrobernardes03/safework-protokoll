@@ -22,10 +22,10 @@ import {
 } from "@/components/ui/sidebar";
 
 const nav: Array<{ title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
-  { title: "Dashboard", to: "/gestor", icon: LayoutDashboard, exact: true },
+  { title: "Visão Geral", to: "/gestor", icon: LayoutDashboard, exact: true },
   { title: "Colaboradores", to: "/gestor/colaboradores", icon: Users },
-  { title: "EPIs", to: "/gestor/epis", icon: HardHat },
-  { title: "Certificados (CA)", to: "/gestor/certificados", icon: BadgeCheck },
+  { title: "Equipamento de Proteção Individual", to: "/gestor/epis", icon: HardHat },
+  { title: "Certificado de Aprovação (CA)", to: "/gestor/certificados", icon: BadgeCheck },
   { title: "Observações", to: "/gestor/observacoes", icon: MessageSquareWarning },
 ];
 
