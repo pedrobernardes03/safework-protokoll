@@ -96,7 +96,7 @@ function ColaboradoresPage() {
                     <TableCell>{c.cargo}</TableCell>
                     <TableCell>{c.setor}</TableCell>
                     <TableCell>
-                      <Badge variant={c.perfil === "Gestor" ? "default" : "secondary"}>
+                      <Badge className="text-color-danger" variant={c.perfil === "Gestor" ? "default" : "secondary"}>
                         {c.perfil}
                       </Badge>
                     </TableCell>
