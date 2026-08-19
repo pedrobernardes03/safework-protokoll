@@ -317,7 +317,7 @@ function Landing() {
               <Reveal
                 key={item.title}
                 delay={i * 100}
-                className="group flex items-start gap-4 pt-4 sm:pt-0 sm:px-50 first:pl-0"
+                className="group flex items-start gap-4 pt-4 sm:pt-0 sm:px-5 first:pl-0"
               >
                 <div className="grid h-10 w-12 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
                   <item.icon className="h-6 w-6" />
