@@ -66,7 +66,7 @@ function SobrePage() {
             </div>
             <h1 className="mt-5 text-4xl font-extrabold leading-[1.15] tracking-tight text-slate-900 sm:text-5xl">
               Tecnologia para quem cuida de{" "}
-              <span className="bg-gradient-to-r from-primary to-[oklch(0.62_0.19_320)] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-[oklch(0.65_0.15_205)] bg-clip-text text-transparent">
                 quem trabalha.
               </span>
             </h1>
@@ -80,7 +80,7 @@ function SobrePage() {
             {stats.map((s, i) => (
               <Reveal key={s.label} delay={i * 90}>
                 <div className="group rounded-2xl border border-slate-200/80 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10">
-                  <p className="bg-gradient-to-r from-primary to-[oklch(0.62_0.19_320)] bg-clip-text text-3xl font-extrabold text-transparent">
+                  <p className="bg-gradient-to-r from-primary to-[oklch(0.65_0.15_205)] bg-clip-text text-3xl font-extrabold text-transparent">
                     {s.value}
                   </p>
                   <p className="mt-1 text-xs font-medium text-slate-500">{s.label}</p>

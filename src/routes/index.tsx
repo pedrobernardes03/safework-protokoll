@@ -17,18 +17,53 @@ import {
   Box,
   Truck,
   Shield,
+  Glasses,
+  BadgeCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarketingHeader } from "@/components/safework/MarketingHeader";
 import { MarketingFooter } from "@/components/safework/MarketingFooter";
 import { MarketingCta } from "@/components/safework/MarketingCta";
 import { Reveal } from "@/components/safework/Reveal";
+import { CountUp } from "@/components/safework/CountUp";
+import { Marquee } from "@/components/safework/Marquee";
+import { SafetyWorkerIllustration } from "@/components/safework/SafetyWorkerIllustration";
+import { useMouseParallax, useScrollParallax } from "@/lib/use-parallax";
 
 export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+const trustLogos = [
+  { icon: Building2, label: "Construtec", tracking: "tracking-wider" },
+  { icon: Factory, label: "INDÚSTRIA FORTE", tracking: "tracking-wide" },
+  { icon: Box, label: "ENGEPRO", tracking: "tracking-widest" },
+  { icon: Truck, label: "LogSolution", tracking: "tracking-tight" },
+  { icon: Shield, label: "MAIS SAFETY", tracking: "tracking-wider" },
+] as const;
+
+const workflowFeatures = [
+  {
+    icon: HardHat,
+    title: "Checklist diário em segundos",
+    desc: "Colaborador confirma o uso de cada EPI direto do celular, sem planilha.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "CAs sempre em dia",
+    desc: "Alertas automáticos antes do vencimento de cada Certificado de Aprovação.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Conformidade em tempo real",
+    desc: "Indicadores por setor e por colaborador, atualizados a cada confirmação.",
+  },
+] as const;
+
 function Landing() {
+  const { ref: heroParallaxRef, offset: heroOffset } = useMouseParallax(16);
+  const { ref: mockupScrollRef, y: mockupY } = useScrollParallax(0.06);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50/80 via-white to-slate-50/50 text-slate-800 font-sans">
       <MarketingHeader />
@@ -49,7 +84,20 @@ function Landing() {
 
         {/* Hero Section */}
         <main className="mx-auto max-w-7xl px-6 pb-24 pt-8">
-          <section className="grid gap-12 lg:grid-cols-12 lg:items-center">
+          <section ref={heroParallaxRef} className="relative grid gap-12 lg:grid-cols-12 lg:items-center">
+            <div
+              className="pointer-events-none absolute -top-10 left-[6%] hidden items-center gap-1.5 rounded-xl border border-primary/20 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-lg backdrop-blur-sm lg:flex"
+              style={{ transform: `translate(${heroOffset.x * -1}px, ${heroOffset.y * -1}px)` }}
+            >
+              <HardHat className="h-4 w-4 text-primary" /> Capacete verificado
+            </div>
+            <div
+              className="pointer-events-none absolute -top-10 right-[8%] hidden items-center gap-1.5 rounded-xl border border-primary/20 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-lg backdrop-blur-sm lg:flex"
+              style={{ transform: `translate(${heroOffset.x * 1.3}px, ${heroOffset.y * 1.3}px)` }}
+            >
+              <Glasses className="h-4 w-4 text-primary" /> Óculos em dia
+            </div>
+
             {/* Left Column Content */}
             <Reveal className="lg:col-span-5 space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-medium text-slate-800">
@@ -62,7 +110,7 @@ function Landing() {
 
               <h1 className="text-4xl font-extrabold leading-[1.15] tracking-tight text-slate-900 sm:text-5xl lg:text-[3.25rem]">
                 Gestão inteligente de EPIs para equipes que valorizam{" "}
-                <span className="bg-gradient-to-r from-primary to-[oklch(0.62_0.19_320)] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-primary to-[oklch(0.65_0.15_205)] bg-clip-text text-transparent">
                   segurança.
                 </span>
               </h1>
@@ -100,6 +148,7 @@ function Landing() {
               {/* Background Glow */}
               <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-primary/15 via-primary/5 to-transparent blur-2xl -z-10" />
 
+              <div ref={mockupScrollRef} style={{ transform: `translateY(${mockupY}px)` }}>
               {/* Main Window Card */}
               <div className="animate-float rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-3 sm:p-4 shadow-2xl shadow-slate-900/10 flex gap-3">
               {/* Mini Left Sidebar */}
@@ -159,7 +208,9 @@ function Landing() {
                       </div>
                       <div>
                         <p className="text-[11px] font-semibold text-slate-700">Meus EPIs</p>
-                        <p className="text-lg font-extrabold text-slate-900 leading-tight">12</p>
+                        <p className="text-lg font-extrabold text-slate-900 leading-tight">
+                          <CountUp value={12} />
+                        </p>
                         <p className="text-[10px] text-slate-400">Itens ativos</p>
                       </div>
                     </div>
@@ -172,7 +223,9 @@ function Landing() {
                       </div>
                       <div>
                         <p className="text-[11px] font-semibold text-slate-700">Observações</p>
-                        <p className="text-lg font-extrabold text-slate-900 leading-tight">3</p>
+                        <p className="text-lg font-extrabold text-slate-900 leading-tight">
+                          <CountUp value={3} />
+                        </p>
                         <p className="text-[10px] text-slate-400">Pendências</p>
                       </div>
                     </div>
@@ -185,7 +238,9 @@ function Landing() {
                       </div>
                       <div>
                         <p className="text-[11px] font-semibold text-slate-700">CAs monitorados</p>
-                        <p className="text-lg font-extrabold text-slate-900 leading-tight">28</p>
+                        <p className="text-lg font-extrabold text-slate-900 leading-tight">
+                          <CountUp value={28} />
+                        </p>
                         <p className="text-[10px] text-slate-400">Próximos do vencimento</p>
                       </div>
                     </div>
@@ -193,12 +248,14 @@ function Landing() {
 
                   <div className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
                     <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-purple-50 text-purple-600 grid place-items-center">
+                      <div className="h-8 w-8 rounded-lg bg-cyan-50 text-cyan-600 grid place-items-center">
                         <ShieldCheck className="h-4 w-4" />
                       </div>
                       <div>
                         <p className="text-[11px] font-semibold text-slate-700">Conformidade</p>
-                        <p className="text-lg font-extrabold text-slate-900 leading-tight">98%</p>
+                        <p className="text-lg font-extrabold text-slate-900 leading-tight">
+                          <CountUp value={98} suffix="%" />
+                        </p>
                         <p className="text-[10px] text-slate-400">Média da equipe</p>
                       </div>
                     </div>
@@ -286,8 +343,56 @@ function Landing() {
                 </div>
               </div>
             </div>
+            </div>
           </Reveal>
         </section>
+
+        {/* Illustrated workflow section */}
+        <Reveal className="mt-20 grid gap-12 rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm sm:p-10 lg:grid-cols-2 lg:items-center">
+          <div className="relative mx-auto w-full max-w-sm">
+            <div className="absolute -inset-8 -z-10 rounded-full bg-primary/10 blur-3xl" />
+            <SafetyWorkerIllustration className="w-full" />
+            <div className="absolute -left-4 top-10 hidden items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-lg animate-float sm:flex">
+              <ShieldCheck className="h-4 w-4 text-primary" /> CA em dia
+            </div>
+            <div
+              className="absolute -right-2 bottom-16 hidden items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-lg animate-float sm:flex"
+              style={{ animationDelay: "1.1s" }}
+            >
+              <Bell className="h-4 w-4 text-primary" /> Alerta enviado
+            </div>
+          </div>
+
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-medium text-slate-800">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              Como funciona
+            </div>
+            <h2 className="mt-4 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+              Segurança visível em cada etapa do turno.
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-slate-500 sm:text-base">
+              Do primeiro checklist do dia ao relatório mensal de conformidade, a SafeWork acompanha
+              cada EPI, cada certificado e cada colaborador em tempo real.
+            </p>
+
+            <ul className="mt-8 space-y-5">
+              {workflowFeatures.map(({ icon: Icon, title, desc }, i) => (
+                <Reveal key={title} delay={i * 100}>
+                  <li className="group flex items-start gap-4">
+                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900">{title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-slate-500">{desc}</p>
+                    </div>
+                  </li>
+                </Reveal>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
 
         {/* Feature Highlights Row Container (4 Pillars) */}
         <section className="mt-20 rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
@@ -332,37 +437,26 @@ function Landing() {
         </section>
 
         {/* Client Trust Section */}
-        <Reveal className="mt-20 text-center space-y-8">
+        <Reveal className="mt-20 space-y-8 text-center">
           <p className="text-sm font-semibold text-slate-600">
-            Mais de <span className="font-bold text-primary">1.200</span> empresas já confiam
+            Mais de{" "}
+            <span className="font-bold text-primary">
+              <CountUp value={1200} suffix="+" />
+            </span>{" "}
+            empresas já confiam
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-10 sm:gap-14 opacity-75 grayscale hover:grayscale-0 transition-all">
-            <div className="flex items-center gap-2 font-bold text-slate-700 text-lg tracking-wider">
-              <Building2 className="h-6 w-6 text-slate-500" />
-              <span>Construtec</span>
-            </div>
-
-            <div className="flex items-center gap-2 font-extrabold text-slate-700 text-lg tracking-wide">
-              <Factory className="h-6 w-6 text-slate-500" />
-              <span>INDÚSTRIA FORTE</span>
-            </div>
-
-            <div className="flex items-center gap-2 font-bold text-slate-700 text-lg tracking-widest">
-              <Box className="h-6 w-6 text-slate-500" />
-              <span>ENGEPRO</span>
-            </div>
-
-            <div className="flex items-center gap-2 font-bold text-slate-700 text-lg tracking-tight">
-              <Truck className="h-6 w-6 text-slate-500" />
-              <span>LogSolution</span>
-            </div>
-
-            <div className="flex items-center gap-2 font-extrabold text-slate-700 text-lg tracking-wider">
-              <Shield className="h-6 w-6 text-slate-500" />
-              <span>MAIS SAFETY</span>
-            </div>
-          </div>
+          <Marquee className="opacity-75 grayscale transition-all hover:grayscale-0">
+            {trustLogos.map(({ icon: Icon, label, tracking }) => (
+              <div
+                key={label}
+                className={`flex shrink-0 items-center gap-2 text-lg font-bold text-slate-700 ${tracking}`}
+              >
+                <Icon className="h-6 w-6 text-slate-500" />
+                <span>{label}</span>
+              </div>
+            ))}
+          </Marquee>
         </Reveal>
 
         <MarketingCta

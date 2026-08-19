@@ -83,7 +83,7 @@ function LoginPage() {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       {/* Hero panel */}
-      <div className="relative hidden overflow-hidden bg-gradient-to-br from-[oklch(0.3_0.08_304)] via-primary to-[oklch(0.62_0.19_298)] lg:block">
+      <div className="relative hidden overflow-hidden bg-gradient-to-br from-[oklch(0.28_0.07_255)] via-primary to-[oklch(0.62_0.14_215)] lg:block">
         <div
           className="absolute inset-0 opacity-[0.07]"
           style={{

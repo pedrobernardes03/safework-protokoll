@@ -15,7 +15,7 @@ export function MarketingCta({
   buttonTo: string;
 }) {
   return (
-    <Reveal className="relative mt-20 flex flex-col items-center gap-6 overflow-hidden rounded-3xl bg-gradient-to-br from-[oklch(0.3_0.08_304)] via-primary to-[oklch(0.6_0.18_290)] px-8 py-16 text-center text-primary-foreground">
+    <Reveal className="relative mt-20 flex flex-col items-center gap-6 overflow-hidden rounded-3xl bg-gradient-to-br from-[oklch(0.28_0.07_255)] via-primary to-[oklch(0.62_0.14_215)] px-8 py-16 text-center text-primary-foreground">
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.08]"
         style={{

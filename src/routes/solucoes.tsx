@@ -111,7 +111,7 @@ function SolucoesPage() {
             </div>
             <h1 className="mt-5 text-4xl font-extrabold leading-[1.15] tracking-tight text-slate-900 sm:text-5xl">
               Um módulo para cada etapa da{" "}
-              <span className="bg-gradient-to-r from-primary to-[oklch(0.62_0.19_320)] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-[oklch(0.65_0.15_205)] bg-clip-text text-transparent">
                 segurança do trabalho.
               </span>
             </h1>
