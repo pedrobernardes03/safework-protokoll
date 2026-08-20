@@ -58,7 +58,7 @@ function ObservacaoPage() {
                 {tipos.map((t) => (
                   <label
                     key={t}
-                    className={` text-violet-500 flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm transition ${
+                    className={` shadow-lg text-violet-500 flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm transition ${
                       tipo === t ? "border-primary bg-primary/5" : "hover:bg-accent/50"
                     }`}
                   >
