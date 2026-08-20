@@ -52,7 +52,7 @@ function ColaboradoresPage() {
       </div>
 
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader className="border-b-">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -64,16 +64,16 @@ function ColaboradoresPage() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto mr-1">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Colaborador</TableHead>
-                  <TableHead>Matrícula</TableHead>
-                  <TableHead>Cargo</TableHead>
-                  <TableHead>Setor</TableHead>
-                  <TableHead>Perfil</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead className="text-purple-800">Colaborador</TableHead>
+                  <TableHead className="text-purple-800">Matrícula</TableHead>
+                  <TableHead className="text-purple-800">Cargo</TableHead>
+                  <TableHead className="text-purple-800">Setor</TableHead>
+                  <TableHead className="text-purple-800">Perfil</TableHead>
+                  <TableHead className="text-purple-800 text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -96,7 +96,7 @@ function ColaboradoresPage() {
                     <TableCell>{c.cargo}</TableCell>
                     <TableCell>{c.setor}</TableCell>
                     <TableCell>
-                      <Badge variant={c.perfil === "Gestor" ? "default" : "secondary"}>
+                      <Badge className="shadow-md" variant={c.perfil === "Gestor" ? "default" : "secondary"}>
                         {c.perfil}
                       </Badge>
                     </TableCell>
@@ -145,7 +145,7 @@ function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Colaborador) => 
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
       <DialogTrigger asChild>
-        <Button className="shrink-0"><Plus className="mr-2 h-4 w-4" /> Novo colaborador</Button>
+        <Button className="shrink-0 shadow-lg"><Plus className="mr-1 h-4 w-2" /> Novo colaborador</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
