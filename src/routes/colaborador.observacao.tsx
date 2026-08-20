@@ -81,10 +81,10 @@ function ObservacaoPage() {
             </div>
 
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <Button className="shadow-card" type="button" variant="outline" onClick={() => navigate({ to: "/colaborador/meus-epis" })}>
+              <Button className="shadow-lg" type="button" variant="outline" onClick={() => navigate({ to: "/colaborador/meus-epis" })}>
                 Cancelar
               </Button>
-              <Button type="submit">Enviar</Button>
+              <Button className="shadow-lg" type="submit">Enviar</Button>
             </div>
           </form>
         </CardContent>
