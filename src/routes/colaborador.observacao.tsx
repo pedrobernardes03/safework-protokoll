@@ -26,8 +26,8 @@ function ObservacaoPage() {
     <CollaboratorShell back={{ to: "/colaborador/meus-epis", label: "Meus EPIs" }}>
       <Card className="shadow-[var(--shadow-card)]">
         <CardHeader>
-          <CardTitle>Registrar observação sobre EPI</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-lg ">Registrar observação sobre EPI</CardTitle>
+          <CardDescription className="text-violet-500">
             Reporte problemas em seus equipamentos para que o gestor tome providências.
           </CardDescription>
         </CardHeader>
@@ -53,12 +53,12 @@ function ObservacaoPage() {
             </div>
 
             <div className="space-y-3">
-              <Label>Tipo de problema</Label>
-              <RadioGroup value={tipo} onValueChange={setTipo} className="grid grid-cols-2 gap-3">
+              <Label className="text-lg">Tipo de problema</Label>
+              <RadioGroup  value={tipo} onValueChange={setTipo} className="grid grid-cols-2 gap-3">
                 {tipos.map((t) => (
                   <label
                     key={t}
-                    className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm transition ${
+                    className={` text-violet-500 flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm transition ${
                       tipo === t ? "border-primary bg-primary/5" : "hover:bg-accent/50"
                     }`}
                   >
@@ -70,12 +70,13 @@ function ObservacaoPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="desc">Descrição</Label>
+              <Label htmlFor="desc" className="text-lg">Descrição</Label>
               <Textarea
+
                 id="desc"
                 required
                 rows={5}
-                placeholder="Descreva o problema com o máximo de detalhes possível..."
+                  placeholder=" Descreva o problema com o máximo de detalhes possível..."
               />
             </div>
 
