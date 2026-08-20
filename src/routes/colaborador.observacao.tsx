@@ -1,3 +1,4 @@
+
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CollaboratorShell } from "@/components/safework/CollaboratorShell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -25,7 +26,7 @@ function ObservacaoPage() {
     <CollaboratorShell back={{ to: "/colaborador/meus-epis", label: "Meus EPIs" }}>
       <Card className="shadow-[var(--shadow-card)]">
         <CardHeader>
-          <CardTitle>Registrar observação sobre EPI</CardTitle>
+          <CardTitle className="text-lg ">Registrar observação sobre EPI</CardTitle>
           <CardDescription>
             Reporte problemas em seus equipamentos para que o gestor tome providências.
           </CardDescription>
@@ -40,7 +41,7 @@ function ObservacaoPage() {
             }}
           >
             <div className="space-y-2">
-              <Label htmlFor="epi">Selecionar EPI</Label>
+              <Label htmlFor="epi" className="text-shadow-lg decoration-purple-100">Selecionar EPI</Label>
               <Select defaultValue={meusEpis[0].nome}>
                 <SelectTrigger id="epi"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -52,12 +53,12 @@ function ObservacaoPage() {
             </div>
 
             <div className="space-y-3">
-              <Label>Tipo de problema</Label>
-              <RadioGroup value={tipo} onValueChange={setTipo} className="grid grid-cols-2 gap-3">
+              <Label className="text-lg">Tipo de problema</Label>
+              <RadioGroup  value={tipo} onValueChange={setTipo} className="grid grid-cols-2 gap-3">
                 {tipos.map((t) => (
                   <label
                     key={t}
-                    className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm transition ${
+                    className={` shadow-lg text-violet-500 flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm transition ${
                       tipo === t ? "border-primary bg-primary/5" : "hover:bg-accent/50"
                     }`}
                   >
@@ -69,20 +70,21 @@ function ObservacaoPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="desc">Descrição</Label>
+              <Label htmlFor="desc" className="text-lg">Descrição</Label>
               <Textarea
+
                 id="desc"
                 required
                 rows={5}
-                placeholder="Descreva o problema com o máximo de detalhes possível..."
+                  placeholder=" Descreva o problema com o máximo de detalhes possível..."
               />
             </div>
 
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <Button type="button" variant="outline" onClick={() => navigate({ to: "/colaborador/meus-epis" })}>
+              <Button className="shadow-lg" type="button" variant="outline" onClick={() => navigate({ to: "/colaborador/meus-epis" })}>
                 Cancelar
               </Button>
-              <Button type="submit">Enviar</Button>
+              <Button className="shadow-lg" type="submit">Enviar</Button>
             </div>
           </form>
         </CardContent>
