@@ -27,7 +27,7 @@ function ObservacaoPage() {
       <Card className="shadow-[var(--shadow-card)]">
         <CardHeader>
           <CardTitle className="text-lg ">Registrar observação sobre EPI</CardTitle>
-          <CardDescription className="text-violet-500">
+          <CardDescription>
             Reporte problemas em seus equipamentos para que o gestor tome providências.
           </CardDescription>
         </CardHeader>
