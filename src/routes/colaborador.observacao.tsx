@@ -1,3 +1,4 @@
+
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CollaboratorShell } from "@/components/safework/CollaboratorShell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -40,7 +41,7 @@ function ObservacaoPage() {
             }}
           >
             <div className="space-y-2">
-              <Label htmlFor="epi">Selecionar EPI</Label>
+              <Label htmlFor="epi" className="text-shadow-lg decoration-purple-100">Selecionar EPI</Label>
               <Select defaultValue={meusEpis[0].nome}>
                 <SelectTrigger id="epi"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -79,7 +80,7 @@ function ObservacaoPage() {
             </div>
 
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <Button type="button" variant="outline" onClick={() => navigate({ to: "/colaborador/meus-epis" })}>
+              <Button className="shadow-card" type="button" variant="outline" onClick={() => navigate({ to: "/colaborador/meus-epis" })}>
                 Cancelar
               </Button>
               <Button type="submit">Enviar</Button>
