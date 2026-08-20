@@ -25,12 +25,12 @@ function Historico() {
         Registros dos últimos dias — confirmações, observações e entregas.
       </p>
 
-      <div className="mt-6 space-y-3">
+      <div className="mt-4 space-y-3">
         {historico.map((h, i) => (
           <Card key={i}>
-            <CardContent className="flex items-center gap-4 p-4">
+            <CardContent className="flex items-center gap-2 p-2">
               <div
-                className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ${
+                className={`grid h-10 w-10 shrink-0 place-items-center rounded-md ${
                   h.tipo === "observacao"
                     ? "bg-warning/15 text-warning"
                     : h.tipo === "entrega"

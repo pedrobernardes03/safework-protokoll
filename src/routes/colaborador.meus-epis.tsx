@@ -20,7 +20,7 @@ function MeusEpis() {
 
   return (
     <CollaboratorShell>
-      <section className="rounded-2xl border bg-card p-6 shadow-[var(--shadow-card)]">
+      <section className="rounded-2xl border bg-card p-4 shadow-[var(--shadow-card)]">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
