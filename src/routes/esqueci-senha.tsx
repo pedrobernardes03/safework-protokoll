@@ -114,7 +114,7 @@ function Stepper({ step }: { step: Step }) {
   const order: Step[] = ["identify", "code", "new-password", "success"];
   const idx = order.indexOf(step);
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-4">
       {order.map((_, i) => (
         <div
           key={i}
