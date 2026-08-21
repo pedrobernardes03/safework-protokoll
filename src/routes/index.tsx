@@ -18,7 +18,6 @@ import {
   Truck,
   Shield,
   Glasses,
-  BadgeCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarketingHeader } from "@/components/safework/MarketingHeader";
@@ -27,7 +26,7 @@ import { MarketingCta } from "@/components/safework/MarketingCta";
 import { Reveal } from "@/components/safework/Reveal";
 import { CountUp } from "@/components/safework/CountUp";
 import { Marquee } from "@/components/safework/Marquee";
-import { SafetyWorkerIllustration } from "@/components/safework/SafetyWorkerIllustration";
+import { CharacterShowcase } from "@/components/safework/three/CharacterShowcase";
 import { useMouseParallax, useScrollParallax } from "@/lib/use-parallax";
 
 export const Route = createFileRoute("/")({
@@ -42,24 +41,6 @@ const trustLogos = [
   { icon: Shield, label: "MAIS SAFETY", tracking: "tracking-wider" },
 ] as const;
 
-const workflowFeatures = [
-  {
-    icon: HardHat,
-    title: "Checklist diário em segundos",
-    desc: "Colaborador confirma o uso de cada EPI direto do celular, sem planilha.",
-  },
-  {
-    icon: BadgeCheck,
-    title: "CAs sempre em dia",
-    desc: "Alertas automáticos antes do vencimento de cada Certificado de Aprovação.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Conformidade em tempo real",
-    desc: "Indicadores por setor e por colaborador, atualizados a cada confirmação.",
-  },
-] as const;
-
 function Landing() {
   const { ref: heroParallaxRef, offset: heroOffset } = useMouseParallax(16);
   const { ref: mockupScrollRef, y: mockupY } = useScrollParallax(0.06);
@@ -68,22 +49,22 @@ function Landing() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50/80 via-white to-slate-50/50 text-slate-800 font-sans">
       <MarketingHeader />
 
-      <div className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[620px]">
-          <div className="absolute left-1/2 top-0 h-[520px] w-[920px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute -left-24 top-40 h-72 w-72 rounded-full bg-[oklch(0.7_0.16_220)]/10 blur-3xl" />
-          <div
-            className="absolute inset-0 opacity-60"
-            style={{
-              backgroundImage: "radial-gradient(circle, rgb(15 23 42 / 0.07) 1px, transparent 1px)",
-              backgroundSize: "28px 28px",
-              maskImage: "radial-gradient(ellipse 60% 55% at 50% 0%, black 40%, transparent 100%)",
-            }}
-          />
-        </div>
+      <main className="mx-auto max-w-7xl px-6 pb-24 pt-8">
+        {/* Hero Section — overflow-hidden scoped locally so it never breaks position:sticky further down the page */}
+        <div className="relative overflow-hidden">
+          <div className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[620px]">
+            <div className="absolute left-1/2 top-0 h-[520px] w-[920px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+            <div className="absolute -left-24 top-40 h-72 w-72 rounded-full bg-[oklch(0.7_0.16_220)]/10 blur-3xl" />
+            <div
+              className="absolute inset-0 opacity-60"
+              style={{
+                backgroundImage: "radial-gradient(circle, rgb(15 23 42 / 0.07) 1px, transparent 1px)",
+                backgroundSize: "28px 28px",
+                maskImage: "radial-gradient(ellipse 60% 55% at 50% 0%, black 40%, transparent 100%)",
+              }}
+            />
+          </div>
 
-        {/* Hero Section */}
-        <main className="mx-auto max-w-7xl px-6 pb-24 pt-8">
           <section ref={heroParallaxRef} className="relative grid gap-12 lg:grid-cols-12 lg:items-center">
             <div
               className="pointer-events-none absolute -top-10 left-[6%] hidden items-center gap-1.5 rounded-xl border border-primary/20 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-lg backdrop-blur-sm lg:flex"
@@ -345,54 +326,30 @@ function Landing() {
             </div>
             </div>
           </Reveal>
-        </section>
+          </section>
+        </div>
 
-        {/* Illustrated workflow section */}
-        <Reveal className="mt-20 grid gap-12 rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm sm:p-10 lg:grid-cols-2 lg:items-center">
-          <div className="relative mx-auto w-full max-w-sm">
-            <div className="absolute -inset-8 -z-10 rounded-full bg-primary/10 blur-3xl" />
-            <SafetyWorkerIllustration className="w-full" />
-            <div className="absolute -left-4 top-10 hidden items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-lg animate-float sm:flex">
-              <ShieldCheck className="h-4 w-4 text-primary" /> CA em dia
-            </div>
-            <div
-              className="absolute -right-2 bottom-16 hidden items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-lg animate-float sm:flex"
-              style={{ animationDelay: "1.1s" }}
-            >
-              <Bell className="h-4 w-4 text-primary" /> Alerta enviado
-            </div>
-          </div>
-
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-medium text-slate-800">
+        {/* 3D scroll-driven character showcase */}
+        <div className="mt-20">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-medium text-slate-800">
               <span className="h-2 w-2 rounded-full bg-primary" />
               Como funciona
             </div>
             <h2 className="mt-4 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
               Segurança visível em cada etapa do turno.
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-500 sm:text-base">
+            <p className="mt-3 text-sm leading-relaxed text-slate-500 sm:text-base lg:hidden">
               Do primeiro checklist do dia ao relatório mensal de conformidade, a SafeWork acompanha
               cada EPI, cada certificado e cada colaborador em tempo real.
             </p>
+            <p className="mt-3 hidden text-sm leading-relaxed text-slate-500 sm:text-base lg:block">
+              Role a página — a câmera foca em cada EPI conforme o sistema mostra o que faz por ele.
+            </p>
+          </Reveal>
 
-            <ul className="mt-8 space-y-5">
-              {workflowFeatures.map(({ icon: Icon, title, desc }, i) => (
-                <Reveal key={title} delay={i * 100}>
-                  <li className="group flex items-start gap-4">
-                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-900">{title}</h3>
-                      <p className="mt-1 text-sm leading-relaxed text-slate-500">{desc}</p>
-                    </div>
-                  </li>
-                </Reveal>
-              ))}
-            </ul>
-          </div>
-        </Reveal>
+          <CharacterShowcase />
+        </div>
 
         {/* Feature Highlights Row Container (4 Pillars) */}
         <section className="mt-20 rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
@@ -468,7 +425,6 @@ function Landing() {
       </main>
 
       <MarketingFooter />
-      </div>
     </div>
   );
 }
