@@ -1,19 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import {
-  ShieldCheck,
-  Lock,
-  User,
-  HardHat,
-  Glasses,
-  Hand,
-  Shirt,
-  Clock,
-  CheckCircle2,
-  Users,
-  Eye,
-  EyeOff,
-  Loader2,
-} from "lucide-react";
+import { ShieldCheck, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -27,19 +13,6 @@ export const Route = createFileRoute("/login")({
   }),
   component: LoginPage,
 });
-
-const ppeChips = [
-  { icon: HardHat, label: "Capacete", className: "-top-4 left-0 animate-float", delay: "0s" },
-  { icon: Glasses, label: "Óculos", className: "top-2 -right-6 animate-float-slow", delay: "0.5s" },
-  { icon: Hand, label: "Luvas", className: "bottom-6 -left-8 animate-float-slow", delay: "1s" },
-  { icon: Shirt, label: "Colete", className: "-bottom-4 right-2 animate-float", delay: "1.4s" },
-] as const;
-
-const stats = [
-  { icon: Users, value: "2.400+", label: "colaboradores protegidos" },
-  { icon: CheckCircle2, value: "98%", label: "conformidade média" },
-  { icon: Clock, value: "<2min", label: "tempo médio de resposta" },
-] as const;
 
 function GoogleIcon() {
   return (
@@ -82,76 +55,21 @@ function LoginPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Hero panel */}
-      <div className="relative hidden overflow-hidden bg-gradient-to-br from-[oklch(0.28_0.07_255)] via-primary to-[oklch(0.62_0.14_215)] lg:block">
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, white 1px, transparent 1px)",
-            backgroundSize: "26px 26px",
-          }}
+      {/* Hero panel — a single full-bleed video, no overlays */}
+      <div className="relative hidden overflow-hidden bg-slate-900 lg:block">
+        <video
+          src="/login-showcase.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute -left-24 -top-24 h-96 w-96 rounded-full bg-white/10 blur-3xl animate-blob" />
-        <div
-          className="absolute -bottom-32 -right-16 h-[28rem] w-[28rem] rounded-full bg-[oklch(0.7_0.16_220)]/20 blur-3xl animate-blob"
-          style={{ animationDelay: "4s" }}
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,oklch(1_0_0/0.12),transparent_50%),radial-gradient(circle_at_80%_85%,oklch(1_0_0/0.08),transparent_50%)]" />
-
-        <div className="relative z-10 flex h-full flex-col justify-between p-12 text-primary-foreground">
-          <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-700">
-            <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary-foreground/15 backdrop-blur">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <span className="text-lg font-bold">SafeWork</span>
+        <div className="absolute left-8 top-8 z-10 flex items-center gap-2 text-primary-foreground drop-shadow-md">
+          <div className="grid h-10 w-10 place-items-center rounded-lg bg-white/15 backdrop-blur">
+            <ShieldCheck className="h-5 w-5" />
           </div>
-
-          <div className="relative mx-auto flex h-64 w-64 items-center justify-center">
-            <div className="absolute h-52 w-52 rounded-full bg-white/10 animate-glow-pulse" />
-            <div className="absolute h-36 w-36 rounded-full border border-white/20" />
-            <div className="relative z-10 grid h-20 w-20 place-items-center rounded-full border border-white/25 bg-white/15 shadow-xl backdrop-blur-md">
-              <ShieldCheck className="h-9 w-9" />
-            </div>
-
-            {ppeChips.map(({ icon: Icon, label, className, delay }) => (
-              <div
-                key={label}
-                className={`absolute inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium shadow-lg backdrop-blur-md ${className}`}
-                style={{ animationDelay: delay }}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {label}
-              </div>
-            ))}
-          </div>
-
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 [animation-delay:150ms] [animation-fill-mode:both]">
-            <h1 className="text-4xl font-bold leading-tight">
-              Segurança começa com<br></br>informação em tempo real
-            </h1>
-            <p className="mt-4 max-w-md text-primary-foreground/80">
-              A plataforma completa para gestão de EPIs, controle de Certificados de Aprovação e
-              comunicação com o time
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              {stats.map(({ icon: Icon, value, label }) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 py-2 backdrop-blur-md"
-                >
-                  <Icon className="h-4 w-4 text-primary-foreground/80" />
-                  <div className="leading-tight">
-                    <p className="text-sm font-semibold">{value}</p>
-                    <p className="text-[11px] text-primary-foreground/70">{label}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <p className="text-sm text-primary-foreground/70">© 2026 SafeWork Corp.</p>
+          <span className="text-lg font-bold">SafeWork</span>
         </div>
       </div>
 

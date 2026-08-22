@@ -2,22 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ShieldCheck,
   HardHat,
-  ClipboardList,
-  BarChart3,
   ArrowRight,
   User,
   Clock,
   Users,
-  Bell,
-  Home,
-  Settings,
-  LogOut,
   Factory,
   Building2,
   Box,
   Truck,
   Shield,
-  Glasses,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarketingHeader } from "@/components/safework/MarketingHeader";
@@ -27,7 +21,7 @@ import { Reveal } from "@/components/safework/Reveal";
 import { CountUp } from "@/components/safework/CountUp";
 import { Marquee } from "@/components/safework/Marquee";
 import { CharacterShowcase } from "@/components/safework/three/CharacterShowcase";
-import { useMouseParallax, useScrollParallax } from "@/lib/use-parallax";
+import { useScrollParallax } from "@/lib/use-parallax";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -42,7 +36,6 @@ const trustLogos = [
 ] as const;
 
 function Landing() {
-  const { ref: heroParallaxRef, offset: heroOffset } = useMouseParallax(16);
   const { ref: mockupScrollRef, y: mockupY } = useScrollParallax(0.06);
 
   return (
@@ -65,19 +58,7 @@ function Landing() {
             />
           </div>
 
-          <section ref={heroParallaxRef} className="relative grid gap-12 lg:grid-cols-12 lg:items-center">
-            <div
-              className="pointer-events-none absolute -top-10 left-[6%] hidden items-center gap-1.5 rounded-xl border border-primary/20 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-lg backdrop-blur-sm lg:flex"
-              style={{ transform: `translate(${heroOffset.x * -1}px, ${heroOffset.y * -1}px)` }}
-            >
-              <HardHat className="h-4 w-4 text-primary" /> Capacete verificado
-            </div>
-            <div
-              className="pointer-events-none absolute -top-10 right-[8%] hidden items-center gap-1.5 rounded-xl border border-primary/20 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-lg backdrop-blur-sm lg:flex"
-              style={{ transform: `translate(${heroOffset.x * 1.3}px, ${heroOffset.y * 1.3}px)` }}
-            >
-              <Glasses className="h-4 w-4 text-primary" /> Óculos em dia
-            </div>
+          <section className="relative grid gap-12 lg:grid-cols-12 lg:items-center">
 
             {/* Left Column Content */}
             <Reveal className="lg:col-span-5 space-y-6">
@@ -124,208 +105,80 @@ function Landing() {
               </div>
             </Reveal>
 
-            {/* Right Column: Platform Preview Mockup Graphic */}
+            {/* Right Column: a live-monitoring panel — deliberately not a browser-chrome
+                screenshot (too common) or a floating stock photo (read as amateur). A dark
+                glass panel with a real-time compliance ring and event feed ties directly
+                into the "informação em tempo real" pitch instead of just showing a UI shell. */}
             <Reveal delay={150} className="lg:col-span-7 relative">
-              {/* Background Glow */}
-              <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-primary/15 via-primary/5 to-transparent blur-2xl -z-10" />
+              <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-primary/20 via-primary/5 to-transparent blur-2xl -z-10" />
 
-              <div ref={mockupScrollRef} style={{ transform: `translateY(${mockupY}px)` }}>
-              {/* Main Window Card */}
-              <div className="animate-float rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-3 sm:p-4 shadow-2xl shadow-slate-900/10 flex gap-3">
-              {/* Mini Left Sidebar */}
-              <div className="hidden sm:flex flex-col items-center justify-between py-3 px-2 border-r border-slate-100 bg-slate-50/60 rounded-2xl w-14 shrink-0">
-                <div className="space-y-4 flex flex-col items-center">
-                  <div className="h-9 w-9 rounded-xl bg-primary/10 grid place-items-center text-primary">
-                    <ShieldCheck className="h-5 w-5" />
-                  </div>
-                  <div className="space-y-3 pt-2">
-                    <div className="h-9 w-9 rounded-xl bg-primary text-primary-foreground grid place-items-center shadow-sm">
-                      <Home className="h-4 w-4" />
-                    </div>
-                    <div className="h-9 w-9 rounded-xl text-slate-400 hover:text-slate-600 grid place-items-center">
-                      <ClipboardList className="h-4 w-4" />
-                    </div>
-                    <div className="h-9 w-9 rounded-xl text-slate-400 hover:text-slate-600 grid place-items-center">
-                      <BarChart3 className="h-4 w-4" />
-                    </div>
-                    <div className="h-9 w-9 rounded-xl text-slate-400 hover:text-slate-600 grid place-items-center">
-                      <Shield className="h-4 w-4" />
-                    </div>
-                    <div className="h-9 w-9 rounded-xl text-slate-400 hover:text-slate-600 grid place-items-center">
-                      <Users className="h-4 w-4" />
-                    </div>
-                    <div className="h-9 w-9 rounded-xl text-slate-400 hover:text-slate-600 grid place-items-center">
-                      <Settings className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-                <div className="h-9 w-9 rounded-xl text-slate-400 grid place-items-center">
-                  <LogOut className="h-4 w-4" />
-                </div>
-              </div>
+              <div
+                ref={mockupScrollRef}
+                style={{ transform: `translateY(${mockupY}px)` }}
+                className="animate-float relative overflow-hidden rounded-3xl bg-gradient-to-br from-[oklch(0.22_0.05_255)] via-[oklch(0.2_0.04_255)] to-[oklch(0.32_0.1_215)] p-6 shadow-2xl shadow-slate-900/40 sm:p-8"
+              >
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-[0.06]"
+                  style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+                />
+                <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/30 blur-3xl" />
 
-              {/* Mockup Main View */}
-              <div className="flex-1 space-y-4 p-2 sm:p-3">
-                {/* Mockup Top Header */}
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                  <h3 className="font-bold text-slate-900 text-sm sm:text-base">Painel do gestor</h3>
-                  <div className="flex items-center gap-3">
-                    <div className="relative text-slate-500">
-                      <Bell className="h-4 w-4" />
-                      <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-primary" />
-                    </div>
-                    <div className="h-8 w-8 rounded-full bg-slate-200 grid place-items-center text-xs font-semibold text-slate-700">
-                      JS
-                    </div>
+                <div className="relative flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-white/60">
+                    Monitoramento em tempo real
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                    </span>
+                    Ao vivo
+                  </span>
+                </div>
+
+                <div className="relative mt-6 flex items-center gap-6">
+                  <svg width="104" height="104" viewBox="0 0 120 120" className="-rotate-90 shrink-0">
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="white" strokeOpacity="0.12" strokeWidth="10" />
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="52"
+                      fill="none"
+                      stroke="oklch(0.77 0.17 165)"
+                      strokeWidth="10"
+                      strokeLinecap="round"
+                      strokeDasharray={2 * Math.PI * 52}
+                      strokeDashoffset={2 * Math.PI * 52 * 0.02}
+                    />
+                  </svg>
+                  <div>
+                    <p className="text-4xl font-extrabold text-white">
+                      <CountUp value={98} suffix="%" />
+                    </p>
+                    <p className="text-sm text-white/60">Conformidade da equipe agora</p>
                   </div>
                 </div>
 
-                {/* Top Stats Grid (4 Metrics) */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-                  <div className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 grid place-items-center">
-                        <HardHat className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-semibold text-slate-700">Meus EPIs</p>
-                        <p className="text-lg font-extrabold text-slate-900 leading-tight">
-                          <CountUp value={12} />
-                        </p>
-                        <p className="text-[10px] text-slate-400">Itens ativos</p>
-                      </div>
+                <div className="relative mt-7 space-y-2">
+                  {[
+                    { icon: HardHat, text: "Capacete verificado — João Silva", time: "agora", tint: "bg-emerald-400" },
+                    { icon: ShieldCheck, text: "CA atualizado — Óculos de proteção", time: "2 min atrás", tint: "bg-sky-400" },
+                    { icon: Users, text: "Novo colaborador cadastrado — Ana Costa", time: "5 min atrás", tint: "bg-sky-400" },
+                    { icon: ClipboardList, text: "Luva de proteção vence em 3 dias", time: "8 min atrás", tint: "bg-amber-400" },
+                  ].map((event) => (
+                    <div
+                      key={event.text}
+                      className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 backdrop-blur-sm"
+                    >
+                      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${event.tint}`} />
+                      <event.icon className="h-4 w-4 shrink-0 text-white/50" />
+                      <p className="flex-1 truncate text-xs font-medium text-white/90">{event.text}</p>
+                      <span className="shrink-0 text-[11px] text-white/40">{event.time}</span>
                     </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-amber-50 text-amber-600 grid place-items-center">
-                        <ClipboardList className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-semibold text-slate-700">Observações</p>
-                        <p className="text-lg font-extrabold text-slate-900 leading-tight">
-                          <CountUp value={3} />
-                        </p>
-                        <p className="text-[10px] text-slate-400">Pendências</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-emerald-50 text-primary grid place-items-center">
-                        <BarChart3 className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-semibold text-slate-700">CAs monitorados</p>
-                        <p className="text-lg font-extrabold text-slate-900 leading-tight">
-                          <CountUp value={28} />
-                        </p>
-                        <p className="text-[10px] text-slate-400">Próximos do vencimento</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-cyan-50 text-cyan-600 grid place-items-center">
-                        <ShieldCheck className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-semibold text-slate-700">Conformidade</p>
-                        <p className="text-lg font-extrabold text-slate-900 leading-tight">
-                          <CountUp value={98} suffix="%" />
-                        </p>
-                        <p className="text-[10px] text-slate-400">Média da equipe</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom 2 Grid Cards */}
-                <div className="grid sm:grid-cols-2 gap-3 pt-1">
-                  {/* Card 1: Próximos vencimentos */}
-                  <div className="rounded-2xl border border-slate-100 bg-white p-3.5 shadow-sm space-y-3">
-                    <h4 className="text-xs font-bold text-slate-900">Próximos vencimentos</h4>
-                    <div className="space-y-2.5 text-xs">
-                      <div>
-                        <div className="flex justify-between font-semibold text-slate-800 text-[11px]">
-                          <span>Capacete de segurança</span>
-                          <span className="text-slate-500 font-normal">12 dias</span>
-                        </div>
-                        <p className="text-[10px] text-slate-400">CA 12345</p>
-                        <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                          <div className="h-full bg-primary rounded-full w-3/4" />
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="flex justify-between font-semibold text-slate-800 text-[11px]">
-                          <span>Óculos de proteção</span>
-                          <span className="text-slate-500 font-normal">18 dias</span>
-                        </div>
-                        <p className="text-[10px] text-slate-400">CA 54321</p>
-                        <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                          <div className="h-full bg-primary rounded-full w-1/2" />
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="flex justify-between font-semibold text-slate-800 text-[11px]">
-                          <span>Luva de proteção</span>
-                          <span className="text-slate-500 font-normal">25 dias</span>
-                        </div>
-                        <p className="text-[10px] text-slate-400">CA 67890</p>
-                        <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                          <div className="h-full bg-primary rounded-full w-1/3" />
-                        </div>
-                      </div>
-                    </div>
-                    <button className="text-[11px] font-semibold text-primary hover:underline">Ver todos</button>
-                  </div>
-
-                  {/* Card 2: Comunicação recente */}
-                  <div className="rounded-2xl border border-slate-100 bg-white p-3.5 shadow-sm space-y-3">
-                    <h4 className="text-xs font-bold text-slate-900">Comunicação recente</h4>
-                    <div className="space-y-3 text-xs">
-                      <div className="flex items-start gap-2.5">
-                        <div className="h-7 w-7 rounded-full bg-slate-100 grid place-items-center text-slate-600 shrink-0 mt-0.5">
-                          <User className="h-3.5 w-3.5" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-800 text-[11px]">Novo comunicado de segurança</p>
-                          <p className="text-[10px] text-slate-400">Hoje, 08:30</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-2.5">
-                        <div className="h-7 w-7 rounded-full bg-slate-100 grid place-items-center text-slate-600 shrink-0 mt-0.5">
-                          <User className="h-3.5 w-3.5" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-800 text-[11px]">Atualização de CA</p>
-                          <p className="text-[10px] text-slate-400">Ontem, 16:45</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-2.5">
-                        <div className="h-7 w-7 rounded-full bg-slate-100 grid place-items-center text-slate-600 shrink-0 mt-0.5">
-                          <User className="h-3.5 w-3.5" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-800 text-[11px]">Treinamento agendado</p>
-                          <p className="text-[10px] text-slate-400">21/05/2024</p>
-                        </div>
-                      </div>
-                    </div>
-                    <button className="text-[11px] font-semibold text-primary hover:underline">Ver todas</button>
-                  </div>
+                  ))}
                 </div>
               </div>
-            </div>
-            </div>
-          </Reveal>
+            </Reveal>
           </section>
         </div>
 

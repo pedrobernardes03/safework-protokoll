@@ -11,19 +11,19 @@ const topics = [
     eyebrow: "Checklist diário",
     title: "Cada EPI confirmado em segundos.",
     desc: "O colaborador confere o uso do capacete direto do celular, sem planilha, antes de começar o turno.",
-    scale: 3.4,
-    x: 0.5,
-    y: 0.06,
+    scale: 3.3,
+    x: 0.513,
+    y: 0.135,
   },
   {
     side: "right" as const,
     stage: 3,
-    eyebrow: "Saúde ocupacional",
-    title: "Proteção respiratória sempre em dia.",
-    desc: "Máscaras e trocas programadas ficam visíveis para o time de segurança do trabalho, sem esquecimentos.",
+    eyebrow: "Check-in inteligente",
+    title: "Reconhecimento facial na entrada.",
+    desc: "Cada colaborador confirma presença por biometria facial, já vinculada ao checklist de EPIs do turno.",
     scale: 3.6,
-    x: 0.5,
-    y: 0.14,
+    x: 0.52,
+    y: 0.19,
   },
   {
     side: "left" as const,
@@ -31,9 +31,9 @@ const topics = [
     eyebrow: "Entrega e troca",
     title: "Sem burocracia para repor um EPI.",
     desc: "Luvas danificadas? O colaborador reporta e o almoxarifado já vê a solicitação, sem papel.",
-    scale: 3.2,
-    x: 0.81,
-    y: 0.46,
+    scale: 2.9,
+    x: 0.26,
+    y: 0.405,
   },
   {
     side: "right" as const,
@@ -41,9 +41,9 @@ const topics = [
     eyebrow: "Identificação em campo",
     title: "Conformidade visível de longe.",
     desc: "Coletes e crachás digitais dão ao gestor uma leitura instantânea de quem está protegido.",
-    scale: 2.7,
-    x: 0.5,
-    y: 0.3,
+    scale: 2.3,
+    x: 0.507,
+    y: 0.32,
   },
   {
     side: "left" as const,
@@ -51,9 +51,9 @@ const topics = [
     eyebrow: "Histórico completo",
     title: "Pronto para qualquer auditoria.",
     desc: "Da botina ao capacete, cada troca fica registrada — exportável a qualquer momento.",
-    scale: 2.6,
-    x: 0.44,
-    y: 0.92,
+    scale: 2.7,
+    x: 0.513,
+    y: 0.915,
   },
 ];
 
@@ -117,14 +117,15 @@ function DesktopShowcase() {
         const progress = total > 0 ? Math.min(1, Math.max(0, scrolled / total)) : 0;
         const { value, rawStage } = stageValues(progress);
 
-        // Keep transform-origin at dead center and do the "zoom to point" by translating
-        // the target fraction to the middle before scaling — setting transform-origin to
-        // the target point instead (the more obvious-looking approach) pins that point at
-        // its original screen position rather than moving it to center, which left the
-        // zoomed subject sitting off to one side instead of framed in the middle.
-        const tx = -(value.x - 0.5) * 100;
-        const ty = -(value.y - 0.5) * 100;
-        img.style.transform = `scale(${value.scale}) translate(${tx}%, ${ty}%)`;
+        // Zoom to a point with transform-origin pinned at the top-left (0 0): scale first
+        // (blowing the target point up and away from the corner), then translate by
+        // (50% - scale*targetFraction) so that point lands exactly at the container's
+        // center. (The center-origin version of this math looked simpler but didn't
+        // actually work out — verified by hand: this corner-origin form does.)
+        img.style.transformOrigin = "0 0";
+        const txPercent = 50 - 100 * value.scale * value.x;
+        const tyPercent = 50 - 100 * value.scale * value.y;
+        img.style.transform = `translate(${txPercent}%, ${tyPercent}%) scale(${value.scale})`;
 
         panelRefs.forEach((ref, i) => {
           const node = ref.current;
@@ -156,7 +157,7 @@ function DesktopShowcase() {
             <div
               key={topic.title}
               ref={panelRefs[i]}
-              className={`absolute top-1/2 w-full max-w-sm -translate-y-1/2 ${topic.side === "left" ? "left-0 text-left" : "right-0 text-right"}`}
+              className={`absolute top-1/2 w-full max-w-xs -translate-y-1/2 ${topic.side === "left" ? "left-0 text-left" : "right-0 text-right"}`}
               style={{ opacity: 0 }}
             >
               <div
@@ -172,12 +173,16 @@ function DesktopShowcase() {
           ))}
 
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="relative aspect-[408/612] h-full overflow-hidden">
+            {/* A real photo with its own environment (rooftop, sky, city view) instead of a
+                cutout on a fake blurred backdrop — no compositing needed, it already reads
+                as a real place. Card aspect must stay pixel-matched to the source photo
+                (3:4) since the zoom math below measures targets as fractions of this box. */}
+            <div className="relative aspect-[3/4] h-full overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-900/25">
               <img
                 ref={imgRef}
-                src="/worker.png"
+                src="/worker.jpg"
                 alt=""
-                className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_18px_30px_rgba(15,23,42,0.18)]"
+                className="absolute inset-0 h-full w-full object-cover"
               />
             </div>
           </div>
@@ -191,7 +196,7 @@ function MobileShowcase() {
   return (
     <div className="block space-y-10 lg:hidden">
       <div className="mx-auto h-72 w-full max-w-sm sm:h-80">
-        <img src="/worker.png" alt="Colaborador com EPIs completos" className="mx-auto h-full object-contain" />
+        <img src="/worker.jpg" alt="Colaborador com EPIs completos" className="mx-auto h-full rounded-3xl object-cover shadow-xl" />
       </div>
       <div className="space-y-8 px-1">
         {topics.map((topic) => (
