@@ -41,9 +41,9 @@ const topics = [
     eyebrow: "Identificação em campo",
     title: "Conformidade visível de longe.",
     desc: "Coletes e crachás digitais dão ao gestor uma leitura instantânea de quem está protegido.",
-    scale: 2.3,
+    scale: 3.1,
     x: 0.507,
-    y: 0.32,
+    y: 0.37,
   },
   {
     side: "left" as const,
@@ -51,9 +51,9 @@ const topics = [
     eyebrow: "Histórico completo",
     title: "Pronto para qualquer auditoria.",
     desc: "Da botina ao capacete, cada troca fica registrada — exportável a qualquer momento.",
-    scale: 2.7,
+    scale: 3.0,
     x: 0.513,
-    y: 0.915,
+    y: 0.8,
   },
 ];
 
