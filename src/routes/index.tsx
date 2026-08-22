@@ -1,9 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   ShieldCheck,
   HardHat,
-  ArrowRight,
-  User,
   Clock,
   Users,
   Factory,
@@ -13,7 +11,6 @@ import {
   Shield,
   ClipboardList,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { MarketingHeader } from "@/components/safework/MarketingHeader";
 import { MarketingFooter } from "@/components/safework/MarketingFooter";
 import { MarketingCta } from "@/components/safework/MarketingCta";
@@ -60,48 +57,34 @@ function Landing() {
 
           <section className="relative grid gap-12 lg:grid-cols-12 lg:items-center">
 
-            {/* Left Column Content */}
-            <Reveal className="lg:col-span-5 space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-medium text-slate-800">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-                </span>
-                Segurança do trabalho <span className="font-bold text-primary">conectada</span>
-              </div>
+            {/* Left Column Content — an editorial layout (kicker + oversized headline + a metric
+                strip standing in for the usual proof-badge) instead of the generic
+                pill-badge / gradient-headline / two-equal-buttons template shape. */}
+            <Reveal className="lg:col-span-5">
+              <p className="text-sm font-bold uppercase tracking-[0.25em] text-primary">Gestão de EPIs</p>
 
-              <h1 className="text-4xl font-extrabold leading-[1.15] tracking-tight text-slate-900 sm:text-5xl lg:text-[3.25rem]">
-                Gestão inteligente de EPIs para equipes que valorizam{" "}
-                <span className="bg-gradient-to-r from-primary to-[oklch(0.65_0.15_205)] bg-clip-text text-transparent">
-                  segurança.
-                </span>
+              <h1 className="mt-4 text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 sm:text-5xl lg:text-[3.4rem]">
+                Todo EPI da sua equipe,
+                <br />
+                <span className="font-serif italic font-medium text-primary">sob controle</span> em
+                tempo real.
               </h1>
 
-              <p className="text-base text-slate-600 sm:text-lg leading-relaxed max-w-lg">
-                Centralize o controle de Equipamentos de Proteção Individual, monitore Certificados de
-                Aprovação e mantenha uma comunicação direta entre colaboradores e gestores.
+              <p className="mt-6 max-w-md text-base leading-relaxed text-slate-600 sm:text-lg">
+                Chega de planilha para acompanhar Certificado de Aprovação, troca de equipamento e
+                comunicação com o time. A SafeWork centraliza tudo em um só lugar.
               </p>
 
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Button
-                  asChild
-                  size="lg"
-                  className="rounded-xl bg-primary text-primary-foreground font-semibold px-6 py-6 text-base shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30"
-                >
-                  <Link to="/login" className="flex items-center gap-2">
-                    Acessar plataforma <ArrowRight className="h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="rounded-xl border-primary/40 text-primary font-semibold px-6 py-6 text-base transition-all hover:-translate-y-0.5 hover:bg-primary/10"
-                >
-                  <Link to="/colaborador/meus-epis" className="flex items-center gap-2">
-                    <User className="h-5 w-5 text-primary" /> Área do colaborador
-                  </Link>
-                </Button>
+              <div className="mt-10 flex items-center gap-8 border-t border-slate-200 pt-6">
+                <div>
+                  <p className="text-2xl font-extrabold text-slate-900">-68%</p>
+                  <p className="text-xs text-slate-500">tempo gasto em auditorias</p>
+                </div>
+                <div className="h-8 w-px bg-slate-200" />
+                <div>
+                  <p className="text-2xl font-extrabold text-slate-900">100%</p>
+                  <p className="text-xs text-slate-500">rastreabilidade de EPIs</p>
+                </div>
               </div>
             </Reveal>
 

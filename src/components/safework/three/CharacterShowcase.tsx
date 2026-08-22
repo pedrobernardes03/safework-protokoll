@@ -11,9 +11,9 @@ const topics = [
     eyebrow: "Checklist diário",
     title: "Cada EPI confirmado em segundos.",
     desc: "O colaborador confere o uso do capacete direto do celular, sem planilha, antes de começar o turno.",
-    scale: 3.3,
-    x: 0.513,
-    y: 0.135,
+    scale: 6.5,
+    x: 0.454,
+    y: 0.19,
   },
   {
     side: "right" as const,
@@ -21,39 +21,39 @@ const topics = [
     eyebrow: "Check-in inteligente",
     title: "Reconhecimento facial na entrada.",
     desc: "Cada colaborador confirma presença por biometria facial, já vinculada ao checklist de EPIs do turno.",
-    scale: 3.6,
-    x: 0.52,
-    y: 0.19,
+    scale: 6.0,
+    x: 0.454,
+    y: 0.22,
   },
   {
     side: "left" as const,
     stage: 5,
-    eyebrow: "Entrega e troca",
-    title: "Sem burocracia para repor um EPI.",
-    desc: "Luvas danificadas? O colaborador reporta e o almoxarifado já vê a solicitação, sem papel.",
-    scale: 2.9,
-    x: 0.26,
-    y: 0.405,
+    eyebrow: "Identificação em campo",
+    title: "Conformidade visível de longe.",
+    desc: "Coletes e crachás digitais dão ao gestor uma leitura instantânea de quem está protegido.",
+    scale: 3.0,
+    x: 0.48,
+    y: 0.35,
   },
   {
     side: "right" as const,
     stage: 7,
-    eyebrow: "Identificação em campo",
-    title: "Conformidade visível de longe.",
-    desc: "Coletes e crachás digitais dão ao gestor uma leitura instantânea de quem está protegido.",
-    scale: 3.1,
-    x: 0.507,
-    y: 0.37,
+    eyebrow: "Histórico completo",
+    title: "Pronto para qualquer auditoria.",
+    desc: "Da botina ao capacete, cada troca fica registrada — exportável a qualquer momento.",
+    scale: 3.3,
+    x: 0.517,
+    y: 0.845,
   },
   {
     side: "left" as const,
     stage: 9,
-    eyebrow: "Histórico completo",
-    title: "Pronto para qualquer auditoria.",
-    desc: "Da botina ao capacete, cada troca fica registrada — exportável a qualquer momento.",
-    scale: 3.0,
-    x: 0.513,
-    y: 0.8,
+    eyebrow: "Visão geral",
+    title: "Todo o EPI, em uma só tela.",
+    desc: "Do capacete à bota, o gestor acompanha o conjunto completo de proteção em tempo real.",
+    scale: 1.3,
+    x: 0.454,
+    y: 0.4,
   },
 ];
 
@@ -173,11 +173,12 @@ function DesktopShowcase() {
           ))}
 
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            {/* A real photo with its own environment (rooftop, sky, city view) instead of a
+            {/* A real photo with its own environment (street, hills, city skyline) instead of a
                 cutout on a fake blurred backdrop — no compositing needed, it already reads
                 as a real place. Card aspect must stay pixel-matched to the source photo
-                (3:4) since the zoom math below measures targets as fractions of this box. */}
-            <div className="relative aspect-[3/4] h-full overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-900/25">
+                (2:3, a full-body shot) since the zoom math below measures targets as
+                fractions of this box. */}
+            <div className="relative aspect-[2/3] h-full overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-900/25">
               <img
                 ref={imgRef}
                 src="/worker.jpg"
