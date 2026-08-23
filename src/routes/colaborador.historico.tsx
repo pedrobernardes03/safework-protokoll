@@ -15,7 +15,13 @@ const historico = [
   { data: "07/07/2026", tipo: "observacao", texto: "Observação sobre Capacete (Danificado)." },
   { data: "06/07/2026", tipo: "entrega", texto: "Entrega de nova botina — CA 40551." },
   { data: "05/07/2026", tipo: "confirmacao", texto: "Confirmação diária de uso dos EPIs." },
-];
+] as const;
+
+const tipoLabels: Record<(typeof historico)[number]["tipo"], string> = {
+  confirmacao: "Confirmação",
+  observacao: "Observação",
+  entrega: "Entrega",
+};
 
 function Historico() {
   return (
@@ -25,10 +31,10 @@ function Historico() {
         Registros dos últimos dias — confirmações, observações e entregas.
       </p>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-6 space-y-3">
         {historico.map((h, i) => (
-          <Card key={i}>
-            <CardContent className="flex items-center gap-2 p-2">
+          <Card key={i} className="shadow-[var(--shadow-card)]">
+            <CardContent className="flex items-center gap-3 p-4">
               <div
                 className={`grid h-10 w-10 shrink-0 place-items-center rounded-md ${
                   h.tipo === "observacao"
@@ -44,7 +50,7 @@ function Historico() {
                 <p className="text-sm font-medium">{h.texto}</p>
                 <p className="text-xs text-muted-foreground">{h.data}</p>
               </div>
-              <Badge variant="outline" className="shrink-0 capitalize">{h.tipo}</Badge>
+              <Badge variant="outline" className="shrink-0">{tipoLabels[h.tipo]}</Badge>
             </CardContent>
           </Card>
         ))}
