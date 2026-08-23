@@ -44,7 +44,7 @@ function Landing() {
         <div className="relative overflow-hidden">
           <div className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[620px]">
             <div className="absolute left-1/2 top-0 h-[520px] w-[920px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
-            <div className="absolute -left-24 top-40 h-72 w-72 rounded-full bg-[oklch(0.7_0.16_220)]/10 blur-3xl" />
+            <div className="absolute -left-24 top-40 h-72 w-72 rounded-full bg-[oklch(0.7_0.14_165)]/10 blur-3xl" />
             <div
               className="absolute inset-0 opacity-60"
               style={{
@@ -98,7 +98,7 @@ function Landing() {
               <div
                 ref={mockupScrollRef}
                 style={{ transform: `translateY(${mockupY}px)` }}
-                className="animate-float relative overflow-hidden rounded-3xl bg-gradient-to-br from-[oklch(0.22_0.05_255)] via-[oklch(0.2_0.04_255)] to-[oklch(0.32_0.1_215)] p-6 shadow-2xl shadow-slate-900/40 sm:p-8"
+                className="animate-float relative overflow-hidden rounded-3xl bg-gradient-to-br from-[oklch(0.22_0.04_150)] via-[oklch(0.2_0.03_150)] to-[oklch(0.32_0.08_165)] p-6 shadow-2xl shadow-slate-900/40 sm:p-8"
               >
                 <div
                   className="pointer-events-none absolute inset-0 opacity-[0.06]"
@@ -127,7 +127,7 @@ function Landing() {
                       cy="60"
                       r="52"
                       fill="none"
-                      stroke="oklch(0.77 0.17 165)"
+                      stroke="oklch(0.77 0.17 155)"
                       strokeWidth="10"
                       strokeLinecap="round"
                       strokeDasharray={2 * Math.PI * 52}

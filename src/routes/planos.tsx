@@ -1,11 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { MarketingHeader } from "@/components/safework/MarketingHeader";
 import { MarketingFooter } from "@/components/safework/MarketingFooter";
-import { MarketingCta } from "@/components/safework/MarketingCta";
 import { Reveal } from "@/components/safework/Reveal";
 
 export const Route = createFileRoute("/planos")({
@@ -111,7 +110,7 @@ function PlanosPage() {
             </div>
             <h1 className="mt-5 text-4xl font-extrabold leading-[1.15] tracking-tight text-slate-900 sm:text-5xl">
               Um plano para cada{" "}
-              <span className="bg-gradient-to-r from-primary to-[oklch(0.65_0.15_205)] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-[oklch(0.65_0.13_165)] bg-clip-text text-transparent">
                 tamanho de operação.
               </span>
             </h1>
@@ -155,7 +154,7 @@ function PlanosPage() {
                   {plan.highlight && (
                     <>
                       <div className="pointer-events-none absolute -inset-px -z-10 rounded-3xl bg-gradient-to-br from-primary/40 via-primary/10 to-transparent blur-md" />
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-[oklch(0.65_0.15_205)] px-4 py-1 text-xs font-bold text-primary-foreground shadow-md">
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-[oklch(0.65_0.13_165)] px-4 py-1 text-xs font-bold text-primary-foreground shadow-md">
                         Mais popular
                       </span>
                     </>
