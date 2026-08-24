@@ -82,6 +82,85 @@ export const observacoes: Observacao[] = [
   },
 ];
 
+export function addObservacao(input: {
+  colaborador: string;
+  matricula: string;
+  cargo: string;
+  epi: string;
+  tipo: Observacao["tipo"];
+  descricao: string;
+}) {
+  const maxNum = Math.max(0, ...observacoes.map((o) => parseInt(o.id.replace("OBS-", ""), 10) || 0));
+  const obs: Observacao = {
+    id: `OBS-${maxNum + 1}`,
+    status: "Pendente",
+    data: new Date().toISOString().slice(0, 10),
+    ...input,
+  };
+  observacoes.unshift(obs);
+  return obs;
+}
+
+export interface Mensagem {
+  id: string;
+  autor: "gestor" | "colaborador";
+  texto: string;
+  data: string;
+}
+
+export interface Conversa {
+  matricula: string;
+  colaborador: string;
+  cargo: string;
+  mensagens: Mensagem[];
+}
+
+export const conversas: Conversa[] = [
+  {
+    matricula: "10298",
+    colaborador: "Carlos Menezes",
+    cargo: "Eletricista",
+    mensagens: [
+      { id: "c1", autor: "colaborador", texto: "Bom dia! Reportei uma rachadura no meu capacete essa semana (OBS-1042).", data: "2026-07-02T08:10:00" },
+      { id: "c2", autor: "gestor", texto: "Bom dia, Carlos! Recebemos a observação, já estamos verificando com o almoxarifado.", data: "2026-07-02T09:05:00" },
+    ],
+  },
+  {
+    matricula: "10455",
+    colaborador: "Juliana Prado",
+    cargo: "Operadora de máquina",
+    mensagens: [
+      { id: "j1", autor: "gestor", texto: "Juliana, sobre a OBS-1041: solicitamos uma luva nova ao almoxarifado.", data: "2026-07-01T14:20:00" },
+      { id: "j2", autor: "colaborador", texto: "Perfeito, obrigada!", data: "2026-07-01T14:32:00" },
+    ],
+  },
+  {
+    matricula: "10122",
+    colaborador: "Rafael Souza",
+    cargo: "Soldador",
+    mensagens: [
+      { id: "r1", autor: "gestor", texto: "Rafael, sua OBS-1040 foi resolvida: modelo ajustável CA 22987 já entregue.", data: "2026-06-28T11:00:00" },
+      { id: "r2", autor: "colaborador", texto: "Show, muito melhor agora. Valeu!", data: "2026-06-28T11:15:00" },
+    ],
+  },
+];
+
+export function addMensagem(
+  matricula: string,
+  colaborador: string,
+  cargo: string,
+  autor: Mensagem["autor"],
+  texto: string,
+) {
+  let conversa = conversas.find((c) => c.matricula === matricula);
+  if (!conversa) {
+    conversa = { matricula, colaborador, cargo, mensagens: [] };
+    conversas.push(conversa);
+  }
+  conversa.mensagens.push({ id: Math.random().toString(36).slice(2), autor, texto, data: new Date().toISOString() });
+  return conversa;
+}
+
 export type Perfil = "Colaborador" | "Gestor" | "Administrador";
 
 export interface Colaborador {
@@ -210,14 +289,102 @@ export const graficoEvolucaoEntregas = [
 ];
 
 export const graficoStatusCa = [
-  { status: "Vigentes", quantidade: 14, fill: "#10b981" },
-  { status: "A Vencer (30d)", quantidade: 2, fill: "#f59e0b" },
-  { status: "Vencidos", quantidade: 2, fill: "#ef4444" },
+  { status: "Vigentes", quantidade: 14, fill: "oklch(0.6 0.15 155)" },
+  { status: "A Vencer (30d)", quantidade: 2, fill: "oklch(0.78 0.16 80)" },
+  { status: "Vencidos", quantidade: 2, fill: "oklch(0.6 0.22 27)" },
 ];
 
 export const graficoStatusObservacoes = [
-  { status: "Resolvidas", quantidade: 5, fill: "#10b981" },
-  { status: "Em Análise", quantidade: 2, fill: "#3b82f6" },
-  { status: "Pendentes", quantidade: 1, fill: "#f59e0b" },
+  { status: "Resolvidas", quantidade: 5, fill: "oklch(0.6 0.15 155)" },
+  { status: "Em Análise", quantidade: 2, fill: "oklch(0.42 0.1 150)" },
+  { status: "Pendentes", quantidade: 1, fill: "oklch(0.78 0.16 80)" },
 ];
+
+export type TipoNotificacao = "ca_vencido" | "ca_proximo" | "epi_entregue" | "novo_colaborador" | "nova_observacao" | "nova_mensagem";
+export type PrioridadeNotificacao = "alta" | "media" | "baixa";
+
+export interface Notificacao {
+  id: string;
+  tipo: TipoNotificacao;
+  titulo: string;
+  descricao: string;
+  dataHora: string;
+  lida: boolean;
+  prioridade: PrioridadeNotificacao;
+  link?: string;
+}
+
+export const notificacoes: Notificacao[] = [
+  {
+    id: "notif-1",
+    tipo: "ca_vencido",
+    titulo: "CA Vencido — Luvas Isolantes",
+    descricao: "Luvas isolantes (CA 31402) vencidas para Carlos Menezes. Substituição necessária.",
+    dataHora: "Há 3 dias",
+    lida: false,
+    prioridade: "alta",
+    link: "/gestor/certificados",
+  },
+  {
+    id: "notif-2",
+    tipo: "ca_vencido",
+    titulo: "CA Vencido — Máscara de Solda",
+    descricao: "Máscara de solda (CA 50213) vencida para Rafael Souza. Requer nova emissão.",
+    dataHora: "Há 3 dias",
+    lida: false,
+    prioridade: "alta",
+    link: "/gestor/certificados",
+  },
+  {
+    id: "notif-3",
+    tipo: "ca_proximo",
+    titulo: "CA Próximo do Vencimento",
+    descricao: "Capacete de Segurança (CA 12345) vence amanhã para Carlos Menezes.",
+    dataHora: "Hoje, 08:00",
+    lida: false,
+    prioridade: "media",
+    link: "/gestor/certificados",
+  },
+  {
+    id: "notif-4",
+    tipo: "nova_observacao",
+    titulo: "Nova Ocorrência (OBS-1042)",
+    descricao: "Carlos Menezes relatou rachadura no capacete após queda de peça leve.",
+    dataHora: "Hoje, 08:15",
+    lida: false,
+    prioridade: "media",
+    link: "/gestor/observacoes",
+  },
+  {
+    id: "notif-5",
+    tipo: "epi_entregue",
+    titulo: "EPI Entregue com Sucesso",
+    descricao: "Capacete de Proteção entregue para João Silva na Unidade Obra A.",
+    dataHora: "Hoje, 09:30",
+    lida: true,
+    prioridade: "baixa",
+    link: "/gestor/certificados",
+  },
+  {
+    id: "notif-6",
+    tipo: "novo_colaborador",
+    titulo: "Novo Colaborador Cadastrado",
+    descricao: "Fernando Costa foi adicionado à equipe de Manutenção.",
+    dataHora: "Ontem, 16:40",
+    lida: true,
+    prioridade: "baixa",
+    link: "/gestor/colaboradores",
+  },
+];
+
+export function addNotificacao(input: { tipo: TipoNotificacao; titulo: string; descricao: string; prioridade: PrioridadeNotificacao; link?: string }) {
+  const notif: Notificacao = {
+    id: Math.random().toString(36).slice(2),
+    dataHora: "Agora",
+    lida: false,
+    ...input,
+  };
+  notificacoes.unshift(notif);
+  return notif;
+}
 

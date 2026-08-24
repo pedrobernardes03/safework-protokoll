@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft } from "lucide-react";
-import { observacoes, type Observacao } from "@/lib/safework-data";
+import { ArrowLeft, MessageCircle } from "lucide-react";
+import { observacoes, addMensagem, type Observacao } from "@/lib/safework-data";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/gestor/observacoes/$id")({
+export const Route = createFileRoute("/gestor/observacoes_/$id")({
   head: ({ params }) => ({ meta: [{ title: `Observação ${params.id} — SafeWork` }] }),
   loader: ({ params }) => {
     const obs = observacoes.find((o) => o.id === params.id);
@@ -39,13 +39,23 @@ const statusStyle: Record<Observacao["status"], string> = {
 function DetailPage() {
   const { obs } = Route.useLoaderData() as unknown as { obs: Observacao };
   const [status, setStatus] = useState<Observacao["status"]>(obs.status);
-  const [acao, setAcao] = useState(obs.acaoTomada ?? "");
+  // Guarda o último status já avisado ao colaborador — não o status de quando a página
+  // abriu, senão uma segunda alteração na mesma visita nunca contaria como "mudança".
+  const [statusAvisado, setStatusAvisado] = useState<Observacao["status"]>(obs.status);
+  // Sempre começa em branco: é uma caixa de "nova nota para enviar", não um campo que
+  // guarda o texto antigo — por isso zera sozinha a cada envio.
+  const [acao, setAcao] = useState("");
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <Button asChild variant="ghost" size="sm" className="-ml-2">
-        <Link to="/gestor/observacoes"><ArrowLeft className="mr-1 h-4 w-4" /> Todas as observações</Link>
-      </Button>
+      <div className="flex items-center justify-between">
+        <Button asChild variant="ghost" size="sm" className="-ml-2">
+          <Link to="/gestor/observacoes"><ArrowLeft className="mr-1 h-4 w-4" /> Todas as observações</Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/gestor/mensagens"><MessageCircle className="mr-1.5 h-4 w-4" /> Falar com {obs.colaborador.split(" ")[0]}</Link>
+        </Button>
+      </div>
 
       <Card>
         <CardHeader className="border-b">
@@ -79,11 +89,49 @@ function DetailPage() {
             </p>
           </div>
 
+          {obs.acaoTomada && (
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Última ação registrada
+              </p>
+              <p className="mt-2 rounded-lg border bg-muted/40 p-4 text-sm leading-relaxed text-muted-foreground">
+                {obs.acaoTomada}
+              </p>
+            </div>
+          )}
+
           <form
             className="space-y-4"
             onSubmit={(e) => {
               e.preventDefault();
-              toast.success("Alterações salvas.");
+              // `observacoes` é um array compartilhado (mesma referência usada na listagem);
+              // mutar o registro aqui é o que faz o status persistir ao voltar para a lista.
+              const notaNova = acao.trim();
+              const statusMudou = status !== statusAvisado;
+              obs.status = status;
+              if (notaNova) obs.acaoTomada = notaNova;
+
+              const partes: string[] = [];
+              if (statusMudou) partes.push(`Status atualizado para: ${status}`);
+              if (notaNova) partes.push(notaNova);
+
+              if (partes.length > 0) {
+                addMensagem(
+                  obs.matricula,
+                  obs.colaborador,
+                  obs.cargo,
+                  "gestor",
+                  `Atualização sobre sua observação ${obs.id} (${obs.epi}): ${partes.join(" — ")}`,
+                );
+                toast.success("Alterações salvas — colaborador notificado por mensagem.");
+              } else {
+                toast.success("Alterações salvas.");
+              }
+
+              // "Zera" a caixa de nota e marca este status como já avisado — assim, uma
+              // próxima nota ou troca de status na mesma visita gera um novo aviso.
+              setAcao("");
+              setStatusAvisado(status);
             }}
           >
             <div className="grid gap-4 sm:grid-cols-2">

@@ -1,6 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -127,156 +125,153 @@ function CertificadosPage() {
     toast.success("Registro removido.");
   };
 
+  const grupos = (
+    [
+      { status: "vencido", titulo: "Vencidos", itens: list.filter((e) => e.status === "vencido") },
+      { status: "proximo", titulo: "Próximos do vencimento", itens: list.filter((e) => e.status === "proximo") },
+      { status: "vigente", titulo: "Vigentes", itens: list.filter((e) => e.status === "vigente") },
+    ] as { status: EpiStatus; titulo: string; itens: Certificado[] }[]
+  ).filter((g) => g.itens.length > 0);
+
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      {/* Indicadores clicáveis — clicar filtra a tabela abaixo para aquele status específico */}
-      <section className="grid gap-4 sm:grid-cols-3">
-        <IndicatorCard
-          icon={AlertCircle}
-          label="CAs vencidos"
-          value={contagens.vencido}
-          tone="danger"
-          desc="Substituição imediata"
-          active={statusAtivo === "vencido"}
-          onClick={() => setStatusAtivo((s) => (s === "vencido" ? null : "vencido"))}
-        />
-        <IndicatorCard
-          icon={Clock}
-          label="Próximos do vencimento"
-          value={contagens.proximo}
-          tone="warning"
-          desc="Renovar em até 30 dias"
-          active={statusAtivo === "proximo"}
-          onClick={() => setStatusAtivo((s) => (s === "proximo" ? null : "proximo"))}
-        />
-        <IndicatorCard
-          icon={ShieldCheck}
-          label="CAs vigentes"
-          value={contagens.vigente}
-          tone="success"
-          desc="Em conformidade"
-          active={statusAtivo === "vigente"}
-          onClick={() => setStatusAtivo((s) => (s === "vigente" ? null : "vigente"))}
-        />
+    <div className="mx-auto max-w-5xl space-y-8">
+      {/* Cabeçalho — faixa de números clicáveis em vez de três cards com ícone e cor de fundo */}
+      <section className="flex flex-wrap items-center justify-between gap-6 border-b pb-6">
+        <div className="flex flex-wrap items-center gap-8">
+          <StatusStat
+            icon={AlertCircle}
+            label="Vencidos"
+            value={contagens.vencido}
+            tone="danger"
+            active={statusAtivo === "vencido"}
+            onClick={() => setStatusAtivo((s) => (s === "vencido" ? null : "vencido"))}
+          />
+          <StatusStat
+            icon={Clock}
+            label="Próximos"
+            value={contagens.proximo}
+            tone="warning"
+            active={statusAtivo === "proximo"}
+            onClick={() => setStatusAtivo((s) => (s === "proximo" ? null : "proximo"))}
+          />
+          <StatusStat
+            icon={ShieldCheck}
+            label="Vigentes"
+            value={contagens.vigente}
+            tone="success"
+            active={statusAtivo === "vigente"}
+            onClick={() => setStatusAtivo((s) => (s === "vigente" ? null : "vigente"))}
+          />
+        </div>
+        <NovaEntregaDialog onAdd={handleAdd} />
       </section>
 
-      <Card>
-        <CardHeader className="border-b">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <CardTitle>Entregas e certificados</CardTitle>
-              <CardDescription>{lista.length} registros · ordenados por urgência.</CardDescription>
-            </div>
-            <NovaEntregaDialog onAdd={handleAdd} />
-          </div>
+      {/* Barra de busca e filtros — sem envelope de card, parte natural do cabeçalho */}
+      <section className="flex flex-wrap items-center gap-3">
+        <div className="relative w-full max-w-xs">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar por colaborador, matrícula ou EPI..."
+            className="pl-9"
+          />
+        </div>
+        <Select value={statusAtivo ?? "todos"} onValueChange={(v) => setStatusAtivo(v === "todos" ? null : (v as EpiStatus))}>
+          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os status</SelectItem>
+            <SelectItem value="vencido">Vencido</SelectItem>
+            <SelectItem value="proximo">Próximo do vencimento</SelectItem>
+            <SelectItem value="vigente">Vigente</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={setorAtivo ?? "todos"} onValueChange={(v) => setSetorAtivo(v === "todos" ? null : v)}>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Setor" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os setores</SelectItem>
+            {setores.map((s) => (
+              <SelectItem key={s} value={s}>{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={tipoAtivo ?? "todos"} onValueChange={(v) => setTipoAtivo(v === "todos" ? null : v)}>
+          <SelectTrigger className="w-[190px]"><SelectValue placeholder="Tipo de EPI" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os tipos</SelectItem>
+            {tiposEpi.map((t) => (
+              <SelectItem key={t} value={t}>{t}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {filtrosAtivos.map((f) => (
+          <Badge key={f.label} variant="outline" className="gap-1.5 border-primary/30 text-primary">
+            {f.label}
+            <button type="button" onClick={f.clear} className="font-bold" aria-label={`Limpar filtro ${f.label}`}>
+              ×
+            </button>
+          </Badge>
+        ))}
+      </section>
 
-          <div className="flex flex-wrap items-center gap-3 pt-1">
-            <div className="relative w-full max-w-xs">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Buscar por colaborador, matrícula ou EPI..."
-                className="pl-9"
-              />
+      {/* Registros agrupados por status — a urgência organiza a página em vez de ser
+          só mais uma coluna com badge dentro de uma tabela genérica. */}
+      {grupos.length === 0 && (
+        <p className="py-12 text-center text-sm text-muted-foreground">Nenhum registro encontrado.</p>
+      )}
+      <div className="space-y-8">
+        {grupos.map((grupo) => (
+          <section key={grupo.status}>
+            <div className="mb-3 flex items-center gap-2.5">
+              <span className={`h-2 w-2 rounded-full ${statusMap[grupo.status].dot}`} />
+              <h3 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">{grupo.titulo}</h3>
+              <span className="text-sm text-muted-foreground">({grupo.itens.length})</span>
             </div>
-            <Select value={setorAtivo ?? "todos"} onValueChange={(v) => setSetorAtivo(v === "todos" ? null : v)}>
-              <SelectTrigger className="w-[160px]"><SelectValue placeholder="Setor" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos os setores</SelectItem>
-                {setores.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={tipoAtivo ?? "todos"} onValueChange={(v) => setTipoAtivo(v === "todos" ? null : v)}>
-              <SelectTrigger className="w-[190px]"><SelectValue placeholder="Tipo de EPI" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos os tipos</SelectItem>
-                {tiposEpi.map((t) => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {filtrosAtivos.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              {filtrosAtivos.map((f) => (
-                <Badge key={f.label} variant="outline" className="gap-1.5 border-primary/30 text-primary">
-                  {f.label}
-                  <button type="button" onClick={f.clear} className="font-bold" aria-label={`Limpar filtro ${f.label}`}>
-                    ×
-                  </button>
-                </Badge>
+            <div className="divide-y divide-border rounded-xl border">
+              {grupo.itens.map((e) => (
+                <div
+                  key={e.id}
+                  className={`flex flex-wrap items-center gap-x-6 gap-y-2 border-l-4 p-4 ${
+                    grupo.status === "vencido" ? "border-l-danger" : grupo.status === "proximo" ? "border-l-warning" : "border-l-success"
+                  }`}
+                >
+                  <div className="min-w-[160px] flex-1">
+                    <p className="font-semibold">{e.colaborador}</p>
+                    <p className="text-xs text-muted-foreground">{e.cargo} · {e.setor}</p>
+                  </div>
+                  <div className="min-w-[160px] flex-1">
+                    <p>{e.epi}</p>
+                    <p className="text-xs text-muted-foreground">{e.tipoEpi}</p>
+                  </div>
+                  <div className="min-w-[90px]">
+                    <p className="font-mono text-sm">CA {e.ca}</p>
+                    <p className="text-xs text-muted-foreground">Matr. {e.matricula}</p>
+                  </div>
+                  <div className="min-w-[110px]">
+                    <p className="text-sm">{new Date(e.validade).toLocaleDateString("pt-BR")}</p>
+                    <p className="text-xs text-muted-foreground">Entrega {new Date(e.dataEntrega).toLocaleDateString("pt-BR")}</p>
+                  </div>
+                  <div className="ml-auto flex shrink-0 items-center gap-1">
+                    <RenovarDialog entrega={e} onRenovar={handleRenovar} />
+                    <Button size="icon" variant="ghost" className="text-danger hover:text-danger" onClick={() => handleDelete(e.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               ))}
             </div>
-          )}
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Colaborador</TableHead>
-                  <TableHead>Matrícula</TableHead>
-                  <TableHead>Cargo / Setor</TableHead>
-                  <TableHead>EPI / Tipo</TableHead>
-                  <TableHead>CA</TableHead>
-                  <TableHead>Entrega</TableHead>
-                  <TableHead>Validade</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {list.map((e) => {
-                  const s = statusMap[e.status];
-                  return (
-                    <TableRow key={e.id}>
-                      <TableCell className="font-medium">{e.colaborador}</TableCell>
-                      <TableCell className="font-mono text-sm">{e.matricula}</TableCell>
-                      <TableCell>
-                        <p>{e.cargo}</p>
-                        <p className="text-xs text-muted-foreground">{e.setor}</p>
-                      </TableCell>
-                      <TableCell>
-                        <p>{e.epi}</p>
-                        <p className="text-xs text-muted-foreground">{e.tipoEpi}</p>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">{e.ca}</TableCell>
-                      <TableCell>{new Date(e.dataEntrega).toLocaleDateString("pt-BR")}</TableCell>
-                      <TableCell>{new Date(e.validade).toLocaleDateString("pt-BR")}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={s.className}>
-                          <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${s.dot}`} />
-                          {s.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <RenovarDialog entrega={e} onRenovar={handleRenovar} />
-                        <Button size="icon" variant="ghost" className="text-danger hover:text-danger" onClick={() => handleDelete(e.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }
 
-function IndicatorCard({
+function StatusStat({
   icon: Icon,
   label,
   value,
   tone,
-  desc,
   active,
   onClick,
 }: {
@@ -284,33 +279,19 @@ function IndicatorCard({
   label: string;
   value: number;
   tone: "danger" | "warning" | "success";
-  desc: string;
   active: boolean;
   onClick: () => void;
 }) {
-  const tones = {
-    danger: { chip: "bg-danger/10 text-danger", ring: "ring-danger/20", activeBg: "bg-danger/5", activeRing: "ring-danger/50" },
-    warning: { chip: "bg-warning/20 text-warning-foreground", ring: "ring-warning/30", activeBg: "bg-warning/10", activeRing: "ring-warning/60" },
-    success: { chip: "bg-success/10 text-success", ring: "ring-success/20", activeBg: "bg-success/5", activeRing: "ring-success/50" },
-  };
+  const toneText = { danger: "text-danger", warning: "text-warning-foreground", success: "text-success" };
   return (
-    <button type="button" onClick={onClick} className="text-left">
-      <Card
-        className={`ring-1 transition-shadow hover:shadow-md ${
-          active ? `${tones[tone].activeRing} ${tones[tone].activeBg} ring-2 shadow-md` : tones[tone].ring
-        }`}
-      >
-        <CardContent className="flex items-center gap-4 p-5">
-          <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl ${tones[tone].chip}`}>
-            <Icon className="h-6 w-6" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
-            <p className="mt-1 text-2xl font-bold">{value}</p>
-            <p className="text-xs text-muted-foreground">{desc}</p>
-          </div>
-        </CardContent>
-      </Card>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-2.5 rounded-lg px-2 py-1 text-left transition-colors ${active ? "bg-muted" : "hover:bg-muted/60"}`}
+    >
+      <Icon className={`h-4 w-4 ${toneText[tone]}`} />
+      <span className={`text-2xl font-extrabold ${toneText[tone]}`}>{value}</span>
+      <span className="text-sm text-muted-foreground">{label}</span>
     </button>
   );
 }

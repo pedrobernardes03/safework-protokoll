@@ -17,14 +17,16 @@ import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as SolucoesRouteImport } from './routes/solucoes'
 import { Route as ColaboradorHistoricoRouteImport } from './routes/colaborador.historico'
+import { Route as ColaboradorMensagensRouteImport } from './routes/colaborador.mensagens'
 import { Route as ColaboradorMeusEpisRouteImport } from './routes/colaborador.meus-epis'
 import { Route as ColaboradorObservacaoRouteImport } from './routes/colaborador.observacao'
 import { Route as GestorIndexRouteImport } from './routes/gestor.index'
 import { Route as GestorCertificadosRouteImport } from './routes/gestor.certificados'
 import { Route as GestorColaboradoresRouteImport } from './routes/gestor.colaboradores'
 import { Route as GestorEpisRouteImport } from './routes/gestor.epis'
+import { Route as GestorMensagensRouteImport } from './routes/gestor.mensagens'
 import { Route as GestorObservacoesRouteImport } from './routes/gestor.observacoes'
-import { Route as GestorObservacoesIdRouteImport } from './routes/gestor.observacoes.$id'
+import { Route as GestorObservacoesIdRouteImport } from './routes/gestor.observacoes_.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -66,6 +68,11 @@ const ColaboradorHistoricoRoute = ColaboradorHistoricoRouteImport.update({
   path: '/colaborador/historico',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ColaboradorMensagensRoute = ColaboradorMensagensRouteImport.update({
+  id: '/colaborador/mensagens',
+  path: '/colaborador/mensagens',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ColaboradorMeusEpisRoute = ColaboradorMeusEpisRouteImport.update({
   id: '/colaborador/meus-epis',
   path: '/colaborador/meus-epis',
@@ -96,15 +103,20 @@ const GestorEpisRoute = GestorEpisRouteImport.update({
   path: '/epis',
   getParentRoute: () => GestorRoute,
 } as any)
+const GestorMensagensRoute = GestorMensagensRouteImport.update({
+  id: '/mensagens',
+  path: '/mensagens',
+  getParentRoute: () => GestorRoute,
+} as any)
 const GestorObservacoesRoute = GestorObservacoesRouteImport.update({
   id: '/observacoes',
   path: '/observacoes',
   getParentRoute: () => GestorRoute,
 } as any)
 const GestorObservacoesIdRoute = GestorObservacoesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => GestorObservacoesRoute,
+  id: '/observacoes_/$id',
+  path: '/observacoes/$id',
+  getParentRoute: () => GestorRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -116,12 +128,14 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/solucoes': typeof SolucoesRoute
   '/colaborador/historico': typeof ColaboradorHistoricoRoute
+  '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
   '/gestor/epis': typeof GestorEpisRoute
-  '/gestor/observacoes': typeof GestorObservacoesRouteWithChildren
+  '/gestor/mensagens': typeof GestorMensagensRoute
+  '/gestor/observacoes': typeof GestorObservacoesRoute
   '/gestor/': typeof GestorIndexRoute
   '/gestor/observacoes/$id': typeof GestorObservacoesIdRoute
 }
@@ -133,12 +147,14 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/solucoes': typeof SolucoesRoute
   '/colaborador/historico': typeof ColaboradorHistoricoRoute
+  '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
   '/gestor/epis': typeof GestorEpisRoute
-  '/gestor/observacoes': typeof GestorObservacoesRouteWithChildren
+  '/gestor/mensagens': typeof GestorMensagensRoute
+  '/gestor/observacoes': typeof GestorObservacoesRoute
   '/gestor': typeof GestorIndexRoute
   '/gestor/observacoes/$id': typeof GestorObservacoesIdRoute
 }
@@ -152,14 +168,16 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/solucoes': typeof SolucoesRoute
   '/colaborador/historico': typeof ColaboradorHistoricoRoute
+  '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
   '/gestor/epis': typeof GestorEpisRoute
-  '/gestor/observacoes': typeof GestorObservacoesRouteWithChildren
+  '/gestor/mensagens': typeof GestorMensagensRoute
+  '/gestor/observacoes': typeof GestorObservacoesRoute
   '/gestor/': typeof GestorIndexRoute
-  '/gestor/observacoes/$id': typeof GestorObservacoesIdRoute
+  '/gestor/observacoes_/$id': typeof GestorObservacoesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -172,11 +190,13 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/solucoes'
     | '/colaborador/historico'
+    | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
     | '/gestor/certificados'
     | '/gestor/colaboradores'
     | '/gestor/epis'
+    | '/gestor/mensagens'
     | '/gestor/observacoes'
     | '/gestor/'
     | '/gestor/observacoes/$id'
@@ -189,11 +209,13 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/solucoes'
     | '/colaborador/historico'
+    | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
     | '/gestor/certificados'
     | '/gestor/colaboradores'
     | '/gestor/epis'
+    | '/gestor/mensagens'
     | '/gestor/observacoes'
     | '/gestor'
     | '/gestor/observacoes/$id'
@@ -207,14 +229,16 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/solucoes'
     | '/colaborador/historico'
+    | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
     | '/gestor/certificados'
     | '/gestor/colaboradores'
     | '/gestor/epis'
+    | '/gestor/mensagens'
     | '/gestor/observacoes'
     | '/gestor/'
-    | '/gestor/observacoes/$id'
+    | '/gestor/observacoes_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -226,6 +250,7 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   SolucoesRoute: typeof SolucoesRoute
   ColaboradorHistoricoRoute: typeof ColaboradorHistoricoRoute
+  ColaboradorMensagensRoute: typeof ColaboradorMensagensRoute
   ColaboradorMeusEpisRoute: typeof ColaboradorMeusEpisRoute
   ColaboradorObservacaoRoute: typeof ColaboradorObservacaoRoute
 }
@@ -288,6 +313,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ColaboradorHistoricoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/colaborador/mensagens': {
+      id: '/colaborador/mensagens'
+      path: '/colaborador/mensagens'
+      fullPath: '/colaborador/mensagens'
+      preLoaderRoute: typeof ColaboradorMensagensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/colaborador/meus-epis': {
       id: '/colaborador/meus-epis'
       path: '/colaborador/meus-epis'
@@ -330,6 +362,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GestorEpisRouteImport
       parentRoute: typeof GestorRoute
     }
+    '/gestor/mensagens': {
+      id: '/gestor/mensagens'
+      path: '/mensagens'
+      fullPath: '/gestor/mensagens'
+      preLoaderRoute: typeof GestorMensagensRouteImport
+      parentRoute: typeof GestorRoute
+    }
     '/gestor/observacoes': {
       id: '/gestor/observacoes'
       path: '/observacoes'
@@ -337,41 +376,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GestorObservacoesRouteImport
       parentRoute: typeof GestorRoute
     }
-    '/gestor/observacoes/$id': {
-      id: '/gestor/observacoes/$id'
-      path: '/$id'
+    '/gestor/observacoes_/$id': {
+      id: '/gestor/observacoes_/$id'
+      path: '/observacoes/$id'
       fullPath: '/gestor/observacoes/$id'
       preLoaderRoute: typeof GestorObservacoesIdRouteImport
-      parentRoute: typeof GestorObservacoesRoute
+      parentRoute: typeof GestorRoute
     }
   }
 }
-
-interface GestorObservacoesRouteChildren {
-  GestorObservacoesIdRoute: typeof GestorObservacoesIdRoute
-}
-
-const GestorObservacoesRouteChildren: GestorObservacoesRouteChildren = {
-  GestorObservacoesIdRoute: GestorObservacoesIdRoute,
-}
-
-const GestorObservacoesRouteWithChildren =
-  GestorObservacoesRoute._addFileChildren(GestorObservacoesRouteChildren)
 
 interface GestorRouteChildren {
   GestorCertificadosRoute: typeof GestorCertificadosRoute
   GestorColaboradoresRoute: typeof GestorColaboradoresRoute
   GestorEpisRoute: typeof GestorEpisRoute
-  GestorObservacoesRoute: typeof GestorObservacoesRouteWithChildren
+  GestorMensagensRoute: typeof GestorMensagensRoute
+  GestorObservacoesRoute: typeof GestorObservacoesRoute
   GestorIndexRoute: typeof GestorIndexRoute
+  GestorObservacoesIdRoute: typeof GestorObservacoesIdRoute
 }
 
 const GestorRouteChildren: GestorRouteChildren = {
   GestorCertificadosRoute: GestorCertificadosRoute,
   GestorColaboradoresRoute: GestorColaboradoresRoute,
   GestorEpisRoute: GestorEpisRoute,
-  GestorObservacoesRoute: GestorObservacoesRouteWithChildren,
+  GestorMensagensRoute: GestorMensagensRoute,
+  GestorObservacoesRoute: GestorObservacoesRoute,
   GestorIndexRoute: GestorIndexRoute,
+  GestorObservacoesIdRoute: GestorObservacoesIdRoute,
 }
 
 const GestorRouteWithChildren =
@@ -386,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   SolucoesRoute: SolucoesRoute,
   ColaboradorHistoricoRoute: ColaboradorHistoricoRoute,
+  ColaboradorMensagensRoute: ColaboradorMensagensRoute,
   ColaboradorMeusEpisRoute: ColaboradorMeusEpisRoute,
   ColaboradorObservacaoRoute: ColaboradorObservacaoRoute,
 }

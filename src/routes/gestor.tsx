@@ -15,6 +15,7 @@ const titleMap: Record<string, string> = {
   "/gestor/epis": "Cadastro de EPIs",
   "/gestor/certificados": "Monitoramento de Certificados",
   "/gestor/observacoes": "Observações dos EPIs",
+  "/gestor/mensagens": "Mensagens",
 };
 
 function GestorLayout() {

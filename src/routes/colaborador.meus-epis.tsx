@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { CheckCircle2, Check, MessageSquarePlus, History, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Check, MessageSquarePlus, History, ShieldCheck, MessageCircle } from "lucide-react";
 import { CollaboratorShell } from "@/components/safework/CollaboratorShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -125,7 +125,7 @@ function MeusEpis() {
         </div>
       </section>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
         <Button asChild variant="outline" size="lg">
           <Link to="/colaborador/observacao">
             <MessageSquarePlus className="mr-2 h-4 w-4" /> Registrar observação
@@ -134,6 +134,11 @@ function MeusEpis() {
         <Button asChild variant="outline" size="lg">
           <Link to="/colaborador/historico">
             <History className="mr-2 h-4 w-4" /> Histórico
+          </Link>
+        </Button>
+        <Button asChild variant="outline" size="lg">
+          <Link to="/colaborador/mensagens">
+            <MessageCircle className="mr-2 h-4 w-4" /> Mensagens
           </Link>
         </Button>
       </div>

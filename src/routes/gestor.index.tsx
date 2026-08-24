@@ -1,11 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Users,
   BadgeCheck,
-  MessageSquareWarning,
   AlertTriangle,
   Clock,
-  ShieldCheck,
   Activity,
   FileText,
   ChevronRight,
@@ -17,8 +14,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, CartesianGrid } from "recharts";
 import {
@@ -79,105 +74,49 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* Indicadores principais */}
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Card className="transition-shadow hover:shadow-md">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Colaboradores
-              </span>
-              <div className="rounded-lg bg-primary/10 p-2 text-primary">
-                <Users className="h-4 w-4" />
-              </div>
-            </div>
-            <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-2xl font-extrabold">{colaboradores.length}</p>
-              <span className="text-[11px] text-muted-foreground">{dashboardStats.admitidosMes} admitidos/mês</span>
-            </div>
-            <div className="mt-3 flex items-center justify-between border-t pt-2.5 text-xs">
-              <span className="text-muted-foreground">Afastados: <strong className="text-foreground">{dashboardStats.afastados}</strong></span>
-              <Link to="/gestor/colaboradores" className="font-medium text-primary hover:underline">Ver todos →</Link>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Indicador principal — um anel de conformidade em destaque, com os demais números
+          como uma faixa dividida ao lado, em vez de cinco cartões brancos idênticos. */}
+      <section className="grid gap-8 border-b pb-8 lg:grid-cols-[auto_1fr] lg:items-center">
+        <div className="flex items-center gap-5">
+          <svg width="88" height="88" viewBox="0 0 96 96" className="-rotate-90 shrink-0">
+            <circle cx="48" cy="48" r="40" fill="none" stroke="var(--muted)" strokeWidth="9" />
+            <circle
+              cx="48"
+              cy="48"
+              r="40"
+              fill="none"
+              stroke="var(--primary)"
+              strokeWidth="9"
+              strokeLinecap="round"
+              strokeDasharray={2 * Math.PI * 40}
+              strokeDashoffset={2 * Math.PI * 40 * (1 - dashboardStats.taxaConformidade / 100)}
+            />
+          </svg>
+          <div>
+            <p className="text-3xl font-extrabold text-primary">{dashboardStats.taxaConformidade}%</p>
+            <p className="text-sm text-muted-foreground">Conformidade da equipe</p>
+            <p className="text-xs text-muted-foreground">{dashboardStats.episEntreguesMes} entregas este mês</p>
+          </div>
+        </div>
 
-        <Card className="transition-shadow hover:shadow-md">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">CAs vencidos</span>
-              <div className="rounded-lg bg-danger/10 p-2 text-danger">
-                <AlertTriangle className="h-4 w-4" />
-              </div>
-            </div>
-            <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-2xl font-extrabold text-danger">{dashboardStats.vencidos}</p>
-              <span className="text-[11px] text-muted-foreground">{dashboardStats.venceramHoje} venceu hoje</span>
-            </div>
-            <div className="mt-3 flex items-center justify-between border-t pt-2.5 text-xs">
-              <span className="text-muted-foreground">Troca imediata</span>
-              <Link to="/gestor/certificados" className="font-medium text-danger hover:underline">Ver detalhes →</Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="transition-shadow hover:shadow-md">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Próximos vencimentos
-              </span>
-              <div className="rounded-lg bg-warning/20 p-2 text-warning-foreground">
-                <Clock className="h-4 w-4" />
-              </div>
-            </div>
-            <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-2xl font-extrabold text-warning-foreground">{dashboardStats.proximos}</p>
-              <span className="text-[11px] text-muted-foreground">méd. {dashboardStats.prazoMedioVencimento}</span>
-            </div>
-            <div className="mt-3 truncate border-t pt-2.5 text-xs text-muted-foreground">
-              Mais próximo: <strong className="text-foreground">{dashboardStats.colaboradorMaisProximo}</strong>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="transition-shadow hover:shadow-md">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Observações
-              </span>
-              <div className="rounded-lg bg-warning/20 p-2 text-warning-foreground">
-                <MessageSquareWarning className="h-4 w-4" />
-              </div>
-            </div>
-            <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-2xl font-extrabold">{pendentes}</p>
-              <span className="text-[11px] text-muted-foreground">{dashboardStats.observacoesCriticas} crítica</span>
-            </div>
-            <div className="mt-3 truncate border-t pt-2.5 text-xs text-muted-foreground">
-              Última: {dashboardStats.ultimaObservacao}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="transition-shadow hover:shadow-md">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Conformidade</span>
-              <div className="rounded-lg bg-primary/10 p-2 text-primary">
-                <ShieldCheck className="h-4 w-4" />
-              </div>
-            </div>
-            <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-2xl font-extrabold text-primary">{dashboardStats.taxaConformidade}%</p>
-              <span className="text-[11px] text-muted-foreground">{dashboardStats.episEntreguesMes} entregas/mês</span>
-            </div>
-            <div className="mt-3 border-t pt-2.5">
-              <Progress value={dashboardStats.taxaConformidade} className="h-1.5 bg-primary/20" />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex flex-wrap items-center gap-x-10 gap-y-4 lg:justify-end">
+          <Link to="/gestor/colaboradores" className="group">
+            <p className="text-2xl font-extrabold group-hover:text-primary">{colaboradores.length}</p>
+            <p className="text-xs text-muted-foreground">Colaboradores · {dashboardStats.afastados} afastados</p>
+          </Link>
+          <Link to="/gestor/certificados" className="group">
+            <p className="text-2xl font-extrabold text-danger">{dashboardStats.vencidos}</p>
+            <p className="text-xs text-muted-foreground">CAs vencidos · {dashboardStats.venceramHoje} venceu hoje</p>
+          </Link>
+          <Link to="/gestor/certificados" className="group">
+            <p className="text-2xl font-extrabold text-warning-foreground">{dashboardStats.proximos}</p>
+            <p className="text-xs text-muted-foreground">A vencer · méd. {dashboardStats.prazoMedioVencimento}</p>
+          </Link>
+          <Link to="/gestor/observacoes" className="group">
+            <p className="text-2xl font-extrabold">{pendentes}</p>
+            <p className="text-xs text-muted-foreground">Observações · {dashboardStats.observacoesCriticas} crítica</p>
+          </Link>
+        </div>
       </section>
 
       {/* Vencimentos + atividade recente */}
@@ -197,51 +136,35 @@ function Dashboard() {
               </Link>
             </Button>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/30">
-                    <TableHead className="text-xs">Colaborador</TableHead>
-                    <TableHead className="text-xs">EPI / CA</TableHead>
-                    <TableHead className="text-xs">Validade</TableHead>
-                    <TableHead className="text-right text-xs">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {entregas.slice(0, 5).map((e) => {
-                    const status = statusVencimentoMap[e.status];
-                    const diffDays = Math.ceil(
-                      (new Date(e.validade).getTime() - new Date("2026-08-14").getTime()) / (1000 * 3600 * 24),
-                    );
-                    return (
-                      <TableRow key={e.id} className="hover:bg-muted/20">
-                        <TableCell className="py-2.5">
-                          <p className="text-xs font-semibold leading-tight">{e.colaborador}</p>
-                          <p className="text-[11px] text-muted-foreground">{e.cargo}</p>
-                        </TableCell>
-                        <TableCell className="py-2.5">
-                          <p className="text-xs font-medium">{e.epi}</p>
-                          <span className="font-mono text-[10px] text-muted-foreground">CA {e.ca}</span>
-                        </TableCell>
-                        <TableCell className="py-2.5 text-xs">
-                          {new Date(e.validade).toLocaleDateString("pt-BR")}
-                          <p className="text-[10px] text-muted-foreground">
-                            {diffDays < 0 ? `${Math.abs(diffDays)}d atrasado` : diffDays === 0 ? "Vence hoje" : `${diffDays}d restantes`}
-                          </p>
-                        </TableCell>
-                        <TableCell className="py-2.5 text-right">
-                          <Badge variant="outline" className={`px-2 py-0.5 text-[10px] ${status.className}`}>
-                            <span className={`mr-1 h-1.5 w-1.5 rounded-full ${status.dot}`} />
-                            {status.label}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+          <CardContent className="divide-y p-0">
+            {entregas.slice(0, 5).map((e) => {
+              const status = statusVencimentoMap[e.status];
+              const diffDays = Math.ceil(
+                (new Date(e.validade).getTime() - new Date("2026-08-14").getTime()) / (1000 * 3600 * 24),
+              );
+              return (
+                <div key={e.id} className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/30">
+                  <div className="min-w-[130px] flex-1">
+                    <p className="text-xs font-semibold leading-tight">{e.colaborador}</p>
+                    <p className="text-[11px] text-muted-foreground">{e.cargo}</p>
+                  </div>
+                  <div className="min-w-[120px] flex-1">
+                    <p className="text-xs font-medium">{e.epi}</p>
+                    <span className="font-mono text-[10px] text-muted-foreground">CA {e.ca}</span>
+                  </div>
+                  <div className="min-w-[100px] text-xs">
+                    {new Date(e.validade).toLocaleDateString("pt-BR")}
+                    <p className="text-[10px] text-muted-foreground">
+                      {diffDays < 0 ? `${Math.abs(diffDays)}d atrasado` : diffDays === 0 ? "Vence hoje" : `${diffDays}d restantes`}
+                    </p>
+                  </div>
+                  <Badge variant="outline" className={`shrink-0 px-2 py-0.5 text-[10px] ${status.className}`}>
+                    <span className={`mr-1 h-1.5 w-1.5 rounded-full ${status.dot}`} />
+                    {status.label}
+                  </Badge>
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
 

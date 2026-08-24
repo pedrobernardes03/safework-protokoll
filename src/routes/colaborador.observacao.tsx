@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { meusEpis } from "@/lib/safework-data";
+import { meusEpis, addObservacao, addMensagem, addNotificacao, type Observacao } from "@/lib/safework-data";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -17,10 +17,15 @@ export const Route = createFileRoute("/colaborador/observacao")({
 
 const tipos = ["Danificado", "Desgastado", "Desconfortável", "Outro"] as const;
 
+// A área do colaborador simula sempre o mesmo usuário (Carlos Menezes), igual ao resto
+// das telas de colaborador — usado tanto para criar a observação quanto a mensagem.
+const COLABORADOR = { nome: "Carlos Menezes", matricula: "10298", cargo: "Eletricista" };
+
 function ObservacaoPage() {
   const navigate = useNavigate();
   const [epiId, setEpiId] = useState(meusEpis[0].id);
-  const [tipo, setTipo] = useState<string>("Danificado");
+  const [tipo, setTipo] = useState<Observacao["tipo"]>("Danificado");
+  const [descricao, setDescricao] = useState("");
   const epi = meusEpis.find((e) => e.id === epiId) ?? meusEpis[0];
 
   return (
@@ -37,6 +42,30 @@ function ObservacaoPage() {
             className="space-y-7"
             onSubmit={(e) => {
               e.preventDefault();
+              const obs = addObservacao({
+                colaborador: COLABORADOR.nome,
+                matricula: COLABORADOR.matricula,
+                cargo: COLABORADOR.cargo,
+                epi: epi.nome,
+                tipo,
+                descricao,
+              });
+              // Além de virar um registro em Observações, cai como mensagem de verdade
+              // na conversa do gestor — não é só um retalho isolado no board de ocorrências.
+              addMensagem(
+                COLABORADOR.matricula,
+                COLABORADOR.nome,
+                COLABORADOR.cargo,
+                "colaborador",
+                `Nova observação registrada (${obs.id} · ${epi.nome} · ${tipo}): ${descricao}`,
+              );
+              addNotificacao({
+                tipo: "nova_observacao",
+                titulo: `Nova Ocorrência (${obs.id})`,
+                descricao: `${COLABORADOR.nome} relatou: ${epi.nome} — ${tipo}. ${descricao}`,
+                prioridade: "media",
+                link: "/gestor/observacoes",
+              });
               toast.success("Observação enviada! O gestor foi notificado.");
               setTimeout(() => navigate({ to: "/colaborador/meus-epis" }), 600);
             }}
@@ -64,7 +93,7 @@ function ObservacaoPage() {
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 O que aconteceu?
               </Label>
-              <RadioGroup value={tipo} onValueChange={setTipo} className="grid grid-cols-2 gap-3">
+              <RadioGroup value={tipo} onValueChange={(v) => setTipo(v as Observacao["tipo"])} className="grid grid-cols-2 gap-3">
                 {tipos.map((t) => (
                   <label
                     key={t}
@@ -87,6 +116,8 @@ function ObservacaoPage() {
                 id="desc"
                 required
                 rows={5}
+                value={descricao}
+                onChange={(e) => setDescricao(e.target.value)}
                 placeholder="Descreva o problema com o máximo de detalhes possível..."
               />
             </div>

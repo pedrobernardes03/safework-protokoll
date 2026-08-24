@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   UserPlus,
   MessageSquareWarning,
+  MessageCircle,
   Check,
   X,
   Inbox,
@@ -27,9 +28,10 @@ import {
 const iconMap: Record<TipoNotificacao, { icon: typeof AlertTriangle; className: string }> = {
   ca_vencido: { icon: AlertTriangle, className: "bg-danger/10 text-danger" },
   ca_proximo: { icon: Clock, className: "bg-warning/20 text-warning-foreground" },
-  epi_entregue: { icon: CheckCircle2, className: "bg-emerald-500/10 text-emerald-600" },
-  novo_colaborador: { icon: UserPlus, className: "bg-blue-500/10 text-blue-600" },
-  nova_observacao: { icon: MessageSquareWarning, className: "bg-rose-500/10 text-rose-600" },
+  epi_entregue: { icon: CheckCircle2, className: "bg-success/10 text-success" },
+  novo_colaborador: { icon: UserPlus, className: "bg-primary/10 text-primary" },
+  nova_observacao: { icon: MessageSquareWarning, className: "bg-warning/20 text-warning-foreground" },
+  nova_mensagem: { icon: MessageCircle, className: "bg-primary/10 text-primary" },
 };
 
 const prioridadeMap = {

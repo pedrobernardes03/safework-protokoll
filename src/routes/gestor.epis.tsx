@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { HardHat, Search, Pencil, Trash2, Layers } from "lucide-react";
+import { HardHat, Search, Pencil, Trash2, Layers, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
 
@@ -26,22 +26,16 @@ interface Epi {
   estoque: number;
 }
 
-const categorias = [
-  { value: "Proteção da cabeça", label: "Proteção da cabeça" },
-  { value: "Proteção visual", label: "Proteção visual" },
-  { value: "Proteção das mãos", label: "Proteção das mãos" },
-  { value: "Proteção dos pés", label: "Proteção dos pés" },
-  { value: "Proteção facial", label: "Proteção facial" },
-  { value: "Proteção auditiva", label: "Proteção auditiva" },
+const categoriasIniciais = [
+  "Proteção da cabeça",
+  "Proteção visual",
+  "Proteção das mãos",
+  "Proteção dos pés",
+  "Proteção facial",
+  "Proteção auditiva",
 ];
 
-const funcoes = [
-  { value: "Todos", label: "Todas" },
-  { value: "Eletricista", label: "Eletricista" },
-  { value: "Soldador", label: "Soldador" },
-  { value: "Operador de máquina", label: "Operador de máquina" },
-  { value: "Ajudante geral", label: "Ajudante geral" },
-];
+const funcoesIniciais = ["Todos", "Eletricista", "Soldador", "Operador de máquina", "Ajudante geral"];
 
 const episIniciais: Epi[] = [
   { id: "1", nome: "Capacete de segurança", categoria: "Proteção da cabeça", ca: "12345", funcao: "Todos", validade: "2027-08-15", estoque: 42 },
@@ -53,6 +47,8 @@ const episIniciais: Epi[] = [
 
 function EpisPage() {
   const [lista, setLista] = useState<Epi[]>(episIniciais);
+  const [categorias, setCategorias] = useState<string[]>(categoriasIniciais);
+  const [funcoes, setFuncoes] = useState<string[]>(funcoesIniciais);
   const [q, setQ] = useState("");
   const [categoriaAtiva, setCategoriaAtiva] = useState<string | null>(null);
 
@@ -83,9 +79,19 @@ function EpisPage() {
     toast.success("EPI removido do catálogo.");
   };
 
+  const handleCreateCategoria = (nova: string) => {
+    setCategorias((prev) => (prev.includes(nova) ? prev : [...prev, nova]));
+    toast.success(`Categoria "${nova}" criada.`);
+  };
+
+  const handleCreateFuncao = (nova: string) => {
+    setFuncoes((prev) => (prev.includes(nova) ? prev : [...prev, nova]));
+    toast.success(`Função "${nova}" criada.`);
+  };
+
   return (
     <div className="mx-auto max-w-6xl grid gap-6 lg:grid-cols-[380px_1fr]">
-      <EpiForm onAdd={handleAdd} />
+      <EpiForm categorias={categorias} funcoes={funcoes} onAdd={handleAdd} onCreateCategoria={handleCreateCategoria} onCreateFuncao={handleCreateFuncao} />
 
       <div className="space-y-6">
         {/* Categorias — clicar filtra o catálogo abaixo para aquela categoria específica */}
@@ -176,7 +182,7 @@ function EpisPage() {
                       </TableCell>
                       <TableCell>{new Date(e.validade).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell className="text-right">
-                        <EpiEditDialog epi={e} onSave={handleSave} />
+                        <EpiEditDialog epi={e} categorias={categorias} funcoes={funcoes} onSave={handleSave} onCreateCategoria={handleCreateCategoria} onCreateFuncao={handleCreateFuncao} />
                         <Button size="icon" variant="ghost" className="text-danger hover:text-danger" onClick={() => handleDelete(e.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -193,7 +199,110 @@ function EpisPage() {
   );
 }
 
-function EpiForm({ onAdd }: { onAdd: (epi: Epi) => void }) {
+// Select com opção de criar um novo valor na hora — evita ter que sair do formulário
+// pra cadastrar uma categoria ou função associada que ainda não existe na lista.
+function CreatableSelect({
+  label,
+  value,
+  onChange,
+  options,
+  onCreate,
+  required,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  onCreate: (novo: string) => void;
+  required?: boolean;
+}) {
+  const [criando, setCriando] = useState(false);
+  const [novo, setNovo] = useState("");
+
+  if (criando) {
+    return (
+      <div className="space-y-1.5">
+        <Label>{label}</Label>
+        <div className="flex gap-2">
+          <Input
+            autoFocus
+            value={novo}
+            onChange={(e) => setNovo(e.target.value)}
+            placeholder={`Nova ${label.toLowerCase()}`}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") { setCriando(false); setNovo(""); }
+            }}
+          />
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            title="Cancelar"
+            onClick={() => { setCriando(false); setNovo(""); }}
+          >
+            ×
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            disabled={!novo.trim()}
+            onClick={() => {
+              const v = novo.trim();
+              if (!v) return;
+              onCreate(v);
+              onChange(v);
+              setNovo("");
+              setCriando(false);
+            }}
+          >
+            Adicionar
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      <Select
+        required={required}
+        value={value}
+        onValueChange={(v) => {
+          if (v === "__nova__") {
+            setCriando(true);
+            return;
+          }
+          onChange(v);
+        }}
+      >
+        <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+        <SelectContent>
+          {options.map((o) => (
+            <SelectItem key={o} value={o}>{o}</SelectItem>
+          ))}
+          <SelectItem value="__nova__" className="font-semibold text-primary">
+            <span className="flex items-center gap-1.5"><Plus className="h-3.5 w-3.5" /> Criar nova...</span>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function EpiForm({
+  categorias,
+  funcoes,
+  onAdd,
+  onCreateCategoria,
+  onCreateFuncao,
+}: {
+  categorias: string[];
+  funcoes: string[];
+  onAdd: (epi: Epi) => void;
+  onCreateCategoria: (v: string) => void;
+  onCreateFuncao: (v: string) => void;
+}) {
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState("");
   const [ca, setCa] = useState("");
@@ -237,17 +346,7 @@ function EpiForm({ onAdd }: { onAdd: (epi: Epi) => void }) {
             <Label>Nome do EPI</Label>
             <Input required placeholder="Ex.: Capacete de segurança" value={nome} onChange={(e) => setNome(e.target.value)} />
           </div>
-          <div className="space-y-1.5">
-            <Label>Categoria</Label>
-            <Select required value={categoria} onValueChange={setCategoria}>
-              <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-              <SelectContent>
-                {categorias.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <CreatableSelect label="Categoria" value={categoria} onChange={setCategoria} options={categorias} onCreate={onCreateCategoria} required />
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Número do CA</Label>
@@ -259,17 +358,7 @@ function EpiForm({ onAdd }: { onAdd: (epi: Epi) => void }) {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>Função associada</Label>
-              <Select value={funcao} onValueChange={setFuncao}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {funcoes.map((f) => (
-                    <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <CreatableSelect label="Função associada" value={funcao} onChange={setFuncao} options={funcoes} onCreate={onCreateFuncao} />
             <div className="space-y-1.5">
               <Label>Estoque inicial</Label>
               <Input required type="number" min={0} placeholder="0" value={estoque} onChange={(e) => setEstoque(e.target.value)} />
@@ -282,7 +371,21 @@ function EpiForm({ onAdd }: { onAdd: (epi: Epi) => void }) {
   );
 }
 
-function EpiEditDialog({ epi, onSave }: { epi: Epi; onSave: (epi: Epi) => void }) {
+function EpiEditDialog({
+  epi,
+  categorias,
+  funcoes,
+  onSave,
+  onCreateCategoria,
+  onCreateFuncao,
+}: {
+  epi: Epi;
+  categorias: string[];
+  funcoes: string[];
+  onSave: (epi: Epi) => void;
+  onCreateCategoria: (v: string) => void;
+  onCreateFuncao: (v: string) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState(epi.nome);
   const [categoria, setCategoria] = useState(epi.categoria);
@@ -324,17 +427,7 @@ function EpiEditDialog({ epi, onSave }: { epi: Epi; onSave: (epi: Epi) => void }
             <Label>Nome do EPI</Label>
             <Input required value={nome} onChange={(e) => setNome(e.target.value)} />
           </div>
-          <div className="space-y-1.5">
-            <Label>Categoria</Label>
-            <Select value={categoria} onValueChange={setCategoria}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {categorias.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <CreatableSelect label="Categoria" value={categoria} onChange={setCategoria} options={categorias} onCreate={onCreateCategoria} />
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Número do CA</Label>
@@ -346,17 +439,7 @@ function EpiEditDialog({ epi, onSave }: { epi: Epi; onSave: (epi: Epi) => void }
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>Função associada</Label>
-              <Select value={funcao} onValueChange={setFuncao}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {funcoes.map((f) => (
-                    <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <CreatableSelect label="Função associada" value={funcao} onChange={setFuncao} options={funcoes} onCreate={onCreateFuncao} />
             <div className="space-y-1.5">
               <Label>Estoque</Label>
               <Input required type="number" min={0} value={estoque} onChange={(e) => setEstoque(e.target.value)} />
