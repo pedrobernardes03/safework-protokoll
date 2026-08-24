@@ -7,10 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Building2, Users } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { colaboradores, type Colaborador, type Perfil } from "@/lib/safework-data";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/gestor/colaboradores")({
@@ -20,10 +20,19 @@ export const Route = createFileRoute("/gestor/colaboradores")({
 
 function ColaboradoresPage() {
   const [q, setQ] = useState("");
+  const [setorAtivo, setSetorAtivo] = useState<string | null>(null);
   const [lista, setLista] = useState<Colaborador[]>(() => [...colaboradores]);
 
+  const setores = useMemo(() => {
+    const counts = new Map<string, number>();
+    lista.forEach((c) => counts.set(c.setor, (counts.get(c.setor) ?? 0) + 1));
+    return Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [lista]);
+
   const list = lista.filter(
-    (c) => c.nome.toLowerCase().includes(q.toLowerCase()) || c.matricula.includes(q),
+    (c) =>
+      (c.nome.toLowerCase().includes(q.toLowerCase()) || c.matricula.includes(q)) &&
+      (!setorAtivo || c.setor === setorAtivo),
   );
 
   const handleSave = (updated: Colaborador) => {
@@ -51,29 +60,76 @@ function ColaboradoresPage() {
         <NewColaboradorDialog onAdd={handleAdd} />
       </div>
 
+      {/* Setores — clicar filtra a tabela abaixo para aquele setor específico */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <button
+          type="button"
+          onClick={() => setSetorAtivo(null)}
+          className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors ${
+            setorAtivo === null ? "border-primary bg-primary/5" : "hover:border-primary/30"
+          }`}
+        >
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+            <Users className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">Todos</p>
+            <p className="text-xs text-muted-foreground">{lista.length} colaboradores</p>
+          </div>
+        </button>
+        {setores.map(([setor, count]) => (
+          <button
+            key={setor}
+            type="button"
+            onClick={() => setSetorAtivo(setor)}
+            className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors ${
+              setorAtivo === setor ? "border-primary bg-primary/5" : "hover:border-primary/30"
+            }`}
+          >
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+              <Building2 className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">{setor}</p>
+              <p className="text-xs text-muted-foreground">{count} colaborador{count > 1 ? "es" : ""}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
       <Card>
-        <CardHeader className="border-b-">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar por nome ou matrícula..."
-              className="pl-9"
-            />
+        <CardHeader className="border-b">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Buscar por nome ou matrícula..."
+                className="pl-9"
+              />
+            </div>
+            {setorAtivo && (
+              <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
+                {setorAtivo}
+                <button type="button" onClick={() => setSetorAtivo(null)} className="font-bold" aria-label="Limpar filtro de setor">
+                  ×
+                </button>
+              </Badge>
+            )}
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto mr-1">
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-purple-800">Colaborador</TableHead>
-                  <TableHead className="text-purple-800">Matrícula</TableHead>
-                  <TableHead className="text-purple-800">Cargo</TableHead>
-                  <TableHead className="text-purple-800">Setor</TableHead>
-                  <TableHead className="text-purple-800">Perfil</TableHead>
-                  <TableHead className="text-purple-800 text-right">Ações</TableHead>
+                  <TableHead>Colaborador</TableHead>
+                  <TableHead>Matrícula</TableHead>
+                  <TableHead>Cargo</TableHead>
+                  <TableHead>Setor</TableHead>
+                  <TableHead>Perfil</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -96,7 +152,7 @@ function ColaboradoresPage() {
                     <TableCell>{c.cargo}</TableCell>
                     <TableCell>{c.setor}</TableCell>
                     <TableCell>
-                      <Badge className="shadow-md" variant={c.perfil === "Gestor" ? "default" : "secondary"}>
+                      <Badge variant={c.perfil === "Gestor" ? "default" : "secondary"}>
                         {c.perfil}
                       </Badge>
                     </TableCell>
@@ -145,7 +201,7 @@ function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Colaborador) => 
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
       <DialogTrigger asChild>
-        <Button className="shrink-0 shadow-lg"><Plus className="mr-1 h-4 w-2" /> Novo colaborador</Button>
+        <Button className="shrink-0"><Plus className="mr-1 h-4 w-4" /> Novo colaborador</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
@@ -232,7 +288,7 @@ function EditColaboradorDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="icon" variant="ghost"><Pencil className="h-4 w-4 text-yellow-500" /></Button>
+        <Button size="icon" variant="ghost"><Pencil className="h-4 w-4" /></Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>

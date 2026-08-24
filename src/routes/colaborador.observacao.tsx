@@ -19,20 +19,22 @@ const tipos = ["Danificado", "Desgastado", "Desconfortável", "Outro"] as const;
 
 function ObservacaoPage() {
   const navigate = useNavigate();
+  const [epiId, setEpiId] = useState(meusEpis[0].id);
   const [tipo, setTipo] = useState<string>("Danificado");
+  const epi = meusEpis.find((e) => e.id === epiId) ?? meusEpis[0];
 
   return (
     <CollaboratorShell back={{ to: "/colaborador/meus-epis", label: "Meus EPIs" }}>
       <Card className="shadow-[var(--shadow-card)]">
         <CardHeader>
-          <CardTitle className="text-lg ">Registrar observação sobre EPI</CardTitle>
+          <CardTitle className="text-lg">Registrar observação sobre EPI</CardTitle>
           <CardDescription>
             Reporte problemas em seus equipamentos para que o gestor tome providências.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form
-            className="space-y-6"
+            className="space-y-7"
             onSubmit={(e) => {
               e.preventDefault();
               toast.success("Observação enviada! O gestor foi notificado.");
@@ -40,19 +42,28 @@ function ObservacaoPage() {
             }}
           >
             <div className="space-y-2">
-              <Label htmlFor="epi">Selecionar EPI</Label>
-              <Select defaultValue={meusEpis[0].nome}>
-                <SelectTrigger id="epi"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {meusEpis.map((e) => (
-                    <SelectItem key={e.id} value={e.nome}>{e.nome}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="epi" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Qual equipamento?
+              </Label>
+              <div className="flex items-center gap-3">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <epi.icon className="h-5 w-5" />
+                </div>
+                <Select value={epiId} onValueChange={setEpiId}>
+                  <SelectTrigger id="epi" className="flex-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {meusEpis.map((e) => (
+                      <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-3">
-              <Label>Tipo de problema</Label>
+              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                O que aconteceu?
+              </Label>
               <RadioGroup value={tipo} onValueChange={setTipo} className="grid grid-cols-2 gap-3">
                 {tipos.map((t) => (
                   <label
@@ -69,7 +80,9 @@ function ObservacaoPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="desc">Descrição</Label>
+              <Label htmlFor="desc" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Detalhes
+              </Label>
               <Textarea
                 id="desc"
                 required
@@ -78,7 +91,7 @@ function ObservacaoPage() {
               />
             </div>
 
-            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <div className="flex flex-col-reverse gap-3 border-t pt-5 sm:flex-row sm:justify-end">
               <Button type="button" variant="outline" onClick={() => navigate({ to: "/colaborador/meus-epis" })}>
                 Cancelar
               </Button>

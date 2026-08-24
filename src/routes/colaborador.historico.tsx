@@ -31,28 +31,35 @@ function Historico() {
         Registros dos últimos dias — confirmações, observações e entregas.
       </p>
 
-      <div className="mt-6 space-y-3">
+      {/* A connected vertical timeline instead of a plain stack of identical rows —
+          matches what "histórico" actually is: a sequence of events, not a list. */}
+      <div className="mt-6">
         {historico.map((h, i) => (
-          <Card key={i} className="shadow-[var(--shadow-card)]">
-            <CardContent className="flex items-center gap-3 p-4">
-              <div
-                className={`grid h-10 w-10 shrink-0 place-items-center rounded-md ${
-                  h.tipo === "observacao"
-                    ? "bg-warning/15 text-warning"
-                    : h.tipo === "entrega"
+          <div key={i} className="relative flex gap-4 pb-5 last:pb-0">
+            {i !== historico.length - 1 && (
+              <span className="absolute left-5 top-10 h-[calc(100%-1.5rem)] w-px bg-border" />
+            )}
+            <div
+              className={`relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full border-4 border-background ${
+                h.tipo === "observacao"
+                  ? "bg-warning/15 text-warning"
+                  : h.tipo === "entrega"
                     ? "bg-primary/10 text-primary"
                     : "bg-success/15 text-success"
-                }`}
-              >
-                {h.tipo === "observacao" ? <MessageSquare className="h-5 w-5" /> : <CheckCircle2 className="h-5 w-5" />}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">{h.texto}</p>
-                <p className="text-xs text-muted-foreground">{h.data}</p>
-              </div>
-              <Badge variant="outline" className="shrink-0">{tipoLabels[h.tipo]}</Badge>
-            </CardContent>
-          </Card>
+              }`}
+            >
+              {h.tipo === "observacao" ? <MessageSquare className="h-5 w-5" /> : <CheckCircle2 className="h-5 w-5" />}
+            </div>
+            <Card className="flex-1 shadow-[var(--shadow-card)]">
+              <CardContent className="flex items-center gap-3 p-4">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">{h.texto}</p>
+                  <p className="text-xs text-muted-foreground">{h.data}</p>
+                </div>
+                <Badge variant="outline" className="shrink-0">{tipoLabels[h.tipo]}</Badge>
+              </CardContent>
+            </Card>
+          </div>
         ))}
       </div>
     </CollaboratorShell>

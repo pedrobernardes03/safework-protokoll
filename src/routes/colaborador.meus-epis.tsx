@@ -1,10 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { CheckCircle2, MessageSquarePlus, History, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Check, MessageSquarePlus, History, ShieldCheck } from "lucide-react";
 import { CollaboratorShell } from "@/components/safework/CollaboratorShell";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { meusEpis } from "@/lib/safework-data";
 import { toast } from "sonner";
@@ -14,9 +12,17 @@ export const Route = createFileRoute("/colaborador/meus-epis")({
   component: MeusEpis,
 });
 
+function formatValidade(iso: string) {
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
 function MeusEpis() {
-  const [confirmed, setConfirmed] = useState(false);
-  const [done, setDone] = useState(false);
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const checkedCount = meusEpis.filter((e) => checked[e.id]).length;
+  const allChecked = checkedCount === meusEpis.length;
 
   return (
     <CollaboratorShell>
@@ -36,62 +42,85 @@ function MeusEpis() {
       </section>
 
       <section className="mt-6">
-        <h2 className="text-lg font-semibold">EPIs obrigatórios</h2>
-        <p className="text-sm text-muted-foreground">
-          Confirme que está utilizando todos os equipamentos abaixo.
-        </p>
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold">EPIs obrigatórios</h2>
+            <p className="text-sm text-muted-foreground">Toque em cada item para confirmar o uso.</p>
+          </div>
+          <p className="shrink-0 text-sm font-semibold text-primary">
+            {checkedCount}/{meusEpis.length}
+          </p>
+        </div>
+
+        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+            style={{ width: `${(checkedCount / meusEpis.length) * 100}%` }}
+          />
+        </div>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {meusEpis.map((epi) => (
-            <Card key={epi.id} className="overflow-hidden">
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                  <epi.icon className="h-6 w-6" />
+          {meusEpis.map((epi) => {
+            const isChecked = !!checked[epi.id];
+            return (
+              <button
+                key={epi.id}
+                type="button"
+                onClick={() => setChecked((c) => ({ ...c, [epi.id]: !c[epi.id] }))}
+                className={`flex items-center gap-4 rounded-2xl border p-4 text-left shadow-[var(--shadow-card)] transition-colors ${
+                  isChecked ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"
+                }`}
+              >
+                <div
+                  className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl transition-colors ${
+                    isChecked ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
+                  }`}
+                >
+                  {isChecked ? <Check className="h-6 w-6" /> : <epi.icon className="h-6 w-6" />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="truncate font-semibold">{epi.nome}</p>
-                    {epi.obrigatorio && (
-                      <Badge variant="outline" className="border-danger/40 bg-danger/10 text-danger">
+                    {epi.obrigatorio && !isChecked && (
+                      <Badge variant="outline" className="shrink-0 border-danger/40 bg-danger/10 text-danger">
                         Obrigatório
                       </Badge>
                     )}
                   </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">CA {epi.ca}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    CA {epi.ca} · válido até {formatValidade(epi.validade)}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <div
+                  className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${
+                    isChecked ? "border-primary bg-primary" : "border-muted-foreground/30"
+                  }`}
+                >
+                  {isChecked && <Check className="h-4 w-4 text-primary-foreground" />}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </section>
 
       <section className="mt-6 rounded-2xl border bg-card p-6 shadow-[var(--shadow-card)]">
-        <label className="flex items-start gap-3">
-          <Checkbox
-            checked={confirmed}
-            onCheckedChange={(v) => setConfirmed(v === true)}
-            className="mt-0.5"
-          />
-          <span className="text-sm">
-            Confirmo que estou utilizando <strong>todos os EPIs obrigatórios</strong> descritos
-            acima e que estão em boas condições de uso.
-          </span>
-        </label>
-
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-muted-foreground">
-            Registro salvo automaticamente em seu histórico diário.
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-muted-foreground">
+            {allChecked
+              ? "Todos os EPIs confirmados. Registro salvo automaticamente em seu histórico."
+              : `Faltam ${meusEpis.length - checkedCount} equipamento${meusEpis.length - checkedCount > 1 ? "s" : ""} para confirmar.`}
           </p>
           <Button
             size="lg"
-            disabled={!confirmed || done}
+            disabled={!allChecked || submitted}
             onClick={() => {
-              setDone(true);
+              setSubmitted(true);
               toast.success("Confirmação registrada com sucesso.");
             }}
           >
             <CheckCircle2 className="mr-2 h-4 w-4" />
-            {done ? "Confirmado hoje" : "Confirmar"}
+            {submitted ? "Confirmado hoje" : "Concluir confirmação"}
           </Button>
         </div>
       </section>
