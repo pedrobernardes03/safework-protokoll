@@ -7,19 +7,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { HardHat, Search, Pencil, Trash2, Layers, Plus } from "lucide-react";
+import { HardHat, Search, Pencil, Trash2, Layers } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
+import { CreatableSelect } from "@/components/safework/CreatableSelect";
 import {
   epis as episIniciais,
   categoriasEpi,
   funcoesEpi,
+  setores,
   iconeParaEpi,
   addEpi,
   updateEpi,
   removeEpi,
   addCategoriaEpi,
   addFuncaoEpi,
+  addSetor,
   type Epi,
 } from "@/lib/safework-data";
 
@@ -32,6 +35,7 @@ function EpisPage() {
   const [lista, setLista] = useState<Epi[]>(() => [...episIniciais]);
   const [categorias, setCategorias] = useState<string[]>(() => [...categoriasEpi]);
   const [funcoes, setFuncoes] = useState<string[]>(() => [...funcoesEpi]);
+  const [setoresState, setSetoresState] = useState<string[]>(() => [...setores]);
   const [q, setQ] = useState("");
   const [categoriaAtiva, setCategoriaAtiva] = useState<string | null>(null);
 
@@ -79,9 +83,23 @@ function EpisPage() {
     toast.success(`Função "${nova}" criada.`);
   };
 
+  const handleCreateSetor = (novo: string) => {
+    addSetor(novo);
+    setSetoresState([...setores]);
+    toast.success(`Setor "${novo}" criado.`);
+  };
+
   return (
     <div className="mx-auto max-w-6xl grid gap-6 lg:grid-cols-[380px_1fr]">
-      <EpiForm categorias={categorias} funcoes={funcoes} onAdd={handleAdd} onCreateCategoria={handleCreateCategoria} onCreateFuncao={handleCreateFuncao} />
+      <EpiForm
+        categorias={categorias}
+        funcoes={funcoes}
+        setores={setoresState}
+        onAdd={handleAdd}
+        onCreateCategoria={handleCreateCategoria}
+        onCreateFuncao={handleCreateFuncao}
+        onCreateSetor={handleCreateSetor}
+      />
 
       <div className="min-w-0 space-y-6">
         {/* Categorias — clicar filtra o catálogo abaixo para aquela categoria específica */}
@@ -152,6 +170,7 @@ function EpisPage() {
                     <TableHead>EPI</TableHead>
                     <TableHead>Categoria</TableHead>
                     <TableHead>CA</TableHead>
+                    <TableHead>Setor</TableHead>
                     <TableHead>Função</TableHead>
                     <TableHead>Estoque</TableHead>
                     <TableHead>Validade</TableHead>
@@ -164,6 +183,7 @@ function EpisPage() {
                       <TableCell className="font-medium">{e.nome}</TableCell>
                       <TableCell className="text-muted-foreground">{e.categoria}</TableCell>
                       <TableCell className="font-mono text-sm">{e.ca}</TableCell>
+                      <TableCell><Badge variant="outline" className="border-primary/30 text-primary">{e.setor}</Badge></TableCell>
                       <TableCell><Badge variant="secondary">{e.funcao}</Badge></TableCell>
                       <TableCell>
                         <span className={e.estoque <= 10 ? "font-semibold text-warning-foreground" : ""}>
@@ -172,7 +192,16 @@ function EpisPage() {
                       </TableCell>
                       <TableCell>{new Date(e.validade).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell className="text-right">
-                        <EpiEditDialog epi={e} categorias={categorias} funcoes={funcoes} onSave={handleSave} onCreateCategoria={handleCreateCategoria} onCreateFuncao={handleCreateFuncao} />
+                        <EpiEditDialog
+                          epi={e}
+                          categorias={categorias}
+                          funcoes={funcoes}
+                          setores={setoresState}
+                          onSave={handleSave}
+                          onCreateCategoria={handleCreateCategoria}
+                          onCreateFuncao={handleCreateFuncao}
+                          onCreateSetor={handleCreateSetor}
+                        />
                         <Button size="icon" variant="ghost" className="text-danger hover:text-danger" onClick={() => handleDelete(e.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -189,115 +218,29 @@ function EpisPage() {
   );
 }
 
-// Select com opção de criar um novo valor na hora — evita ter que sair do formulário
-// pra cadastrar uma categoria ou função associada que ainda não existe na lista.
-function CreatableSelect({
-  label,
-  value,
-  onChange,
-  options,
-  onCreate,
-  required,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: string[];
-  onCreate: (novo: string) => void;
-  required?: boolean;
-}) {
-  const [criando, setCriando] = useState(false);
-  const [novo, setNovo] = useState("");
-
-  if (criando) {
-    return (
-      <div className="space-y-1.5">
-        <Label>{label}</Label>
-        <div className="flex gap-2">
-          <Input
-            autoFocus
-            value={novo}
-            onChange={(e) => setNovo(e.target.value)}
-            placeholder={`Nova ${label.toLowerCase()}`}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") { setCriando(false); setNovo(""); }
-            }}
-          />
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            title="Cancelar"
-            onClick={() => { setCriando(false); setNovo(""); }}
-          >
-            ×
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            disabled={!novo.trim()}
-            onClick={() => {
-              const v = novo.trim();
-              if (!v) return;
-              onCreate(v);
-              onChange(v);
-              setNovo("");
-              setCriando(false);
-            }}
-          >
-            Adicionar
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      <Select
-        required={required}
-        value={value}
-        onValueChange={(v) => {
-          if (v === "__nova__") {
-            setCriando(true);
-            return;
-          }
-          onChange(v);
-        }}
-      >
-        <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-        <SelectContent>
-          {options.map((o) => (
-            <SelectItem key={o} value={o}>{o}</SelectItem>
-          ))}
-          <SelectItem value="__nova__" className="font-semibold text-primary">
-            <span className="flex items-center gap-1.5"><Plus className="h-3.5 w-3.5" /> Criar nova...</span>
-          </SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-  );
-}
-
 function EpiForm({
   categorias,
   funcoes,
+  setores,
   onAdd,
   onCreateCategoria,
   onCreateFuncao,
+  onCreateSetor,
 }: {
   categorias: string[];
   funcoes: string[];
+  setores: string[];
   onAdd: (epi: Omit<Epi, "id">) => void;
   onCreateCategoria: (v: string) => void;
   onCreateFuncao: (v: string) => void;
+  onCreateSetor: (v: string) => void;
 }) {
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState("");
   const [ca, setCa] = useState("");
   const [validade, setValidade] = useState("");
   const [funcao, setFuncao] = useState("Todos");
+  const [setor, setSetor] = useState("Todos");
   const [estoque, setEstoque] = useState("");
 
   const reset = () => {
@@ -306,6 +249,7 @@ function EpiForm({
     setCa("");
     setValidade("");
     setFuncao("Todos");
+    setSetor("Todos");
     setEstoque("");
   };
 
@@ -325,6 +269,7 @@ function EpiForm({
               categoria,
               ca,
               funcao,
+              setor,
               validade,
               estoque: Number(estoque) || 0,
             });
@@ -347,11 +292,19 @@ function EpiForm({
             </div>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <CreatableSelect
+              label="Setor que usa"
+              value={setor}
+              onChange={setSetor}
+              options={setores}
+              onCreate={onCreateSetor}
+              required
+            />
             <CreatableSelect label="Função associada" value={funcao} onChange={setFuncao} options={funcoes} onCreate={onCreateFuncao} />
-            <div className="space-y-1.5">
-              <Label>Estoque inicial</Label>
-              <Input required type="number" min={0} placeholder="0" value={estoque} onChange={(e) => setEstoque(e.target.value)} />
-            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Estoque inicial</Label>
+            <Input required type="number" min={0} placeholder="0" value={estoque} onChange={(e) => setEstoque(e.target.value)} />
           </div>
           <Button type="submit" className="w-full">Salvar</Button>
         </form>
@@ -364,16 +317,20 @@ function EpiEditDialog({
   epi,
   categorias,
   funcoes,
+  setores,
   onSave,
   onCreateCategoria,
   onCreateFuncao,
+  onCreateSetor,
 }: {
   epi: Epi;
   categorias: string[];
   funcoes: string[];
+  setores: string[];
   onSave: (epi: Epi) => void;
   onCreateCategoria: (v: string) => void;
   onCreateFuncao: (v: string) => void;
+  onCreateSetor: (v: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState(epi.nome);
@@ -381,6 +338,7 @@ function EpiEditDialog({
   const [ca, setCa] = useState(epi.ca);
   const [validade, setValidade] = useState(epi.validade);
   const [funcao, setFuncao] = useState(epi.funcao);
+  const [setor, setSetor] = useState(epi.setor);
   const [estoque, setEstoque] = useState(String(epi.estoque));
 
   useEffect(() => {
@@ -390,6 +348,7 @@ function EpiEditDialog({
       setCa(epi.ca);
       setValidade(epi.validade);
       setFuncao(epi.funcao);
+      setSetor(epi.setor);
       setEstoque(String(epi.estoque));
     }
   }, [open, epi]);
@@ -408,7 +367,7 @@ function EpiEditDialog({
           className="grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            onSave({ ...epi, nome, categoria, ca, funcao, validade, estoque: Number(estoque) || 0 });
+            onSave({ ...epi, nome, categoria, ca, funcao, setor, validade, estoque: Number(estoque) || 0 });
             setOpen(false);
           }}
         >
@@ -428,11 +387,12 @@ function EpiEditDialog({
             </div>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <CreatableSelect label="Setor que usa" value={setor} onChange={setSetor} options={setores} onCreate={onCreateSetor} />
             <CreatableSelect label="Função associada" value={funcao} onChange={setFuncao} options={funcoes} onCreate={onCreateFuncao} />
-            <div className="space-y-1.5">
-              <Label>Estoque</Label>
-              <Input required type="number" min={0} value={estoque} onChange={(e) => setEstoque(e.target.value)} />
-            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Estoque</Label>
+            <Input required type="number" min={0} value={estoque} onChange={(e) => setEstoque(e.target.value)} />
           </div>
           <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>

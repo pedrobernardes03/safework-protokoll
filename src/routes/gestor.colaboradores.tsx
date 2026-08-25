@@ -10,10 +10,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Pencil, Trash2, Search, Building2, Users, HardHat } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { CreatableSelect } from "@/components/safework/CreatableSelect";
 import {
   colaboradores,
   epis,
   iconeParaEpi,
+  setores as setoresCatalogo,
+  addSetor,
   addColaborador,
   updateColaborador,
   removeColaborador,
@@ -22,6 +25,12 @@ import {
 } from "@/lib/safework-data";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
+
+// EPIs sugeridos automaticamente para um setor: os marcados para aquele setor
+// especificamente, mais os de uso universal ("Todos", ex.: capacete).
+function epiIdsSugeridosPorSetor(setor: string): string[] {
+  return epis.filter((e) => e.setor === setor || e.setor === "Todos").map((e) => e.id);
+}
 
 export const Route = createFileRoute("/gestor/colaboradores")({
   head: () => ({ meta: [{ title: "Colaboradores — SafeWork" }] }),
@@ -32,12 +41,21 @@ function ColaboradoresPage() {
   const [q, setQ] = useState("");
   const [setorAtivo, setSetorAtivo] = useState<string | null>(null);
   const [lista, setLista] = useState<Colaborador[]>(() => [...colaboradores]);
+  // "Todos" é um setor só para EPIs de uso universal — não faz sentido como setor de
+  // uma pessoa, então fica de fora das opções aqui.
+  const [setoresOptions, setSetoresOptions] = useState<string[]>(() => setoresCatalogo.filter((s) => s !== "Todos"));
 
-  const setores = useMemo(() => {
-    const counts = new Map<string, number>();
+  const setoresComContagem = useMemo(() => {
+    const counts = new Map<string, number>(setoresOptions.map((s) => [s, 0]));
     lista.forEach((c) => counts.set(c.setor, (counts.get(c.setor) ?? 0) + 1));
     return Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-  }, [lista]);
+  }, [lista, setoresOptions]);
+
+  const handleCreateSetor = (novo: string) => {
+    addSetor(novo);
+    setSetoresOptions(setoresCatalogo.filter((s) => s !== "Todos"));
+    toast.success(`Setor "${novo}" criado.`);
+  };
 
   const list = lista.filter(
     (c) =>
@@ -72,7 +90,7 @@ function ColaboradoresPage() {
           <h2 className="truncate text-2xl font-bold tracking-tight">Colaboradores</h2>
           <p className="text-sm text-muted-foreground">Cadastre e gerencie sua equipe.</p>
         </div>
-        <NewColaboradorDialog onAdd={handleAdd} />
+        <NewColaboradorDialog onAdd={handleAdd} setores={setoresOptions} onCreateSetor={handleCreateSetor} />
       </div>
 
       {/* Setores — clicar filtra a tabela abaixo para aquele setor específico */}
@@ -92,7 +110,7 @@ function ColaboradoresPage() {
             <p className="text-xs text-muted-foreground">{lista.length} colaboradores</p>
           </div>
         </button>
-        {setores.map(([setor, count]) => (
+        {setoresComContagem.map(([setor, count]) => (
           <button
             key={setor}
             type="button"
@@ -182,7 +200,7 @@ function ColaboradoresPage() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <EditColaboradorDialog colaborador={c} onSave={handleSave} />
+                      <EditColaboradorDialog colaborador={c} onSave={handleSave} setores={setoresOptions} onCreateSetor={handleCreateSetor} />
                       <Button
                         size="icon"
                         variant="ghost"
@@ -203,7 +221,15 @@ function ColaboradoresPage() {
   );
 }
 
-function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Omit<Colaborador, "id">) => void }) {
+function NewColaboradorDialog({
+  onAdd,
+  setores,
+  onCreateSetor,
+}: {
+  onAdd: (colaborador: Omit<Colaborador, "id">) => void;
+  setores: string[];
+  onCreateSetor: (v: string) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
@@ -261,7 +287,17 @@ function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Omit<Colaborador
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Cargo"><Input required value={cargo} onChange={(e) => setCargo(e.target.value)} /></Field>
-            <Field label="Setor"><Input required value={setor} onChange={(e) => setSetor(e.target.value)} /></Field>
+            <CreatableSelect
+              label="Setor"
+              value={setor}
+              onChange={(v) => {
+                setSetor(v);
+                setEpisObrigatorios(epiIdsSugeridosPorSetor(v));
+              }}
+              options={setores}
+              onCreate={onCreateSetor}
+              required
+            />
           </div>
           <Field label="E-mail corporativo"><Input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
           <Field label="Perfil de acesso">
@@ -288,9 +324,13 @@ function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Omit<Colaborador
 function EditColaboradorDialog({
   colaborador,
   onSave,
+  setores,
+  onCreateSetor,
 }: {
   colaborador: Colaborador;
   onSave: (colaborador: Colaborador) => void;
+  setores: string[];
+  onCreateSetor: (v: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState(colaborador.nome);
@@ -350,7 +390,17 @@ function EditColaboradorDialog({
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Cargo"><Input required value={cargo} onChange={(e) => setCargo(e.target.value)} /></Field>
-            <Field label="Setor"><Input required value={setor} onChange={(e) => setSetor(e.target.value)} /></Field>
+            <CreatableSelect
+              label="Setor"
+              value={setor}
+              onChange={(v) => {
+                setSetor(v);
+                setEpisObrigatorios(epiIdsSugeridosPorSetor(v));
+              }}
+              options={setores}
+              onCreate={onCreateSetor}
+              required
+            />
           </div>
           <Field label="E-mail corporativo"><Input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
           <Field label="Perfil de acesso">

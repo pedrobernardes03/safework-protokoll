@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Search, Plus, AlertCircle, Clock, ShieldCheck, RefreshCw, Trash2 } from "lucide-react";
-import { entregas as entregasIniciais, type EntregaEpi, type EpiStatus } from "@/lib/safework-data";
+import { entregas as entregasIniciais, setores as setoresCatalogo, type EntregaEpi, type EpiStatus } from "@/lib/safework-data";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -20,7 +20,7 @@ interface Certificado extends EntregaEpi {
   tipoEpi: string;
 }
 
-const setores = ["SST", "Manutenção", "Produção", "Logística"];
+const setores = setoresCatalogo.filter((s) => s !== "Todos");
 
 const tiposEpi = [
   "Proteção da cabeça",
