@@ -76,7 +76,7 @@ function SobrePage() {
             ))}
           </Reveal>
 
-          <section className="mt-20 grid gap-12 lg:grid-cols-2 lg:items-center">
+          <section className="mt-20 grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
             <Reveal className="relative">
               <div className="absolute -bottom-4 left-6 right-6 h-8 rounded-full bg-slate-900/10 blur-xl" />
               <img
@@ -117,7 +117,7 @@ function SobrePage() {
               </h2>
             </Reveal>
 
-            <div className="mt-10 grid gap-x-10 gap-y-10 sm:grid-cols-2">
+            <div className="mt-10 grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2">
               {values.map(({ icon: Icon, title, desc }, i) => (
                 <Reveal key={title} delay={i * 90} className="flex gap-5 border-t border-slate-200 pt-6">
                   <span className="font-serif text-3xl italic text-slate-300">

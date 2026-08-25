@@ -1,23 +1,80 @@
 import type { LucideIcon } from "lucide-react";
-import { HardHat, Glasses, Shield, Footprints } from "lucide-react";
+import { HardHat, Glasses, Shield, Footprints, ShieldCheck, Ear, Shirt } from "lucide-react";
 
 export type EpiStatus = "vigente" | "proximo" | "vencido";
 
-export interface EpiItem {
+// Catálogo geral de EPIs da empresa — gerenciado em /gestor/epis. Quais destes cada
+// colaborador é obrigado a usar fica em `Colaborador.episObrigatorios` (ver abaixo),
+// não aqui: o catálogo é "o que existe", a atribuição por pessoa é "o que ela usa".
+export interface Epi {
   id: string;
   nome: string;
-  icon: LucideIcon;
-  obrigatorio: boolean;
+  categoria: string;
   ca: string;
+  funcao: string;
   validade: string;
+  estoque: number;
 }
 
-export const meusEpis: EpiItem[] = [
-  { id: "capacete", nome: "Capacete", icon: HardHat, obrigatorio: true, ca: "12345", validade: "2026-08-15" },
-  { id: "oculos", nome: "Óculos de proteção", icon: Glasses, obrigatorio: true, ca: "22987", validade: "2026-11-02" },
-  { id: "luvas", nome: "Luvas", icon: Shield, obrigatorio: true, ca: "31402", validade: "2026-03-20" },
-  { id: "botina", nome: "Botina", icon: Footprints, obrigatorio: true, ca: "40551", validade: "2027-01-10" },
+export const categoriasEpi: string[] = [
+  "Proteção da cabeça",
+  "Proteção visual",
+  "Proteção das mãos",
+  "Proteção dos pés",
+  "Proteção facial",
+  "Proteção auditiva",
+  "Proteção do corpo",
 ];
+
+export const funcoesEpi: string[] = ["Todos", "Eletricista", "Soldador", "Operador de máquina", "Ajudante geral"];
+
+export const epis: Epi[] = [
+  { id: "1", nome: "Capacete de segurança", categoria: "Proteção da cabeça", ca: "12345", funcao: "Todos", validade: "2027-08-15", estoque: 42 },
+  { id: "2", nome: "Óculos de proteção", categoria: "Proteção visual", ca: "22987", funcao: "Todos", validade: "2027-11-02", estoque: 58 },
+  { id: "3", nome: "Luvas isolantes", categoria: "Proteção das mãos", ca: "31402", funcao: "Eletricista", validade: "2026-03-20", estoque: 15 },
+  { id: "4", nome: "Botina de segurança", categoria: "Proteção dos pés", ca: "40551", funcao: "Todos", validade: "2027-01-10", estoque: 30 },
+  { id: "5", nome: "Máscara de solda", categoria: "Proteção facial", ca: "50213", funcao: "Soldador", validade: "2026-05-18", estoque: 8 },
+  { id: "6", nome: "Colete refletivo", categoria: "Proteção do corpo", ca: "60112", funcao: "Ajudante geral", validade: "2026-09-01", estoque: 22 },
+];
+
+const iconePorCategoria: Record<string, LucideIcon> = {
+  "Proteção da cabeça": HardHat,
+  "Proteção visual": Glasses,
+  "Proteção das mãos": Shield,
+  "Proteção dos pés": Footprints,
+  "Proteção facial": ShieldCheck,
+  "Proteção auditiva": Ear,
+  "Proteção do corpo": Shirt,
+};
+
+export function iconeParaEpi(categoria: string): LucideIcon {
+  return iconePorCategoria[categoria] ?? HardHat;
+}
+
+export function addEpi(input: Omit<Epi, "id">): Epi {
+  const nextNum = Math.max(0, ...epis.map((e) => Number(e.id) || 0)) + 1;
+  const novo: Epi = { id: String(nextNum), ...input };
+  epis.unshift(novo);
+  return novo;
+}
+
+export function updateEpi(atualizado: Epi) {
+  const idx = epis.findIndex((e) => e.id === atualizado.id);
+  if (idx !== -1) epis[idx] = atualizado;
+}
+
+export function removeEpi(id: string) {
+  const idx = epis.findIndex((e) => e.id === id);
+  if (idx !== -1) epis.splice(idx, 1);
+}
+
+export function addCategoriaEpi(nome: string) {
+  if (!categoriasEpi.includes(nome)) categoriasEpi.push(nome);
+}
+
+export function addFuncaoEpi(nome: string) {
+  if (!funcoesEpi.includes(nome)) funcoesEpi.push(nome);
+}
 
 export interface Observacao {
   id: string;
@@ -172,15 +229,35 @@ export interface Colaborador {
   setor: string;
   email: string;
   perfil: Perfil;
+  // IDs do catálogo `epis` — define exatamente o que aparece no checklist "Meus EPIs"
+  // deste colaborador. É o que faz a tela dele não pedir confirmação de um equipamento
+  // que a função dele nem usa (ex.: colete para quem não trabalha em pátio/logística).
+  episObrigatorios: string[];
 }
 
 export const colaboradores: Colaborador[] = [
-  { id: "1", nome: "Ana Beatriz Silva", matricula: "10001", cpf: "123.456.789-00", cargo: "Engenheira de Segurança", setor: "SST", email: "ana.silva@empresa.com", perfil: "Gestor" },
-  { id: "2", nome: "Carlos Menezes", matricula: "10298", cpf: "234.567.890-11", cargo: "Eletricista", setor: "Manutenção", email: "carlos.m@empresa.com", perfil: "Colaborador" },
-  { id: "3", nome: "Juliana Prado", matricula: "10455", cpf: "345.678.901-22", cargo: "Operadora de máquina", setor: "Produção", email: "juliana.p@empresa.com", perfil: "Colaborador" },
-  { id: "4", nome: "Rafael Souza", matricula: "10122", cpf: "456.789.012-33", cargo: "Soldador", setor: "Produção", email: "rafael.s@empresa.com", perfil: "Colaborador" },
-  { id: "5", nome: "Marina Alves", matricula: "10390", cpf: "567.890.123-44", cargo: "Ajudante geral", setor: "Logística", email: "marina.a@empresa.com", perfil: "Colaborador" },
+  { id: "1", nome: "Ana Beatriz Silva", matricula: "10001", cpf: "123.456.789-00", cargo: "Engenheira de Segurança", setor: "SST", email: "ana.silva@empresa.com", perfil: "Gestor", episObrigatorios: [] },
+  { id: "2", nome: "Carlos Menezes", matricula: "10298", cpf: "234.567.890-11", cargo: "Eletricista", setor: "Manutenção", email: "carlos.m@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "2", "3", "4"] },
+  { id: "3", nome: "Juliana Prado", matricula: "10455", cpf: "345.678.901-22", cargo: "Operadora de máquina", setor: "Produção", email: "juliana.p@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "2", "4"] },
+  { id: "4", nome: "Rafael Souza", matricula: "10122", cpf: "456.789.012-33", cargo: "Soldador", setor: "Produção", email: "rafael.s@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "5"] },
+  { id: "5", nome: "Marina Alves", matricula: "10390", cpf: "567.890.123-44", cargo: "Ajudante geral", setor: "Logística", email: "marina.a@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "6"] },
 ];
+
+export function addColaborador(input: Omit<Colaborador, "id">): Colaborador {
+  const novo: Colaborador = { id: Math.random().toString(36).slice(2), ...input };
+  colaboradores.unshift(novo);
+  return novo;
+}
+
+export function updateColaborador(atualizado: Colaborador) {
+  const idx = colaboradores.findIndex((c) => c.id === atualizado.id);
+  if (idx !== -1) colaboradores[idx] = atualizado;
+}
+
+export function removeColaborador(id: string) {
+  const idx = colaboradores.findIndex((c) => c.id === id);
+  if (idx !== -1) colaboradores.splice(idx, 1);
+}
 
 export interface EntregaEpi {
   id: string;

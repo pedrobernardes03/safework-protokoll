@@ -73,7 +73,7 @@ function DetailPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6 pt-6">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Info label="EPI" value={obs.epi} />
             <Info label="Tipo do problema" value={obs.tipo} />
             <Info label="Data do registro" value={new Date(obs.data).toLocaleDateString("pt-BR")} />
@@ -134,7 +134,7 @@ function DetailPage() {
               setStatusAvisado(status);
             }}
           >
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label>Status</Label>
                 <Select value={status} onValueChange={(v) => setStatus(v as Observacao["status"])}>
@@ -155,7 +155,7 @@ function DetailPage() {
                 value={acao}
                 onChange={(e) => setAcao(e.target.value)}
                 rows={4}
-                placeholder="Descreva a ação realizada para tratar a ocorrência..."
+                placeholder="Escreva uma nova nota para o colaborador (opcional)..."
               />
             </div>
 
@@ -177,3 +177,4 @@ function Info({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+  

@@ -7,9 +7,19 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Search, Building2, Users } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Pencil, Trash2, Search, Building2, Users, HardHat } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { colaboradores, type Colaborador, type Perfil } from "@/lib/safework-data";
+import {
+  colaboradores,
+  epis,
+  iconeParaEpi,
+  addColaborador,
+  updateColaborador,
+  removeColaborador,
+  type Colaborador,
+  type Perfil,
+} from "@/lib/safework-data";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
@@ -35,18 +45,23 @@ function ColaboradoresPage() {
       (!setorAtivo || c.setor === setorAtivo),
   );
 
+  // Sempre mutando o array compartilhado — é o que faz um EPI atribuído aqui aparecer
+  // de verdade na tela "Meus EPIs" do colaborador, e não só nesta tabela.
   const handleSave = (updated: Colaborador) => {
-    setLista((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+    updateColaborador(updated);
+    setLista([...colaboradores]);
     toast.success("Colaborador atualizado com sucesso.");
   };
 
-  const handleAdd = (novo: Colaborador) => {
-    setLista((prev) => [novo, ...prev]);
+  const handleAdd = (novo: Omit<Colaborador, "id">) => {
+    addColaborador(novo);
+    setLista([...colaboradores]);
     toast.success("Colaborador cadastrado com sucesso.");
   };
 
   const handleDelete = (id: string) => {
-    setLista((prev) => prev.filter((c) => c.id !== id));
+    removeColaborador(id);
+    setLista([...colaboradores]);
     toast.success("Colaborador removido.");
   };
 
@@ -129,6 +144,7 @@ function ColaboradoresPage() {
                   <TableHead>Cargo</TableHead>
                   <TableHead>Setor</TableHead>
                   <TableHead>Perfil</TableHead>
+                  <TableHead>EPIs obrigatórios</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -156,6 +172,15 @@ function ColaboradoresPage() {
                         {c.perfil}
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      {c.episObrigatorios.length > 0 ? (
+                        <Badge variant="outline" className="gap-1 border-primary/30 text-primary">
+                          <HardHat className="h-3 w-3" /> {c.episObrigatorios.length}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Nenhum definido</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <EditColaboradorDialog colaborador={c} onSave={handleSave} />
                       <Button
@@ -178,7 +203,7 @@ function ColaboradoresPage() {
   );
 }
 
-function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Colaborador) => void }) {
+function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Omit<Colaborador, "id">) => void }) {
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
@@ -187,6 +212,7 @@ function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Colaborador) => 
   const [setor, setSetor] = useState("");
   const [email, setEmail] = useState("");
   const [perfil, setPerfil] = useState<Perfil>("Colaborador");
+  const [episObrigatorios, setEpisObrigatorios] = useState<string[]>([]);
 
   const reset = () => {
     setNome("");
@@ -196,6 +222,7 @@ function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Colaborador) => 
     setSetor("");
     setEmail("");
     setPerfil("Colaborador");
+    setEpisObrigatorios([]);
   };
 
   return (
@@ -212,8 +239,7 @@ function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Colaborador) => 
           className="grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            const novo: Colaborador = {
-              id: Math.random().toString(36).slice(2),
+            const novo: Omit<Colaborador, "id"> = {
               nome,
               cpf,
               matricula,
@@ -221,6 +247,7 @@ function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Colaborador) => 
               setor,
               email,
               perfil,
+              episObrigatorios,
             };
             onAdd(novo);
             setOpen(false);
@@ -228,11 +255,11 @@ function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Colaborador) => 
           }}
         >
           <Field label="Nome completo"><Input required value={nome} onChange={(e) => setNome(e.target.value)} /></Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="CPF"><Input required placeholder="000.000.000-00" value={cpf} onChange={(e) => setCpf(e.target.value)} /></Field>
             <Field label="Matrícula"><Input required value={matricula} onChange={(e) => setMatricula(e.target.value)} /></Field>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Cargo"><Input required value={cargo} onChange={(e) => setCargo(e.target.value)} /></Field>
             <Field label="Setor"><Input required value={setor} onChange={(e) => setSetor(e.target.value)} /></Field>
           </div>
@@ -247,6 +274,7 @@ function NewColaboradorDialog({ onAdd }: { onAdd: (colaborador: Colaborador) => 
               </SelectContent>
             </Select>
           </Field>
+          <EpiChecklistField selecionados={episObrigatorios} onChange={setEpisObrigatorios} />
           <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
             <Button type="submit">Cadastrar</Button>
@@ -272,6 +300,7 @@ function EditColaboradorDialog({
   const [setor, setSetor] = useState(colaborador.setor);
   const [email, setEmail] = useState(colaborador.email);
   const [perfil, setPerfil] = useState(colaborador.perfil);
+  const [episObrigatorios, setEpisObrigatorios] = useState<string[]>(colaborador.episObrigatorios);
 
   useEffect(() => {
     if (open) {
@@ -282,6 +311,7 @@ function EditColaboradorDialog({
       setSetor(colaborador.setor);
       setEmail(colaborador.email);
       setPerfil(colaborador.perfil);
+      setEpisObrigatorios(colaborador.episObrigatorios);
     }
   }, [open, colaborador]);
 
@@ -308,16 +338,17 @@ function EditColaboradorDialog({
               setor,
               email,
               perfil,
+              episObrigatorios,
             });
             setOpen(false);
           }}
         >
           <Field label="Nome completo"><Input required value={nome} onChange={(e) => setNome(e.target.value)} /></Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="CPF"><Input required value={cpf} onChange={(e) => setCpf(e.target.value)} /></Field>
             <Field label="Matrícula"><Input required value={matricula} onChange={(e) => setMatricula(e.target.value)} /></Field>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Cargo"><Input required value={cargo} onChange={(e) => setCargo(e.target.value)} /></Field>
             <Field label="Setor"><Input required value={setor} onChange={(e) => setSetor(e.target.value)} /></Field>
           </div>
@@ -332,6 +363,7 @@ function EditColaboradorDialog({
               </SelectContent>
             </Select>
           </Field>
+          <EpiChecklistField selecionados={episObrigatorios} onChange={setEpisObrigatorios} />
           <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
             <Button type="submit">Salvar alterações</Button>
@@ -339,6 +371,48 @@ function EditColaboradorDialog({
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// É aqui que a segurança "direciona" o que cada pessoa precisa usar — em vez de todo
+// colaborador ver a mesma lista de EPIs, cada um só vê (e confirma) o que foi marcado
+// para ele aqui, individualmente.
+function EpiChecklistField({
+  selecionados,
+  onChange,
+}: {
+  selecionados: string[];
+  onChange: (ids: string[]) => void;
+}) {
+  const toggle = (id: string) => {
+    onChange(selecionados.includes(id) ? selecionados.filter((i) => i !== id) : [...selecionados, id]);
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <Label>EPIs obrigatórios para este colaborador</Label>
+      <p className="text-xs text-muted-foreground">
+        Só o que for marcado aqui aparece na tela "Meus EPIs" dele para confirmação.
+      </p>
+      <div className="grid max-h-48 grid-cols-1 gap-2 overflow-y-auto rounded-lg border p-3 sm:grid-cols-2">
+        {epis.map((epi) => {
+          const Icon = iconeParaEpi(epi.categoria);
+          const checked = selecionados.includes(epi.id);
+          return (
+            <label
+              key={epi.id}
+              className={`flex cursor-pointer items-center gap-2 rounded-md p-1.5 text-sm transition-colors ${
+                checked ? "bg-primary/5" : "hover:bg-muted/60"
+              }`}
+            >
+              <Checkbox checked={checked} onCheckedChange={() => toggle(epi.id)} />
+              <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <span className="truncate">{epi.nome}</span>
+            </label>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

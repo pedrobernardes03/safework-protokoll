@@ -352,7 +352,7 @@ function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Certificado) => void })
           }}
         >
           <Field label="Colaborador"><Input required value={colaborador} onChange={(e) => setColaborador(e.target.value)} /></Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Matrícula"><Input required value={matricula} onChange={(e) => setMatricula(e.target.value)} /></Field>
             <Field label="Cargo"><Input required value={cargo} onChange={(e) => setCargo(e.target.value)} /></Field>
           </div>
@@ -366,7 +366,7 @@ function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Certificado) => void })
               </SelectContent>
             </Select>
           </Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="EPI"><Input required value={epi} onChange={(e) => setEpi(e.target.value)} /></Field>
             <Field label="Número do CA"><Input required value={ca} onChange={(e) => setCa(e.target.value)} /></Field>
           </div>
@@ -380,7 +380,7 @@ function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Certificado) => void })
               </SelectContent>
             </Select>
           </Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Data de entrega"><Input required type="date" value={dataEntrega} onChange={(e) => setDataEntrega(e.target.value)} /></Field>
             <Field label="Validade do CA"><Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} /></Field>
           </div>

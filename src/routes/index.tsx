@@ -55,7 +55,7 @@ function Landing() {
             />
           </div>
 
-          <section className="relative grid gap-12 lg:grid-cols-12 lg:items-center">
+          <section className="relative grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
 
             {/* Left Column Content — an editorial layout (kicker + oversized headline + a metric
                 strip standing in for the usual proof-badge) instead of the generic
@@ -155,7 +155,9 @@ function Landing() {
                     >
                       <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${event.tint}`} />
                       <event.icon className="h-4 w-4 shrink-0 text-white/50" />
-                      <p className="flex-1 truncate text-xs font-medium text-white/90">{event.text}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-medium text-white/90">{event.text}</p>
+                      </div>
                       <span className="shrink-0 text-[11px] text-white/40">{event.time}</span>
                     </div>
                   ))}
@@ -189,7 +191,7 @@ function Landing() {
 
         {/* Feature Highlights Row Container (4 Pillars) */}
         <section className="mt-20 rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
             {[
               {
                 icon: ShieldCheck,

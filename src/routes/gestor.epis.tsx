@@ -10,45 +10,28 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { HardHat, Search, Pencil, Trash2, Layers, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
+import {
+  epis as episIniciais,
+  categoriasEpi,
+  funcoesEpi,
+  iconeParaEpi,
+  addEpi,
+  updateEpi,
+  removeEpi,
+  addCategoriaEpi,
+  addFuncaoEpi,
+  type Epi,
+} from "@/lib/safework-data";
 
 export const Route = createFileRoute("/gestor/epis")({
   head: () => ({ meta: [{ title: "Cadastro de EPIs — SafeWork" }] }),
   component: EpisPage,
 });
 
-interface Epi {
-  id: string;
-  nome: string;
-  categoria: string;
-  ca: string;
-  funcao: string;
-  validade: string;
-  estoque: number;
-}
-
-const categoriasIniciais = [
-  "Proteção da cabeça",
-  "Proteção visual",
-  "Proteção das mãos",
-  "Proteção dos pés",
-  "Proteção facial",
-  "Proteção auditiva",
-];
-
-const funcoesIniciais = ["Todos", "Eletricista", "Soldador", "Operador de máquina", "Ajudante geral"];
-
-const episIniciais: Epi[] = [
-  { id: "1", nome: "Capacete de segurança", categoria: "Proteção da cabeça", ca: "12345", funcao: "Todos", validade: "2027-08-15", estoque: 42 },
-  { id: "2", nome: "Óculos de proteção", categoria: "Proteção visual", ca: "22987", funcao: "Todos", validade: "2027-11-02", estoque: 58 },
-  { id: "3", nome: "Luvas isolantes", categoria: "Proteção das mãos", ca: "31402", funcao: "Eletricista", validade: "2026-03-20", estoque: 15 },
-  { id: "4", nome: "Botina de segurança", categoria: "Proteção dos pés", ca: "40551", funcao: "Todos", validade: "2027-01-10", estoque: 30 },
-  { id: "5", nome: "Máscara de solda", categoria: "Proteção facial", ca: "50213", funcao: "Soldador", validade: "2026-05-18", estoque: 8 },
-];
-
 function EpisPage() {
-  const [lista, setLista] = useState<Epi[]>(episIniciais);
-  const [categorias, setCategorias] = useState<string[]>(categoriasIniciais);
-  const [funcoes, setFuncoes] = useState<string[]>(funcoesIniciais);
+  const [lista, setLista] = useState<Epi[]>(() => [...episIniciais]);
+  const [categorias, setCategorias] = useState<string[]>(() => [...categoriasEpi]);
+  const [funcoes, setFuncoes] = useState<string[]>(() => [...funcoesEpi]);
   const [q, setQ] = useState("");
   const [categoriaAtiva, setCategoriaAtiva] = useState<string | null>(null);
 
@@ -64,28 +47,35 @@ function EpisPage() {
       (!categoriaAtiva || e.categoria === categoriaAtiva),
   );
 
-  const handleAdd = (novo: Epi) => {
-    setLista((prev) => [novo, ...prev]);
-    toast.success("EPI cadastrado com sucesso.");
+  // Toda mutação passa pelo catálogo compartilhado (safework-data.ts) — é o que faz o
+  // colaborador ver, na hora, um EPI novo cadastrado aqui quando o gestor o atribuir a ele.
+  const handleAdd = (novo: Omit<Epi, "id">) => {
+    const criado = addEpi(novo);
+    setLista([...episIniciais]);
+    toast.success(`"${criado.nome}" cadastrado com sucesso.`);
   };
 
   const handleSave = (atualizado: Epi) => {
-    setLista((prev) => prev.map((e) => (e.id === atualizado.id ? atualizado : e)));
+    updateEpi(atualizado);
+    setLista([...episIniciais]);
     toast.success("EPI atualizado com sucesso.");
   };
 
   const handleDelete = (id: string) => {
-    setLista((prev) => prev.filter((e) => e.id !== id));
+    removeEpi(id);
+    setLista([...episIniciais]);
     toast.success("EPI removido do catálogo.");
   };
 
   const handleCreateCategoria = (nova: string) => {
-    setCategorias((prev) => (prev.includes(nova) ? prev : [...prev, nova]));
+    addCategoriaEpi(nova);
+    setCategorias([...categoriasEpi]);
     toast.success(`Categoria "${nova}" criada.`);
   };
 
   const handleCreateFuncao = (nova: string) => {
-    setFuncoes((prev) => (prev.includes(nova) ? prev : [...prev, nova]));
+    addFuncaoEpi(nova);
+    setFuncoes([...funcoesEpi]);
     toast.success(`Função "${nova}" criada.`);
   };
 
@@ -93,7 +83,7 @@ function EpisPage() {
     <div className="mx-auto max-w-6xl grid gap-6 lg:grid-cols-[380px_1fr]">
       <EpiForm categorias={categorias} funcoes={funcoes} onAdd={handleAdd} onCreateCategoria={handleCreateCategoria} onCreateFuncao={handleCreateFuncao} />
 
-      <div className="space-y-6">
+      <div className="min-w-0 space-y-6">
         {/* Categorias — clicar filtra o catálogo abaixo para aquela categoria específica */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <button
@@ -121,7 +111,7 @@ function EpisPage() {
               }`}
             >
               <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                <HardHat className="h-4 w-4" />
+                {(() => { const Icon = iconeParaEpi(categoria); return <Icon className="h-4 w-4" />; })()}
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold leading-snug">{categoria}</p>
@@ -299,7 +289,7 @@ function EpiForm({
 }: {
   categorias: string[];
   funcoes: string[];
-  onAdd: (epi: Epi) => void;
+  onAdd: (epi: Omit<Epi, "id">) => void;
   onCreateCategoria: (v: string) => void;
   onCreateFuncao: (v: string) => void;
 }) {
@@ -331,7 +321,6 @@ function EpiForm({
           onSubmit={(e) => {
             e.preventDefault();
             onAdd({
-              id: Math.random().toString(36).slice(2),
               nome,
               categoria,
               ca,
@@ -347,7 +336,7 @@ function EpiForm({
             <Input required placeholder="Ex.: Capacete de segurança" value={nome} onChange={(e) => setNome(e.target.value)} />
           </div>
           <CreatableSelect label="Categoria" value={categoria} onChange={setCategoria} options={categorias} onCreate={onCreateCategoria} required />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>Número do CA</Label>
               <Input required placeholder="12345" value={ca} onChange={(e) => setCa(e.target.value)} />
@@ -357,7 +346,7 @@ function EpiForm({
               <Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <CreatableSelect label="Função associada" value={funcao} onChange={setFuncao} options={funcoes} onCreate={onCreateFuncao} />
             <div className="space-y-1.5">
               <Label>Estoque inicial</Label>
@@ -428,7 +417,7 @@ function EpiEditDialog({
             <Input required value={nome} onChange={(e) => setNome(e.target.value)} />
           </div>
           <CreatableSelect label="Categoria" value={categoria} onChange={setCategoria} options={categorias} onCreate={onCreateCategoria} />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>Número do CA</Label>
               <Input required value={ca} onChange={(e) => setCa(e.target.value)} />
@@ -438,7 +427,7 @@ function EpiEditDialog({
               <Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <CreatableSelect label="Função associada" value={funcao} onChange={setFuncao} options={funcoes} onCreate={onCreateFuncao} />
             <div className="space-y-1.5">
               <Label>Estoque</Label>

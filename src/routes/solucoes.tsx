@@ -238,7 +238,7 @@ function SolucoesPage() {
               />
               <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-primary/25 blur-3xl" />
 
-              <div className="relative grid lg:grid-cols-[280px_1fr]">
+              <div className="relative grid grid-cols-1 lg:grid-cols-[280px_1fr]">
                 <nav className="flex gap-1 overflow-x-auto border-b border-white/10 p-3 lg:flex-col lg:overflow-visible lg:border-b-0 lg:border-r lg:p-4">
                   {modules.map((m, i) => (
                     <button
@@ -269,7 +269,7 @@ function SolucoesPage() {
           </Reveal>
 
           {/* Personas — a slim two-column strip, no bordered cards or bullet lists */}
-          <Reveal className="mt-16 grid gap-8 border-t border-slate-200 pt-10 sm:grid-cols-2">
+          <Reveal className="mt-16 grid grid-cols-1 gap-8 border-t border-slate-200 pt-10 sm:grid-cols-2">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Colaborador</p>
               <p className="mt-2 text-2xl font-extrabold text-slate-900">

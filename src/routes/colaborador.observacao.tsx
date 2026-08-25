@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { meusEpis, addObservacao, addMensagem, addNotificacao, type Observacao } from "@/lib/safework-data";
+import { colaboradores, epis, iconeParaEpi, addObservacao, addMensagem, addNotificacao, type Observacao } from "@/lib/safework-data";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -19,14 +19,27 @@ const tipos = ["Danificado", "Desgastado", "Desconfortável", "Outro"] as const;
 
 // A área do colaborador simula sempre o mesmo usuário (Carlos Menezes), igual ao resto
 // das telas de colaborador — usado tanto para criar a observação quanto a mensagem.
-const COLABORADOR = { nome: "Carlos Menezes", matricula: "10298", cargo: "Eletricista" };
+const MATRICULA = "10298";
+const colaboradorAtual = colaboradores.find((c) => c.matricula === MATRICULA)!;
+const COLABORADOR = { nome: colaboradorAtual.nome, matricula: colaboradorAtual.matricula, cargo: colaboradorAtual.cargo };
+
+// A observação pode ser sobre qualquer equipamento do catálogo — não só os que são
+// obrigatórios para este colaborador — mas os dele aparecem primeiro na lista por
+// conveniência, já que é o caso mais comum.
+const equipamentos = [...epis].sort((a, b) => {
+  const aMeu = colaboradorAtual.episObrigatorios.includes(a.id);
+  const bMeu = colaboradorAtual.episObrigatorios.includes(b.id);
+  if (aMeu !== bMeu) return aMeu ? -1 : 1;
+  return a.nome.localeCompare(b.nome);
+});
 
 function ObservacaoPage() {
   const navigate = useNavigate();
-  const [epiId, setEpiId] = useState(meusEpis[0].id);
+  const [epiId, setEpiId] = useState(equipamentos[0].id);
   const [tipo, setTipo] = useState<Observacao["tipo"]>("Danificado");
   const [descricao, setDescricao] = useState("");
-  const epi = meusEpis.find((e) => e.id === epiId) ?? meusEpis[0];
+  const epi = equipamentos.find((e) => e.id === epiId) ?? equipamentos[0];
+  const EpiIcon = iconeParaEpi(epi.categoria);
 
   return (
     <CollaboratorShell back={{ to: "/colaborador/meus-epis", label: "Meus EPIs" }}>
@@ -76,12 +89,12 @@ function ObservacaoPage() {
               </Label>
               <div className="flex items-center gap-3">
                 <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                  <epi.icon className="h-5 w-5" />
+                  <EpiIcon className="h-5 w-5" />
                 </div>
                 <Select value={epiId} onValueChange={setEpiId}>
                   <SelectTrigger id="epi" className="flex-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {meusEpis.map((e) => (
+                    {equipamentos.map((e) => (
                       <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>
                     ))}
                   </SelectContent>

@@ -54,7 +54,7 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
+    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       {/* Hero panel — a single full-bleed video, no overlays */}
       <div className="relative hidden overflow-hidden bg-slate-900 lg:block">
         <video

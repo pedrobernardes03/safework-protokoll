@@ -48,7 +48,7 @@ function ObservacoesPage() {
         </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {colunas.map((coluna) => {
           const itens = filtered.filter((o) => o.status === coluna.status);
           return (
