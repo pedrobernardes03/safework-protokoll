@@ -4,7 +4,8 @@ import { Search, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChatThread } from "@/components/safework/ChatThread";
-import { conversas as conversasIniciais, addMensagem, type Conversa } from "@/lib/safework-data";
+import { Badge } from "@/components/ui/badge";
+import { conversas as conversasIniciais, addMensagem, colaboradorRemovido, type Conversa } from "@/lib/safework-data";
 
 export const Route = createFileRoute("/gestor/mensagens")({
   head: () => ({ meta: [{ title: "Mensagens — SafeWork" }] }),
@@ -79,7 +80,14 @@ function MensagensPage() {
                 <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">{iniciais(ativa.colaborador)}</AvatarFallback>
               </Avatar>
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{ativa.colaborador}</p>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <p className="truncate text-sm font-semibold">{ativa.colaborador}</p>
+                  {colaboradorRemovido(ativa.matricula) && (
+                    <Badge variant="outline" className="shrink-0 border-muted-foreground/30 text-[10px] text-muted-foreground">
+                      Usuário removido
+                    </Badge>
+                  )}
+                </div>
                 <p className="truncate text-xs text-muted-foreground">{ativa.cargo}</p>
               </div>
             </div>

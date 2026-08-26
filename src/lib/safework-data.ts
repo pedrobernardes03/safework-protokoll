@@ -6,7 +6,7 @@ export type EpiStatus = "vigente" | "proximo" | "vencido";
 // Setores da empresa — únicos e compartilhados entre colaboradores e o catálogo de EPIs.
 // "Todos" é um setor especial só para EPIs de uso universal (capacete, óculos, etc.);
 // nenhum colaborador de verdade tem "Todos" como setor.
-export const setores: string[] = ["Todos", "SST", "Manutenção", "Produção", "Logística"];
+export const setores: string[] = ["Todos", "SST", "TI", "Manutenção", "Produção", "Logística"];
 
 export function addSetor(nome: string) {
   if (!setores.includes(nome)) setores.push(nome);
@@ -245,14 +245,18 @@ export interface Colaborador {
   // deste colaborador. É o que faz a tela dele não pedir confirmação de um equipamento
   // que a função dele nem usa (ex.: colete para quem não trabalha em pátio/logística).
   episObrigatorios: string[];
+  // Desativar é reversível e preserva o histórico (observações, entregas, mensagens);
+  // excluir apaga o cadastro. Controlado em /gestor/usuarios, domínio do setor de TI.
+  ativo: boolean;
 }
 
 export const colaboradores: Colaborador[] = [
-  { id: "1", nome: "Ana Beatriz Silva", matricula: "10001", cpf: "123.456.789-00", cargo: "Engenheira de Segurança", setor: "SST", email: "ana.silva@empresa.com", perfil: "Administrador", episObrigatorios: [] },
-  { id: "2", nome: "Carlos Menezes", matricula: "10298", cpf: "234.567.890-11", cargo: "Eletricista", setor: "Manutenção", email: "carlos.m@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "2", "3", "4"] },
-  { id: "3", nome: "Juliana Prado", matricula: "10455", cpf: "345.678.901-22", cargo: "Operadora de máquina", setor: "Produção", email: "juliana.p@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "2", "4"] },
-  { id: "4", nome: "Rafael Souza", matricula: "10122", cpf: "456.789.012-33", cargo: "Soldador", setor: "Produção", email: "rafael.s@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "5"] },
-  { id: "5", nome: "Marina Alves", matricula: "10390", cpf: "567.890.123-44", cargo: "Ajudante geral", setor: "Logística", email: "marina.a@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "6"] },
+  { id: "1", nome: "Ana Beatriz Silva", matricula: "10001", cpf: "123.456.789-00", cargo: "Engenheira de Segurança", setor: "SST", email: "ana.silva@empresa.com", perfil: "Administrador", episObrigatorios: [], ativo: true },
+  { id: "2", nome: "Carlos Menezes", matricula: "10298", cpf: "234.567.890-11", cargo: "Eletricista", setor: "Manutenção", email: "carlos.m@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "2", "3", "4"], ativo: true },
+  { id: "3", nome: "Juliana Prado", matricula: "10455", cpf: "345.678.901-22", cargo: "Operadora de máquina", setor: "Produção", email: "juliana.p@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "2", "4"], ativo: true },
+  { id: "4", nome: "Rafael Souza", matricula: "10122", cpf: "456.789.012-33", cargo: "Soldador", setor: "Produção", email: "rafael.s@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "5"], ativo: true },
+  { id: "5", nome: "Marina Alves", matricula: "10390", cpf: "567.890.123-44", cargo: "Ajudante geral", setor: "Logística", email: "marina.a@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "6"], ativo: true },
+  { id: "6", nome: "Rodrigo Lima", matricula: "10007", cpf: "678.901.234-55", cargo: "Analista de TI", setor: "TI", email: "rodrigo.lima@empresa.com", perfil: "Administrador", episObrigatorios: [], ativo: true },
 ];
 
 // Simula a sessão logada da área do gestor (não há autenticação real ainda) — é o que
@@ -276,6 +280,13 @@ export function updateColaborador(atualizado: Colaborador) {
 export function removeColaborador(id: string) {
   const idx = colaboradores.findIndex((c) => c.id === id);
   if (idx !== -1) colaboradores.splice(idx, 1);
+}
+
+// Observações, entregas e mensagens guardam o nome/matrícula como texto no momento do
+// registro — por isso sobrevivem à exclusão do cadastro. Isso só verifica se a pessoa
+// ainda existe, para as telas poderem avisar "usuário removido" ao lado do nome.
+export function colaboradorRemovido(matricula: string): boolean {
+  return !colaboradores.some((c) => c.matricula === matricula);
 }
 
 export interface EntregaEpi {

@@ -178,7 +178,12 @@ function ColaboradoresPage() {
                           </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
-                          <p className="truncate font-medium">{c.nome}</p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="truncate font-medium">{c.nome}</p>
+                            {!c.ativo && (
+                              <Badge variant="outline" className="shrink-0 border-danger/30 text-[10px] text-danger">Inativo</Badge>
+                            )}
+                          </div>
                           <p className="truncate text-xs text-muted-foreground">{c.email}</p>
                         </div>
                       </div>
@@ -275,6 +280,7 @@ function NewColaboradorDialog({
               email,
               perfil,
               episObrigatorios,
+              ativo: true,
             };
             onAdd(novo);
             setOpen(false);

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, MessageCircle } from "lucide-react";
-import { observacoes, addMensagem, type Observacao } from "@/lib/safework-data";
+import { observacoes, addMensagem, colaboradorRemovido, type Observacao } from "@/lib/safework-data";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -64,7 +64,14 @@ function DetailPage() {
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Observação {obs.id}
               </p>
-              <CardTitle className="mt-1 text-xl">{obs.colaborador}</CardTitle>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <CardTitle className="text-xl">{obs.colaborador}</CardTitle>
+                {colaboradorRemovido(obs.matricula) && (
+                  <Badge variant="outline" className="border-muted-foreground/30 text-[10px] text-muted-foreground">
+                    Usuário removido
+                  </Badge>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">
                 {obs.cargo} · Matrícula {obs.matricula}
               </p>

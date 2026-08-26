@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, ArrowRight, AlertCircle, Clock3, CheckCircle2 } from "lucide-react";
-import { observacoes, type Observacao } from "@/lib/safework-data";
+import { observacoes, colaboradorRemovido, type Observacao } from "@/lib/safework-data";
 import { useState } from "react";
 
 export const Route = createFileRoute("/gestor/observacoes")({
@@ -81,6 +81,9 @@ function ObservacoesPage() {
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                       <Badge variant="secondary" className="text-[11px]">{o.epi}</Badge>
                       <span className="text-[11px] text-muted-foreground">Mat. {o.matricula}</span>
+                      {colaboradorRemovido(o.matricula) && (
+                        <Badge variant="outline" className="text-[10px] text-muted-foreground">Usuário removido</Badge>
+                      )}
                     </div>
                     <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{o.descricao}</p>
                     <p className="mt-2 text-[11px] text-muted-foreground">

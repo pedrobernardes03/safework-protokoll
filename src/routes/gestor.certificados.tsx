@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Search, Plus, AlertCircle, Clock, ShieldCheck, RefreshCw, Trash2 } from "lucide-react";
-import { entregas as entregasIniciais, setores as setoresCatalogo, type EntregaEpi, type EpiStatus } from "@/lib/safework-data";
+import { entregas as entregasIniciais, setores as setoresCatalogo, colaboradorRemovido, type EntregaEpi, type EpiStatus } from "@/lib/safework-data";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -236,7 +236,14 @@ function CertificadosPage() {
                   }`}
                 >
                   <div className="min-w-[160px] flex-1">
-                    <p className="font-semibold">{e.colaborador}</p>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <p className="font-semibold">{e.colaborador}</p>
+                      {colaboradorRemovido(e.matricula) && (
+                        <Badge variant="outline" className="shrink-0 border-muted-foreground/30 text-[10px] text-muted-foreground">
+                          Usuário removido
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">{e.cargo} · {e.setor}</p>
                   </div>
                   <div className="min-w-[160px] flex-1">
