@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, MessageCircle } from "lucide-react";
-import { observacoes, addMensagem, colaboradorRemovido, type Observacao } from "@/lib/safework-data";
+import { observacoes, addMensagem, addLogAuditoria, colaboradorRemovido, type Observacao } from "@/lib/safework-data";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -130,6 +130,12 @@ function DetailPage() {
                   "gestor",
                   `Atualização sobre sua observação ${obs.id} (${obs.epi}): ${partes.join(" — ")}`,
                 );
+                addLogAuditoria({
+                  acao: "Atualizou observação",
+                  alvo: `${obs.id} — ${obs.colaborador}`,
+                  detalhe: partes.join(" — "),
+                  categoria: "observacao",
+                });
                 toast.success("Alterações salvas — colaborador notificado por mensagem.");
               } else {
                 toast.success("Alterações salvas.");

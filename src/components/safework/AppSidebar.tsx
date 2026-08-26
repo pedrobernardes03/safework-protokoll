@@ -8,6 +8,7 @@ import {
   MessageSquareWarning,
   MessageCircle,
   ShieldCheck,
+  History,
   LogOut,
 } from "lucide-react";
 import {
@@ -31,6 +32,7 @@ const nav: Array<{ title: string; to: string; icon: typeof LayoutDashboard; exac
   { title: "Certificado de Aprovação (CA)", to: "/gestor/certificados", icon: BadgeCheck },
   { title: "Observações", to: "/gestor/observacoes", icon: MessageSquareWarning },
   { title: "Mensagens", to: "/gestor/mensagens", icon: MessageCircle },
+  { title: "Auditoria", to: "/gestor/auditoria", icon: History },
 ];
 
 const navAdministrador: { title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean } = {

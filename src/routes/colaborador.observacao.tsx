@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { colaboradores, epis, iconeParaEpi, addObservacao, addMensagem, addNotificacao, type Observacao } from "@/lib/safework-data";
+import { colaboradores, epis, iconeParaEpi, addObservacao, addMensagem, addNotificacao, addLogAuditoria, type Observacao } from "@/lib/safework-data";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -78,6 +78,14 @@ function ObservacaoPage() {
                 descricao: `${COLABORADOR.nome} relatou: ${epi.nome} — ${tipo}. ${descricao}`,
                 prioridade: "media",
                 link: "/gestor/observacoes",
+              });
+              addLogAuditoria({
+                acao: "Registrou observação",
+                alvo: `${obs.id} — ${epi.nome}`,
+                detalhe: tipo,
+                categoria: "observacao",
+                autor: COLABORADOR.nome,
+                autorPerfil: "Colaborador",
               });
               toast.success("Observação enviada! O gestor foi notificado.");
               setTimeout(() => navigate({ to: "/colaborador/meus-epis" }), 600);

@@ -20,6 +20,7 @@ import {
   addColaborador,
   updateColaborador,
   removeColaborador,
+  addLogAuditoria,
   type Colaborador,
   type Perfil,
 } from "@/lib/safework-data";
@@ -69,18 +70,22 @@ function ColaboradoresPage() {
   const handleSave = (updated: Colaborador) => {
     updateColaborador(updated);
     setLista([...colaboradores]);
+    addLogAuditoria({ acao: "Editou colaborador", alvo: updated.nome, categoria: "usuario" });
     toast.success("Colaborador atualizado com sucesso.");
   };
 
   const handleAdd = (novo: Omit<Colaborador, "id">) => {
-    addColaborador(novo);
+    const criado = addColaborador(novo);
     setLista([...colaboradores]);
+    addLogAuditoria({ acao: "Cadastrou colaborador", alvo: criado.nome, categoria: "usuario" });
     toast.success("Colaborador cadastrado com sucesso.");
   };
 
   const handleDelete = (id: string) => {
+    const alvo = lista.find((c) => c.id === id);
     removeColaborador(id);
     setLista([...colaboradores]);
+    if (alvo) addLogAuditoria({ acao: "Excluiu colaborador", alvo: alvo.nome, categoria: "usuario" });
     toast.success("Colaborador removido.");
   };
 

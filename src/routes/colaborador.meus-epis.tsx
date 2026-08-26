@@ -4,7 +4,7 @@ import { CheckCircle2, Check, MessageSquarePlus, History, ShieldCheck, MessageCi
 import { CollaboratorShell } from "@/components/safework/CollaboratorShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { colaboradores, epis, iconeParaEpi, type Epi } from "@/lib/safework-data";
+import { colaboradores, epis, iconeParaEpi, addLogAuditoria, type Epi } from "@/lib/safework-data";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/colaborador/meus-epis")({
@@ -133,6 +133,14 @@ function MeusEpis() {
             disabled={!allChecked || submitted || meusEpis.length === 0}
             onClick={() => {
               setSubmitted(true);
+              addLogAuditoria({
+                acao: "Confirmou uso de EPIs obrigatórios",
+                alvo: colaborador.nome,
+                detalhe: meusEpis.map((e) => e.nome).join(", "),
+                categoria: "epi",
+                autor: colaborador.nome,
+                autorPerfil: colaborador.perfil,
+              });
               toast.success("Confirmação registrada com sucesso.");
             }}
           >

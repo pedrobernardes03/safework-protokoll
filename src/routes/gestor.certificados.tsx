@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Search, Plus, AlertCircle, Clock, ShieldCheck, RefreshCw, Trash2 } from "lucide-react";
-import { entregas as entregasIniciais, setores as setoresCatalogo, colaboradorRemovido, type EntregaEpi, type EpiStatus } from "@/lib/safework-data";
+import { entregas as entregasIniciais, setores as setoresCatalogo, colaboradorRemovido, addLogAuditoria, type EntregaEpi, type EpiStatus } from "@/lib/safework-data";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -110,18 +110,23 @@ function CertificadosPage() {
 
   const handleAdd = (nova: Certificado) => {
     setLista((prev) => [nova, ...prev]);
+    addLogAuditoria({ acao: "Registrou entrega de EPI", alvo: `${nova.epi} — ${nova.colaborador}`, categoria: "certificado" });
     toast.success("Entrega registrada com sucesso.");
   };
 
   const handleRenovar = (id: string, novaValidade: string) => {
+    const alvo = lista.find((e) => e.id === id);
     setLista((prev) =>
       prev.map((e) => (e.id === id ? { ...e, validade: novaValidade, status: calcularStatus(novaValidade) } : e)),
     );
+    if (alvo) addLogAuditoria({ acao: "Renovou certificado", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
     toast.success("Certificado renovado com sucesso.");
   };
 
   const handleDelete = (id: string) => {
+    const alvo = lista.find((e) => e.id === id);
     setLista((prev) => prev.filter((e) => e.id !== id));
+    if (alvo) addLogAuditoria({ acao: "Removeu registro de certificado", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
     toast.success("Registro removido.");
   };
 

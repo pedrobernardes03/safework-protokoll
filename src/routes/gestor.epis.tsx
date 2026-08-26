@@ -23,6 +23,7 @@ import {
   addCategoriaEpi,
   addFuncaoEpi,
   addSetor,
+  addLogAuditoria,
   type Epi,
 } from "@/lib/safework-data";
 
@@ -56,18 +57,22 @@ function EpisPage() {
   const handleAdd = (novo: Omit<Epi, "id">) => {
     const criado = addEpi(novo);
     setLista([...episIniciais]);
+    addLogAuditoria({ acao: "Cadastrou EPI", alvo: criado.nome, categoria: "epi" });
     toast.success(`"${criado.nome}" cadastrado com sucesso.`);
   };
 
   const handleSave = (atualizado: Epi) => {
     updateEpi(atualizado);
     setLista([...episIniciais]);
+    addLogAuditoria({ acao: "Editou EPI", alvo: atualizado.nome, categoria: "epi" });
     toast.success("EPI atualizado com sucesso.");
   };
 
   const handleDelete = (id: string) => {
+    const alvo = lista.find((e) => e.id === id);
     removeEpi(id);
     setLista([...episIniciais]);
+    if (alvo) addLogAuditoria({ acao: "Removeu EPI do catálogo", alvo: alvo.nome, categoria: "epi" });
     toast.success("EPI removido do catálogo.");
   };
 

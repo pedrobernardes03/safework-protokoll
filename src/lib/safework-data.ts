@@ -289,6 +289,53 @@ export function colaboradorRemovido(matricula: string): boolean {
   return !colaboradores.some((c) => c.matricula === matricula);
 }
 
+// Log de auditoria — quem fez o quê, e quando. Sem isso, ações sensíveis (excluir
+// colaborador, mudar nível de acesso, mexer no catálogo de EPI) só geravam um toast e
+// não deixavam rastro nenhum, o que contradiz a proposta de "rastreabilidade" do produto.
+export type CategoriaAuditoria = "usuario" | "epi" | "certificado" | "observacao";
+
+export interface LogAuditoria {
+  id: string;
+  data: string;
+  autor: string;
+  autorPerfil: Perfil;
+  acao: string;
+  alvo: string;
+  detalhe?: string;
+  categoria: CategoriaAuditoria;
+}
+
+export const logsAuditoria: LogAuditoria[] = [
+  { id: "l1", data: "2026-08-12T09:15:00", autor: "Ana Beatriz Silva", autorPerfil: "Administrador", acao: "Cadastrou colaborador", alvo: "Marina Alves", categoria: "usuario" },
+  { id: "l2", data: "2026-08-14T14:20:00", autor: "Ana Beatriz Silva", autorPerfil: "Administrador", acao: "Renovou certificado", alvo: "Luvas isolantes — Carlos Menezes", categoria: "certificado" },
+  { id: "l3", data: "2026-08-18T11:05:00", autor: "Ana Beatriz Silva", autorPerfil: "Administrador", acao: "Cadastrou EPI", alvo: "Colete refletivo", categoria: "epi" },
+];
+
+export function addLogAuditoria(input: {
+  acao: string;
+  alvo: string;
+  detalhe?: string;
+  categoria: CategoriaAuditoria;
+  // Por padrão assume que quem agiu foi o gestor logado — passe os dois campos quando a
+  // ação partir do lado do colaborador (ex.: ele mesmo registrando uma observação).
+  autor?: string;
+  autorPerfil?: Perfil;
+}) {
+  const fallback = gestorAtual();
+  const log: LogAuditoria = {
+    id: Math.random().toString(36).slice(2),
+    data: new Date().toISOString(),
+    autor: input.autor ?? fallback.nome,
+    autorPerfil: input.autorPerfil ?? fallback.perfil,
+    acao: input.acao,
+    alvo: input.alvo,
+    detalhe: input.detalhe,
+    categoria: input.categoria,
+  };
+  logsAuditoria.unshift(log);
+  return log;
+}
+
 export interface EntregaEpi {
   id: string;
   colaborador: string;

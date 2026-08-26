@@ -21,6 +21,7 @@ import { Route as ColaboradorMensagensRouteImport } from './routes/colaborador.m
 import { Route as ColaboradorMeusEpisRouteImport } from './routes/colaborador.meus-epis'
 import { Route as ColaboradorObservacaoRouteImport } from './routes/colaborador.observacao'
 import { Route as GestorIndexRouteImport } from './routes/gestor.index'
+import { Route as GestorAuditoriaRouteImport } from './routes/gestor.auditoria'
 import { Route as GestorCertificadosRouteImport } from './routes/gestor.certificados'
 import { Route as GestorColaboradoresRouteImport } from './routes/gestor.colaboradores'
 import { Route as GestorEpisRouteImport } from './routes/gestor.epis'
@@ -89,6 +90,11 @@ const GestorIndexRoute = GestorIndexRouteImport.update({
   path: '/',
   getParentRoute: () => GestorRoute,
 } as any)
+const GestorAuditoriaRoute = GestorAuditoriaRouteImport.update({
+  id: '/auditoria',
+  path: '/auditoria',
+  getParentRoute: () => GestorRoute,
+} as any)
 const GestorCertificadosRoute = GestorCertificadosRouteImport.update({
   id: '/certificados',
   path: '/certificados',
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/gestor/auditoria': typeof GestorAuditoriaRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
   '/gestor/epis': typeof GestorEpisRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/gestor/auditoria': typeof GestorAuditoriaRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
   '/gestor/epis': typeof GestorEpisRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/gestor/auditoria': typeof GestorAuditoriaRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
   '/gestor/epis': typeof GestorEpisRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/gestor/auditoria'
     | '/gestor/certificados'
     | '/gestor/colaboradores'
     | '/gestor/epis'
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/gestor/auditoria'
     | '/gestor/certificados'
     | '/gestor/colaboradores'
     | '/gestor/epis'
@@ -243,6 +254,7 @@ export interface FileRouteTypes {
     | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/gestor/auditoria'
     | '/gestor/certificados'
     | '/gestor/colaboradores'
     | '/gestor/epis'
@@ -353,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GestorIndexRouteImport
       parentRoute: typeof GestorRoute
     }
+    '/gestor/auditoria': {
+      id: '/gestor/auditoria'
+      path: '/auditoria'
+      fullPath: '/gestor/auditoria'
+      preLoaderRoute: typeof GestorAuditoriaRouteImport
+      parentRoute: typeof GestorRoute
+    }
     '/gestor/certificados': {
       id: '/gestor/certificados'
       path: '/certificados'
@@ -406,6 +425,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface GestorRouteChildren {
+  GestorAuditoriaRoute: typeof GestorAuditoriaRoute
   GestorCertificadosRoute: typeof GestorCertificadosRoute
   GestorColaboradoresRoute: typeof GestorColaboradoresRoute
   GestorEpisRoute: typeof GestorEpisRoute
@@ -417,6 +437,7 @@ interface GestorRouteChildren {
 }
 
 const GestorRouteChildren: GestorRouteChildren = {
+  GestorAuditoriaRoute: GestorAuditoriaRoute,
   GestorCertificadosRoute: GestorCertificadosRoute,
   GestorColaboradoresRoute: GestorColaboradoresRoute,
   GestorEpisRoute: GestorEpisRoute,

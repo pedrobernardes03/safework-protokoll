@@ -17,7 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { colaboradores, gestorAtual, updateColaborador, removeColaborador, type Colaborador, type Perfil } from "@/lib/safework-data";
+import { colaboradores, gestorAtual, updateColaborador, removeColaborador, addLogAuditoria, type Colaborador, type Perfil } from "@/lib/safework-data";
 
 export const Route = createFileRoute("/gestor/usuarios")({
   head: () => ({ meta: [{ title: "Usuários e Permissões — SafeWork" }] }),
@@ -49,6 +49,12 @@ function UsuariosPage() {
   const handlePerfilChange = (colaborador: Colaborador, novoPerfil: Perfil) => {
     updateColaborador({ ...colaborador, perfil: novoPerfil });
     setLista([...colaboradores]);
+    addLogAuditoria({
+      acao: "Alterou nível de acesso",
+      alvo: colaborador.nome,
+      detalhe: `${colaborador.perfil} → ${novoPerfil}`,
+      categoria: "usuario",
+    });
     toast.success(`${colaborador.nome} agora é ${novoPerfil.toLowerCase()}.`);
   };
 
@@ -56,12 +62,18 @@ function UsuariosPage() {
     const novoAtivo = !colaborador.ativo;
     updateColaborador({ ...colaborador, ativo: novoAtivo });
     setLista([...colaboradores]);
+    addLogAuditoria({
+      acao: novoAtivo ? "Reativou colaborador" : "Desativou colaborador",
+      alvo: colaborador.nome,
+      categoria: "usuario",
+    });
     toast.success(novoAtivo ? `${colaborador.nome} reativado.` : `${colaborador.nome} desativado — perde acesso, mas o histórico fica preservado.`);
   };
 
   const handleDelete = (colaborador: Colaborador) => {
     removeColaborador(colaborador.id);
     setLista([...colaboradores]);
+    addLogAuditoria({ acao: "Excluiu colaborador", alvo: colaborador.nome, categoria: "usuario" });
     toast.success(`${colaborador.nome} excluído do sistema.`);
   };
 
