@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/safework/AppSidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { NotificationProvider } from "@/hooks/useNotifications";
 import { NotificationPopover } from "@/components/safework/NotificationPopover";
+import { gestorAtual } from "@/lib/safework-data";
 
 export const Route = createFileRoute("/gestor")({
   component: GestorLayout,
@@ -16,6 +17,7 @@ const titleMap: Record<string, string> = {
   "/gestor/certificados": "Monitoramento de Certificados",
   "/gestor/observacoes": "Observações dos EPIs",
   "/gestor/mensagens": "Mensagens",
+  "/gestor/usuarios": "Usuários e Permissões",
 };
 
 function GestorLayout() {
@@ -23,6 +25,8 @@ function GestorLayout() {
   const title =
     titleMap[path] ??
     (path.startsWith("/gestor/observacoes/") ? "Detalhes da observação" : "SafeWork");
+  const gestor = gestorAtual();
+  const iniciais = gestor.nome.split(" ").slice(0, 2).map((n) => n[0]).join("");
 
   return (
     <NotificationProvider>
@@ -37,11 +41,11 @@ function GestorLayout() {
               </div>
               <NotificationPopover />
               <div className="hidden text-right sm:block">
-                <p className="text-sm font-medium leading-tight">Ana Beatriz Silva</p>
-                <p className="text-xs text-muted-foreground">Engenheira de Segurança</p>
+                <p className="text-sm font-medium leading-tight">{gestor.nome}</p>
+                <p className="text-xs text-muted-foreground">{gestor.cargo}</p>
               </div>
               <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-primary/10 font-semibold text-primary">AB</AvatarFallback>
+                <AvatarFallback className="bg-primary/10 font-semibold text-primary">{iniciais}</AvatarFallback>
               </Avatar>
             </header>
             <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8">

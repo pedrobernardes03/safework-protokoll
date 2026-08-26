@@ -7,6 +7,7 @@ import {
   BadgeCheck,
   MessageSquareWarning,
   MessageCircle,
+  ShieldCheck,
   LogOut,
 } from "lucide-react";
 import {
@@ -21,6 +22,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { gestorAtual } from "@/lib/safework-data";
 
 const nav: Array<{ title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { title: "Visão Geral", to: "/gestor", icon: LayoutDashboard, exact: true },
@@ -31,10 +33,19 @@ const nav: Array<{ title: string; to: string; icon: typeof LayoutDashboard; exac
   { title: "Mensagens", to: "/gestor/mensagens", icon: MessageCircle },
 ];
 
+const navAdministrador: { title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean } = {
+  title: "Usuários e Permissões",
+  to: "/gestor/usuarios",
+  icon: ShieldCheck,
+};
+
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const isActive = (to: string, exact?: boolean) =>
     exact ? path === to : path === to || path.startsWith(to + "/");
+  // Item só visível para quem tem perfil Administrador — o resto da equipe de gestão
+  // não precisa (nem deve) ver a tela de controle de acesso.
+  const items = gestorAtual().perfil === "Administrador" ? [...nav, navAdministrador] : nav;
 
   return (
     <Sidebar collapsible="icon">
@@ -52,7 +63,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Navegação</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {nav.map((item) => (
+              {items.map((item) => (
                 <SidebarMenuItem key={item.to}>
                   <SidebarMenuButton asChild isActive={isActive(item.to, item.exact)} tooltip={item.title}>
                     <Link to={item.to}>

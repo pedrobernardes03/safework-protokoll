@@ -248,12 +248,19 @@ export interface Colaborador {
 }
 
 export const colaboradores: Colaborador[] = [
-  { id: "1", nome: "Ana Beatriz Silva", matricula: "10001", cpf: "123.456.789-00", cargo: "Engenheira de Segurança", setor: "SST", email: "ana.silva@empresa.com", perfil: "Gestor", episObrigatorios: [] },
+  { id: "1", nome: "Ana Beatriz Silva", matricula: "10001", cpf: "123.456.789-00", cargo: "Engenheira de Segurança", setor: "SST", email: "ana.silva@empresa.com", perfil: "Administrador", episObrigatorios: [] },
   { id: "2", nome: "Carlos Menezes", matricula: "10298", cpf: "234.567.890-11", cargo: "Eletricista", setor: "Manutenção", email: "carlos.m@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "2", "3", "4"] },
   { id: "3", nome: "Juliana Prado", matricula: "10455", cpf: "345.678.901-22", cargo: "Operadora de máquina", setor: "Produção", email: "juliana.p@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "2", "4"] },
   { id: "4", nome: "Rafael Souza", matricula: "10122", cpf: "456.789.012-33", cargo: "Soldador", setor: "Produção", email: "rafael.s@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "5"] },
   { id: "5", nome: "Marina Alves", matricula: "10390", cpf: "567.890.123-44", cargo: "Ajudante geral", setor: "Logística", email: "marina.a@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "6"] },
 ];
+
+// Simula a sessão logada da área do gestor (não há autenticação real ainda) — é o que
+// permite telas como /gestor/usuarios saberem se quem está olhando é Administrador.
+const MATRICULA_GESTOR_ATUAL = "10001";
+export function gestorAtual(): Colaborador {
+  return colaboradores.find((c) => c.matricula === MATRICULA_GESTOR_ATUAL)!;
+}
 
 export function addColaborador(input: Omit<Colaborador, "id">): Colaborador {
   const novo: Colaborador = { id: Math.random().toString(36).slice(2), ...input };
