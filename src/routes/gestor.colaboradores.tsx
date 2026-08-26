@@ -26,10 +26,11 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
-// EPIs sugeridos automaticamente para um setor: os marcados para aquele setor
-// especificamente, mais os de uso universal ("Todos", ex.: capacete).
-function epiIdsSugeridosPorSetor(setor: string): string[] {
-  return epis.filter((e) => e.setor === setor || e.setor === "Todos").map((e) => e.id);
+// EPIs de um setor: os marcados para aquele setor especificamente, mais os de uso
+// universal ("Todos", ex.: capacete). Usado tanto para sugerir ao escolher o setor
+// quanto para o card de atalho no checklist.
+function episDoSetor(setor: string) {
+  return epis.filter((e) => e.setores.includes(setor) || e.setores.includes("Todos"));
 }
 
 export const Route = createFileRoute("/gestor/colaboradores")({
@@ -292,7 +293,7 @@ function NewColaboradorDialog({
               value={setor}
               onChange={(v) => {
                 setSetor(v);
-                setEpisObrigatorios(epiIdsSugeridosPorSetor(v));
+                setEpisObrigatorios(episDoSetor(v).map((e) => e.id));
               }}
               options={setores}
               onCreate={onCreateSetor}
@@ -310,7 +311,7 @@ function NewColaboradorDialog({
               </SelectContent>
             </Select>
           </Field>
-          <EpiChecklistField selecionados={episObrigatorios} onChange={setEpisObrigatorios} />
+          <EpiChecklistField selecionados={episObrigatorios} onChange={setEpisObrigatorios} setorAtivo={setor} />
           <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
             <Button type="submit">Cadastrar</Button>
@@ -395,7 +396,7 @@ function EditColaboradorDialog({
               value={setor}
               onChange={(v) => {
                 setSetor(v);
-                setEpisObrigatorios(epiIdsSugeridosPorSetor(v));
+                setEpisObrigatorios(episDoSetor(v).map((e) => e.id));
               }}
               options={setores}
               onCreate={onCreateSetor}
@@ -413,7 +414,7 @@ function EditColaboradorDialog({
               </SelectContent>
             </Select>
           </Field>
-          <EpiChecklistField selecionados={episObrigatorios} onChange={setEpisObrigatorios} />
+          <EpiChecklistField selecionados={episObrigatorios} onChange={setEpisObrigatorios} setorAtivo={setor} />
           <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
             <Button type="submit">Salvar alterações</Button>
@@ -430,37 +431,81 @@ function EditColaboradorDialog({
 function EpiChecklistField({
   selecionados,
   onChange,
+  setorAtivo,
 }: {
   selecionados: string[];
   onChange: (ids: string[]) => void;
+  setorAtivo: string;
 }) {
   const toggle = (id: string) => {
     onChange(selecionados.includes(id) ? selecionados.filter((i) => i !== id) : [...selecionados, id]);
   };
 
+  const sugeridos = setorAtivo ? episDoSetor(setorAtivo) : [];
+  const faltamSugeridos = sugeridos.some((e) => !selecionados.includes(e.id));
+
   return (
-    <div className="space-y-1.5">
-      <Label>EPIs obrigatórios para este colaborador</Label>
-      <p className="text-xs text-muted-foreground">
-        Só o que for marcado aqui aparece na tela "Meus EPIs" dele para confirmação.
-      </p>
-      <div className="grid max-h-48 grid-cols-1 gap-2 overflow-y-auto rounded-lg border p-3 sm:grid-cols-2">
-        {epis.map((epi) => {
-          const Icon = iconeParaEpi(epi.categoria);
-          const checked = selecionados.includes(epi.id);
-          return (
-            <label
-              key={epi.id}
-              className={`flex cursor-pointer items-center gap-2 rounded-md p-1.5 text-sm transition-colors ${
-                checked ? "bg-primary/5" : "hover:bg-muted/60"
-              }`}
-            >
-              <Checkbox checked={checked} onCheckedChange={() => toggle(epi.id)} />
-              <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <span className="truncate">{epi.nome}</span>
-            </label>
-          );
-        })}
+    <div className="space-y-3">
+      {/* Atalho com só os EPIs do setor escolhido — poupa procurar na lista inteira. */}
+      {sugeridos.length > 0 && (
+        <div className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-semibold text-primary">EPIs do setor "{setorAtivo}"</p>
+            {faltamSugeridos && (
+              <button
+                type="button"
+                onClick={() => onChange([...new Set([...selecionados, ...sugeridos.map((e) => e.id)])])}
+                className="shrink-0 text-xs font-medium text-primary hover:underline"
+              >
+                Marcar todos
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {sugeridos.map((epi) => {
+              const Icon = iconeParaEpi(epi.categoria);
+              const checked = selecionados.includes(epi.id);
+              return (
+                <button
+                  type="button"
+                  key={epi.id}
+                  onClick={() => toggle(epi.id)}
+                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                    checked ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:border-primary/40"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {epi.nome}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-1.5">
+        <Label>Todos os EPIs do catálogo</Label>
+        <p className="text-xs text-muted-foreground">
+          Só o que for marcado aqui aparece na tela "Meus EPIs" dele para confirmação.
+        </p>
+        <div className="grid max-h-48 grid-cols-1 gap-2 overflow-y-auto rounded-lg border p-3 sm:grid-cols-2">
+          {epis.map((epi) => {
+            const Icon = iconeParaEpi(epi.categoria);
+            const checked = selecionados.includes(epi.id);
+            return (
+              <label
+                key={epi.id}
+                className={`flex cursor-pointer items-center gap-2 rounded-md p-1.5 text-sm transition-colors ${
+                  checked ? "bg-primary/5" : "hover:bg-muted/60"
+                }`}
+              >
+                <Checkbox checked={checked} onCheckedChange={() => toggle(epi.id)} />
+                <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="truncate">{epi.nome}</span>
+              </label>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

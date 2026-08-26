@@ -95,3 +95,92 @@ export function CreatableSelect({
     </div>
   );
 }
+
+// Mesma ideia do CreatableSelect, mas para quando mais de um valor pode se aplicar ao
+// mesmo tempo (ex.: um EPI usado por vários setores) — pílulas clicáveis em vez de um
+// dropdown de valor único.
+export function CreatableMultiSelect({
+  label,
+  values,
+  onChange,
+  options,
+  onCreate,
+}: {
+  label: string;
+  values: string[];
+  onChange: (v: string[]) => void;
+  options: string[];
+  onCreate: (novo: string) => void;
+}) {
+  const [criando, setCriando] = useState(false);
+  const [novo, setNovo] = useState("");
+
+  const toggle = (opt: string) => {
+    onChange(values.includes(opt) ? values.filter((v) => v !== opt) : [...values, opt]);
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      <div className="flex flex-wrap items-center gap-1.5 rounded-md border p-2">
+        {options.map((opt) => {
+          const active = values.includes(opt);
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => toggle(opt)}
+              className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                active ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground hover:border-primary/40"
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+        {criando ? (
+          <span className="inline-flex items-center gap-1">
+            <Input
+              autoFocus
+              value={novo}
+              onChange={(e) => setNovo(e.target.value)}
+              placeholder="Novo..."
+              className="h-7 w-28 px-2 text-xs"
+              onKeyDown={(e) => {
+                if (e.key === "Escape") { setCriando(false); setNovo(""); }
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const v = novo.trim();
+                  if (!v) return;
+                  onCreate(v);
+                  onChange(values.includes(v) ? values : [...values, v]);
+                  setNovo("");
+                  setCriando(false);
+                }
+              }}
+            />
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              className="h-7 w-7"
+              title="Cancelar"
+              onClick={() => { setCriando(false); setNovo(""); }}
+            >
+              ×
+            </Button>
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setCriando(true)}
+            className="flex items-center gap-1 rounded-full border border-dashed px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/5"
+          >
+            <Plus className="h-3 w-3" /> Novo
+          </button>
+        )}
+      </div>
+      {values.length === 0 && <p className="text-xs text-danger">Selecione ao menos um.</p>}
+    </div>
+  );
+}

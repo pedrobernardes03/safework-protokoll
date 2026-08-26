@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { HardHat, Search, Pencil, Trash2, Layers } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
-import { CreatableSelect } from "@/components/safework/CreatableSelect";
+import { CreatableSelect, CreatableMultiSelect } from "@/components/safework/CreatableSelect";
 import {
   epis as episIniciais,
   categoriasEpi,
@@ -183,7 +183,13 @@ function EpisPage() {
                       <TableCell className="font-medium">{e.nome}</TableCell>
                       <TableCell className="text-muted-foreground">{e.categoria}</TableCell>
                       <TableCell className="font-mono text-sm">{e.ca}</TableCell>
-                      <TableCell><Badge variant="outline" className="border-primary/30 text-primary">{e.setor}</Badge></TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {e.setores.map((s) => (
+                            <Badge key={s} variant="outline" className="border-primary/30 text-primary">{s}</Badge>
+                          ))}
+                        </div>
+                      </TableCell>
                       <TableCell><Badge variant="secondary">{e.funcao}</Badge></TableCell>
                       <TableCell>
                         <span className={e.estoque <= 10 ? "font-semibold text-warning-foreground" : ""}>
@@ -240,7 +246,7 @@ function EpiForm({
   const [ca, setCa] = useState("");
   const [validade, setValidade] = useState("");
   const [funcao, setFuncao] = useState("Todos");
-  const [setor, setSetor] = useState("Todos");
+  const [setoresSelecionados, setSetoresSelecionados] = useState<string[]>(["Todos"]);
   const [estoque, setEstoque] = useState("");
 
   const reset = () => {
@@ -249,7 +255,7 @@ function EpiForm({
     setCa("");
     setValidade("");
     setFuncao("Todos");
-    setSetor("Todos");
+    setSetoresSelecionados(["Todos"]);
     setEstoque("");
   };
 
@@ -264,12 +270,13 @@ function EpiForm({
           className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
+            if (setoresSelecionados.length === 0) return;
             onAdd({
               nome,
               categoria,
               ca,
               funcao,
-              setor,
+              setores: setoresSelecionados,
               validade,
               estoque: Number(estoque) || 0,
             });
@@ -291,22 +298,21 @@ function EpiForm({
               <Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} />
             </div>
           </div>
+          <CreatableMultiSelect
+            label="Setores que usam"
+            values={setoresSelecionados}
+            onChange={setSetoresSelecionados}
+            options={setores}
+            onCreate={onCreateSetor}
+          />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <CreatableSelect
-              label="Setor que usa"
-              value={setor}
-              onChange={setSetor}
-              options={setores}
-              onCreate={onCreateSetor}
-              required
-            />
             <CreatableSelect label="Função associada" value={funcao} onChange={setFuncao} options={funcoes} onCreate={onCreateFuncao} />
+            <div className="space-y-1.5">
+              <Label>Estoque inicial</Label>
+              <Input required type="number" min={0} placeholder="0" value={estoque} onChange={(e) => setEstoque(e.target.value)} />
+            </div>
           </div>
-          <div className="space-y-1.5">
-            <Label>Estoque inicial</Label>
-            <Input required type="number" min={0} placeholder="0" value={estoque} onChange={(e) => setEstoque(e.target.value)} />
-          </div>
-          <Button type="submit" className="w-full">Salvar</Button>
+          <Button type="submit" className="w-full" disabled={setoresSelecionados.length === 0}>Salvar</Button>
         </form>
       </CardContent>
     </Card>
@@ -338,7 +344,7 @@ function EpiEditDialog({
   const [ca, setCa] = useState(epi.ca);
   const [validade, setValidade] = useState(epi.validade);
   const [funcao, setFuncao] = useState(epi.funcao);
-  const [setor, setSetor] = useState(epi.setor);
+  const [setoresSelecionados, setSetoresSelecionados] = useState<string[]>(epi.setores);
   const [estoque, setEstoque] = useState(String(epi.estoque));
 
   useEffect(() => {
@@ -348,7 +354,7 @@ function EpiEditDialog({
       setCa(epi.ca);
       setValidade(epi.validade);
       setFuncao(epi.funcao);
-      setSetor(epi.setor);
+      setSetoresSelecionados(epi.setores);
       setEstoque(String(epi.estoque));
     }
   }, [open, epi]);
@@ -367,7 +373,8 @@ function EpiEditDialog({
           className="grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            onSave({ ...epi, nome, categoria, ca, funcao, setor, validade, estoque: Number(estoque) || 0 });
+            if (setoresSelecionados.length === 0) return;
+            onSave({ ...epi, nome, categoria, ca, funcao, setores: setoresSelecionados, validade, estoque: Number(estoque) || 0 });
             setOpen(false);
           }}
         >
@@ -386,17 +393,21 @@ function EpiEditDialog({
               <Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} />
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <CreatableSelect label="Setor que usa" value={setor} onChange={setSetor} options={setores} onCreate={onCreateSetor} />
-            <CreatableSelect label="Função associada" value={funcao} onChange={setFuncao} options={funcoes} onCreate={onCreateFuncao} />
-          </div>
+          <CreatableMultiSelect
+            label="Setores que usam"
+            values={setoresSelecionados}
+            onChange={setSetoresSelecionados}
+            options={setores}
+            onCreate={onCreateSetor}
+          />
+          <CreatableSelect label="Função associada" value={funcao} onChange={setFuncao} options={funcoes} onCreate={onCreateFuncao} />
           <div className="space-y-1.5">
             <Label>Estoque</Label>
             <Input required type="number" min={0} value={estoque} onChange={(e) => setEstoque(e.target.value)} />
           </div>
           <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button type="submit">Salvar alterações</Button>
+            <Button type="submit" disabled={setoresSelecionados.length === 0}>Salvar alterações</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -15,15 +15,15 @@ export function addSetor(nome: string) {
 // Catálogo geral de EPIs da empresa — gerenciado em /gestor/epis. Quais destes cada
 // colaborador é obrigado a usar fica em `Colaborador.episObrigatorios` (ver abaixo),
 // não aqui: o catálogo é "o que existe", a atribuição por pessoa é "o que ela usa".
-// O campo `setor` é o que permite sugerir automaticamente os EPIs certos assim que o
-// gestor escolhe o setor de um colaborador novo.
+// `setores` é uma lista (um EPI pode servir mais de um setor) — é o que permite sugerir
+// automaticamente os EPIs certos assim que o gestor escolhe o setor de um colaborador novo.
 export interface Epi {
   id: string;
   nome: string;
   categoria: string;
   ca: string;
   funcao: string;
-  setor: string;
+  setores: string[];
   validade: string;
   estoque: number;
 }
@@ -41,12 +41,12 @@ export const categoriasEpi: string[] = [
 export const funcoesEpi: string[] = ["Todos", "Eletricista", "Soldador", "Operador de máquina", "Ajudante geral"];
 
 export const epis: Epi[] = [
-  { id: "1", nome: "Capacete de segurança", categoria: "Proteção da cabeça", ca: "12345", funcao: "Todos", setor: "Todos", validade: "2027-08-15", estoque: 42 },
-  { id: "2", nome: "Óculos de proteção", categoria: "Proteção visual", ca: "22987", funcao: "Todos", setor: "Todos", validade: "2027-11-02", estoque: 58 },
-  { id: "3", nome: "Luvas isolantes", categoria: "Proteção das mãos", ca: "31402", funcao: "Eletricista", setor: "Manutenção", validade: "2026-03-20", estoque: 15 },
-  { id: "4", nome: "Botina de segurança", categoria: "Proteção dos pés", ca: "40551", funcao: "Todos", setor: "Todos", validade: "2027-01-10", estoque: 30 },
-  { id: "5", nome: "Máscara de solda", categoria: "Proteção facial", ca: "50213", funcao: "Soldador", setor: "Produção", validade: "2026-05-18", estoque: 8 },
-  { id: "6", nome: "Colete refletivo", categoria: "Proteção do corpo", ca: "60112", funcao: "Ajudante geral", setor: "Logística", validade: "2026-09-01", estoque: 22 },
+  { id: "1", nome: "Capacete de segurança", categoria: "Proteção da cabeça", ca: "12345", funcao: "Todos", setores: ["Todos"], validade: "2027-08-15", estoque: 42 },
+  { id: "2", nome: "Óculos de proteção", categoria: "Proteção visual", ca: "22987", funcao: "Todos", setores: ["Todos"], validade: "2027-11-02", estoque: 58 },
+  { id: "3", nome: "Luvas isolantes", categoria: "Proteção das mãos", ca: "31402", funcao: "Eletricista", setores: ["Manutenção"], validade: "2026-03-20", estoque: 15 },
+  { id: "4", nome: "Botina de segurança", categoria: "Proteção dos pés", ca: "40551", funcao: "Todos", setores: ["Todos"], validade: "2027-01-10", estoque: 30 },
+  { id: "5", nome: "Máscara de solda", categoria: "Proteção facial", ca: "50213", funcao: "Soldador", setores: ["Produção"], validade: "2026-05-18", estoque: 8 },
+  { id: "6", nome: "Colete refletivo", categoria: "Proteção do corpo", ca: "60112", funcao: "Ajudante geral", setores: ["Logística", "Produção"], validade: "2026-09-01", estoque: 22 },
 ];
 
 const iconePorCategoria: Record<string, LucideIcon> = {
