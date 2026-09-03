@@ -14,40 +14,6 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
-function GoogleIcon() {
-  return (
-    <svg viewBox="0 0 18 18" className="h-4 w-4">
-      <path
-        fill="#4285F4"
-        d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
-      />
-      <path
-        fill="#34A853"
-        d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"
-      />
-      <path
-        fill="#EA4335"
-        d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.167 6.656 3.58 9 3.58z"
-      />
-    </svg>
-  );
-}
-
-function MicrosoftIcon() {
-  return (
-    <svg viewBox="0 0 21 21" className="h-4 w-4">
-      <rect x="1" y="1" width="9" height="9" fill="#F25022" />
-      <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
-      <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
-      <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
-    </svg>
-  );
-}
-
 function LoginPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -55,16 +21,21 @@ function LoginPage() {
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-      {/* Hero panel — a single full-bleed video, no overlays */}
-      <div className="relative hidden overflow-hidden bg-slate-900 lg:block">
-        <video
-          src="/login-showcase.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+      {/* Painel do vídeo — visível em qualquer largura agora, não só lg:. A caixa interna
+          usa aspect-video (a proporção nativa do arquivo) então o vídeo nunca é cortado;
+          no desktop, onde a coluna estica pra altura cheia da tela, ele fica centralizado
+          dentro do painel escuro em vez de esticar/cortar pra preencher tudo. */}
+      <div className="relative flex items-center justify-center self-start overflow-hidden bg-slate-900 lg:self-stretch">
+        <div className="relative aspect-video w-full">
+          <video
+            src="/login-showcase.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        </div>
         <div className="absolute left-8 top-8 z-10 flex items-center gap-2 text-primary-foreground drop-shadow-md">
           <div className="grid h-10 w-10 place-items-center rounded-lg bg-white/15 backdrop-blur">
             <ShieldCheck className="h-5 w-5" />
@@ -76,13 +47,6 @@ function LoginPage() {
       {/* Form panel */}
       <div className="flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md">
-          <div className="lg:hidden mb-8 flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <span className="text-lg font-bold">SafeWork</span>
-          </div>
-
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 [animation-fill-mode:both]">
             <h2 className="text-2xl font-bold tracking-tight">Bem-vindo de volta</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -152,35 +116,6 @@ function LoginPage() {
                 "Entrar"
               )}
             </Button>
-
-            <div className="relative flex items-center py-1">
-              <div className="h-px flex-1 bg-border" />
-              <span className="px-3 text-xs text-muted-foreground">ou continue com</span>
-              <div className="h-px flex-1 bg-border" />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                className="transition-transform hover:-translate-y-0.5 hover:shadow-md"
-                onClick={() =>
-                  toast.info("Login corporativo com Microsoft será habilitado pelo TI da sua empresa.")
-                }
-              >
-                <MicrosoftIcon /> Microsoft
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="transition-transform hover:-translate-y-0.5 hover:shadow-md"
-                onClick={() =>
-                  toast.info("Login corporativo com Google será habilitado pelo TI da sua empresa.")
-                }
-              >
-                <GoogleIcon /> Google
-              </Button>
-            </div>
           </form>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground">

@@ -94,10 +94,22 @@ function stageValues(progress: number) {
   return { value, rawStage: raw };
 }
 
-function DesktopShowcase() {
+// Um único componente, ativo em qualquer largura — antes o efeito de zoom por scroll só
+// rodava em telas grandes (`hidden lg:block`) e o celular via uma lista estática sem
+// nenhuma animação. Como a maior parte de quem visita o site vem do celular, o efeito
+// precisa existir ali também, só que com a legenda embaixo da foto em vez de do lado
+// (não tem espaço sobrando nas laterais numa tela estreita).
+function CharacterShowcaseInner() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const panelRefs = [
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+  ];
+  const mobilePanelRefs = [
     useRef<HTMLDivElement>(null),
     useRef<HTMLDivElement>(null),
     useRef<HTMLDivElement>(null),
@@ -127,19 +139,21 @@ function DesktopShowcase() {
         const tyPercent = 50 - 100 * value.scale * value.y;
         img.style.transform = `translate(${txPercent}%, ${tyPercent}%) scale(${value.scale})`;
 
-        panelRefs.forEach((ref, i) => {
-          const node = ref.current;
-          if (!node) return;
-          // A narrower, smoothstep-eased window than the zoom's own transition, so the text
-          // only reveals once the zoom has mostly landed — reads as "arrive, then reveal"
-          // instead of both animating at once and feeling loosely synced.
-          const dist = Math.abs(rawStage - topics[i].stage);
-          const t = Math.max(0, 1 - dist / 0.4);
-          const opacity = smoothstep(t);
-          const side = topics[i].side === "left" ? -1 : 1;
-          node.style.opacity = String(opacity);
-          node.style.transform = `translateX(${(1 - opacity) * 16 * side}px)`;
-          node.style.pointerEvents = opacity > 0.5 ? "auto" : "none";
+        [panelRefs, mobilePanelRefs].forEach((refs) => {
+          refs.forEach((ref, i) => {
+            const node = ref.current;
+            if (!node) return;
+            // A narrower, smoothstep-eased window than the zoom's own transition, so the text
+            // only reveals once the zoom has mostly landed — reads as "arrive, then reveal"
+            // instead of both animating at once and feeling loosely synced.
+            const dist = Math.abs(rawStage - topics[i].stage);
+            const t = Math.max(0, 1 - dist / 0.4);
+            const opacity = smoothstep(t);
+            const side = topics[i].side === "left" ? -1 : 1;
+            node.style.opacity = String(opacity);
+            node.style.transform = `translateX(${(1 - opacity) * 16 * side}px)`;
+            node.style.pointerEvents = opacity > 0.5 ? "auto" : "none";
+          });
         });
       }
       raf = requestAnimationFrame(tick);
@@ -150,14 +164,15 @@ function DesktopShowcase() {
   }, []);
 
   return (
-    <div ref={sectionRef} className="relative hidden lg:block" style={{ height: "560vh" }}>
-      <div className="sticky top-24 mx-auto h-[min(72vh,640px)] max-w-7xl px-6">
-        <div className="relative h-full">
+    <div ref={sectionRef} className="relative" style={{ height: "560vh" }}>
+      <div className="sticky top-16 mx-auto flex h-[92vh] max-w-7xl flex-col justify-center px-6 sm:top-20 lg:h-[min(72vh,640px)] lg:justify-normal">
+        <div className="relative lg:h-full">
+          {/* Legendas ao lado — só em telas grandes, onde tem espaço nas laterais da foto. */}
           {topics.map((topic, i) => (
             <div
               key={topic.title}
               ref={panelRefs[i]}
-              className={`absolute top-1/2 w-full max-w-xs -translate-y-1/2 ${topic.side === "left" ? "left-0 text-left" : "right-0 text-right"}`}
+              className={`absolute top-1/2 hidden w-full max-w-xs -translate-y-1/2 lg:block ${topic.side === "left" ? "left-0 text-left" : "right-0 text-right"}`}
               style={{ opacity: 0 }}
             >
               <div
@@ -172,13 +187,13 @@ function DesktopShowcase() {
             </div>
           ))}
 
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="pointer-events-none flex h-[54vh] items-center justify-center sm:h-[58vh] lg:absolute lg:inset-0 lg:h-auto">
             {/* A real photo with its own environment (street, hills, city skyline) instead of a
                 cutout on a fake blurred backdrop — no compositing needed, it already reads
                 as a real place. Card aspect must stay pixel-matched to the source photo
                 (2:3, a full-body shot) since the zoom math below measures targets as
                 fractions of this box. */}
-            <div className="relative aspect-[2/3] h-full overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-900/25">
+            <div className="relative aspect-[2/3] h-full max-w-[80vw] overflow-hidden rounded-[2rem] shadow-2xl shadow-slate-900/25 lg:max-w-none lg:rounded-[2.5rem]">
               <img
                 ref={imgRef}
                 src="/worker.jpg"
@@ -188,39 +203,32 @@ function DesktopShowcase() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
 
-function MobileShowcase() {
-  return (
-    <div className="block space-y-10 lg:hidden">
-      <div className="mx-auto h-72 w-full max-w-sm sm:h-80">
-        <img src="/worker.jpg" alt="Colaborador com EPIs completos" className="mx-auto h-full rounded-3xl object-cover shadow-xl" />
-      </div>
-      <div className="space-y-8 px-1">
-        {topics.map((topic) => (
-          <div key={topic.title} className="text-left">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              {topic.eyebrow}
+        {/* Legenda embaixo da foto — só em telas pequenas/médias, trocando com o mesmo fade
+            calculado acima em vez de repetir o layout lateral do desktop espremido. */}
+        <div className="relative mt-5 h-32 shrink-0 sm:h-28 lg:hidden">
+          {topics.map((topic, i) => (
+            <div
+              key={topic.title}
+              ref={mobilePanelRefs[i]}
+              className="absolute inset-x-0 top-0 text-center"
+              style={{ opacity: 0 }}
+            >
+              <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                {topic.eyebrow}
+              </div>
+              <h3 className="mt-3 text-lg font-extrabold leading-tight tracking-tight text-slate-900 sm:text-xl">
+                {topic.title}
+              </h3>
+              <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-slate-500 sm:text-sm">{topic.desc}</p>
             </div>
-            <h3 className="mt-3 text-xl font-extrabold leading-tight tracking-tight text-slate-900">
-              {topic.title}
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-slate-500">{topic.desc}</p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
 export function CharacterShowcase() {
-  return (
-    <>
-      <DesktopShowcase />
-      <MobileShowcase />
-    </>
-  );
+  return <CharacterShowcaseInner />;
 }

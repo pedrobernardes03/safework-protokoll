@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ShieldCheck,
-  HardHat,
   Clock,
   Users,
   Factory,
@@ -9,16 +8,13 @@ import {
   Box,
   Truck,
   Shield,
-  ClipboardList,
 } from "lucide-react";
 import { MarketingHeader } from "@/components/safework/MarketingHeader";
 import { MarketingFooter } from "@/components/safework/MarketingFooter";
-import { MarketingCta } from "@/components/safework/MarketingCta";
 import { Reveal } from "@/components/safework/Reveal";
 import { CountUp } from "@/components/safework/CountUp";
 import { Marquee } from "@/components/safework/Marquee";
 import { CharacterShowcase } from "@/components/safework/three/CharacterShowcase";
-import { useScrollParallax } from "@/lib/use-parallax";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -33,139 +29,70 @@ const trustLogos = [
 ] as const;
 
 function Landing() {
-  const { ref: mockupScrollRef, y: mockupY } = useScrollParallax(0.06);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50/80 via-white to-slate-50/50 text-slate-800 font-sans">
       <MarketingHeader />
 
+      {/* Hero — o vídeo é o fundo de verdade da seção, não um card por cima da página. A
+          sombra vive num wrapper SEM overflow-hidden (a sombra no mesmo elemento que
+          recorta o conteúdo era cortada junto — por isso não aparecia antes). A seção é
+          mais alta que a proporção nativa do vídeo (16:9), então object-contain (nunca
+          corta) sobra uma faixa fora do quadro nítido. Em vez de tentar disfarçar essa
+          faixa com uma vinheta sobre uma cor sólida — que ficava com uma emenda dura bem
+          onde o vídeo real começa — o fundo da faixa é o PRÓPRIO vídeo, borrado e escuro,
+          esticado por trás (mesma ideia do "now playing" de players de música/vídeo): a
+          borda deixa de parecer um retângulo colado, porque o que está ao redor do quadro
+          nítido é a continuação borrada da mesma cena. */}
+      <div className="relative shadow-[0_35px_60px_-20px_rgba(15,23,42,0.55)]">
+        <section
+          className="relative w-full overflow-hidden bg-slate-900"
+          style={{ minHeight: "clamp(360px, 60vh, 680px)" }}
+        >
+          <video
+            aria-hidden="true"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full scale-125 object-cover opacity-60 blur-3xl"
+          >
+            <source src="/hero-safety.mp4" type="video/mp4" />
+          </video>
+          <div className="pointer-events-none absolute inset-0 bg-slate-900/55" />
+          <video autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-contain">
+            <source src="/hero-safety.mp4" type="video/mp4" />
+          </video>
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
+          <Reveal className="absolute inset-x-0 bottom-0 px-6 pb-10 sm:px-10 sm:pb-14 lg:px-16">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary sm:text-sm sm:tracking-[0.25em]">
+              Gestão de EPIs
+            </p>
+            <h1 className="mt-2 max-w-lg text-2xl font-extrabold leading-[1.1] tracking-tight text-white sm:mt-3 sm:text-4xl lg:text-5xl">
+              Cada EPI da sua equipe, com dono e{" "}
+              <span className="font-serif italic font-medium text-primary">prova.</span>
+            </h1>
+          </Reveal>
+        </section>
+      </div>
+
       <main className="mx-auto max-w-7xl px-6 pb-24 pt-8">
-        {/* Hero Section — overflow-hidden scoped locally so it never breaks position:sticky further down the page */}
-        <div className="relative overflow-hidden">
-          <div className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[620px]">
-            <div className="absolute left-1/2 top-0 h-[520px] w-[920px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
-            <div className="absolute -left-24 top-40 h-72 w-72 rounded-full bg-[oklch(0.7_0.14_165)]/10 blur-3xl" />
-            <div
-              className="absolute inset-0 opacity-60"
-              style={{
-                backgroundImage: "radial-gradient(circle, rgb(15 23 42 / 0.07) 1px, transparent 1px)",
-                backgroundSize: "28px 28px",
-                maskImage: "radial-gradient(ellipse 60% 55% at 50% 0%, black 40%, transparent 100%)",
-              }}
-            />
+        {/* Uma faixa de prova mais sóbria — sem linha de divisão logo depois do vídeo (o
+            corte reto ficava esquisito), os números viram o elemento visual principal
+            com o parágrafo como legenda, em vez de disputar peso um com o outro. */}
+        <Reveal className="grid grid-cols-2 gap-8 sm:grid-cols-[auto_auto_1fr] sm:items-center sm:gap-12">
+          <div>
+            <p className="text-3xl font-extrabold text-slate-900 sm:text-4xl">-68%</p>
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">tempo gasto em auditorias</p>
           </div>
-
-          <section className="relative grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
-
-            {/* Left Column Content — an editorial layout (kicker + oversized headline + a metric
-                strip standing in for the usual proof-badge) instead of the generic
-                pill-badge / gradient-headline / two-equal-buttons template shape. */}
-            <Reveal className="lg:col-span-5">
-              <p className="text-sm font-bold uppercase tracking-[0.25em] text-primary">Gestão de EPIs</p>
-
-              <h1 className="mt-4 text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 sm:text-5xl lg:text-[3.4rem]">
-                Todo EPI da sua equipe,
-                <br />
-                <span className="font-serif italic font-medium text-primary">sob controle</span> em
-                tempo real.
-              </h1>
-
-              <p className="mt-6 max-w-md text-base leading-relaxed text-slate-600 sm:text-lg">
-                Chega de planilha para acompanhar Certificado de Aprovação, troca de equipamento e
-                comunicação com o time. A SafeWork centraliza tudo em um só lugar.
-              </p>
-
-              <div className="mt-10 flex items-center gap-8 border-t border-slate-200 pt-6">
-                <div>
-                  <p className="text-2xl font-extrabold text-slate-900">-68%</p>
-                  <p className="text-xs text-slate-500">tempo gasto em auditorias</p>
-                </div>
-                <div className="h-8 w-px bg-slate-200" />
-                <div>
-                  <p className="text-2xl font-extrabold text-slate-900">100%</p>
-                  <p className="text-xs text-slate-500">rastreabilidade de EPIs</p>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Right Column: a live-monitoring panel — deliberately not a browser-chrome
-                screenshot (too common) or a floating stock photo (read as amateur). A dark
-                glass panel with a real-time compliance ring and event feed ties directly
-                into the "informação em tempo real" pitch instead of just showing a UI shell. */}
-            <Reveal delay={150} className="lg:col-span-7 relative">
-              <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-primary/20 via-primary/5 to-transparent blur-2xl -z-10" />
-
-              <div
-                ref={mockupScrollRef}
-                style={{ transform: `translateY(${mockupY}px)` }}
-                className="animate-float relative overflow-hidden rounded-3xl bg-gradient-to-br from-[oklch(0.22_0.04_150)] via-[oklch(0.2_0.03_150)] to-[oklch(0.32_0.08_165)] p-6 shadow-2xl shadow-slate-900/40 sm:p-8"
-              >
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-[0.06]"
-                  style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "22px 22px" }}
-                />
-                <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/30 blur-3xl" />
-
-                <div className="relative flex items-center justify-between">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-white/60">
-                    Monitoramento em tempo real
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400" />
-                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    </span>
-                    Ao vivo
-                  </span>
-                </div>
-
-                <div className="relative mt-6 flex items-center gap-6">
-                  <svg width="104" height="104" viewBox="0 0 120 120" className="-rotate-90 shrink-0">
-                    <circle cx="60" cy="60" r="52" fill="none" stroke="white" strokeOpacity="0.12" strokeWidth="10" />
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="52"
-                      fill="none"
-                      stroke="oklch(0.77 0.17 155)"
-                      strokeWidth="10"
-                      strokeLinecap="round"
-                      strokeDasharray={2 * Math.PI * 52}
-                      strokeDashoffset={2 * Math.PI * 52 * 0.02}
-                    />
-                  </svg>
-                  <div>
-                    <p className="text-4xl font-extrabold text-white">
-                      <CountUp value={98} suffix="%" />
-                    </p>
-                    <p className="text-sm text-white/60">Conformidade da equipe agora</p>
-                  </div>
-                </div>
-
-                <div className="relative mt-7 space-y-2">
-                  {[
-                    { icon: HardHat, text: "Capacete verificado — João Silva", time: "agora", tint: "bg-emerald-400" },
-                    { icon: ShieldCheck, text: "CA atualizado — Óculos de proteção", time: "2 min atrás", tint: "bg-sky-400" },
-                    { icon: Users, text: "Novo colaborador cadastrado — Ana Costa", time: "5 min atrás", tint: "bg-sky-400" },
-                    { icon: ClipboardList, text: "Luva de proteção vence em 3 dias", time: "8 min atrás", tint: "bg-amber-400" },
-                  ].map((event) => (
-                    <div
-                      key={event.text}
-                      className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 backdrop-blur-sm"
-                    >
-                      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${event.tint}`} />
-                      <event.icon className="h-4 w-4 shrink-0 text-white/50" />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-medium text-white/90">{event.text}</p>
-                      </div>
-                      <span className="shrink-0 text-[11px] text-white/40">{event.time}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
-          </section>
-        </div>
+          <div className="border-l border-slate-200 pl-8 sm:pl-12">
+            <p className="text-3xl font-extrabold text-slate-900 sm:text-4xl">100%</p>
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">rastreabilidade de EPIs</p>
+          </div>
+          <p className="col-span-2 text-sm leading-relaxed text-slate-500 sm:col-span-1 sm:border-l sm:border-slate-200 sm:pl-12 sm:text-base">
+            Entrega, validade e troca de equipamento num histórico que responde por si —
+            sem caçar planilha antes da fiscalização.
+          </p>
+        </Reveal>
 
         {/* 3D scroll-driven character showcase */}
         <div className="mt-20">
@@ -253,13 +180,6 @@ function Landing() {
             ))}
           </Marquee>
         </Reveal>
-
-        <MarketingCta
-          title="Sua equipe merece um EPI que nunca vence sem aviso."
-          description="Comece agora e veja a conformidade da sua operação em tempo real."
-          buttonLabel="Acessar plataforma"
-          buttonTo="/login"
-        />
       </main>
 
       <MarketingFooter />

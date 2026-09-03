@@ -22,22 +22,22 @@ const values = [
   {
     icon: ShieldCheck,
     title: "Segurança em primeiro lugar",
-    desc: "Cada decisão de produto parte da mesma pergunta: isso protege quem trabalha no chão de fábrica?",
+    desc: "Toda funcionalidade nova passa pela mesma pergunta: isso reduz o risco de alguém se machucar?",
   },
   {
     icon: Eye,
     title: "Transparência",
-    desc: "Gestores e colaboradores enxergam o mesmo histórico, sem informação escondida em planilhas soltas.",
+    desc: "Gestor e colaborador enxergam o mesmo histórico — nada fica só na cabeça de uma pessoa.",
   },
   {
     icon: Lightbulb,
     title: "Inovação constante",
-    desc: "Evoluímos a plataforma com quem usa ela todos os dias: times de campo, RH e segurança do trabalho.",
+    desc: "Quem usa o produto todo dia — RH, campo, segurança do trabalho — é quem molda o que vem a seguir.",
   },
   {
     icon: HeartHandshake,
     title: "Foco no cliente",
-    desc: "Sucesso para nós é a taxa de conformidade do seu time subindo mês após mês.",
+    desc: "Medimos sucesso pela taxa de conformidade do seu time, não pela nossa.",
   },
 ] as const;
 
@@ -52,15 +52,16 @@ function SobrePage() {
         </div>
 
         <main className="mx-auto max-w-7xl px-6 pb-28 pt-8">
-          <Reveal className="max-w-2xl">
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-primary">Sobre a SafeWork</p>
-            <h1 className="mt-4 text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
-              Tecnologia para quem cuida de{" "}
-              <span className="font-serif italic font-medium text-primary">quem trabalha.</span>
+          {/* Sem o selo em maiúsculas que abre Início, Soluções e Planos — essa é a única
+              página que começa direto pelo título, sem fórmula repetida. */}
+          <Reveal className="max-w-3xl">
+            <h1 className="text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 sm:text-6xl">
+              Segurança do trabalho,{" "}
+              <span className="font-serif italic font-medium text-primary">levada a sério.</span>
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-              Nascemos para acabar com a planilha de EPI perdida e o CA vencido descoberto tarde demais.
-              Hoje ajudamos times de segurança do trabalho a provar conformidade em tempo real.
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+              Existimos desde 2019. Hoje mais de 1.200 empresas usam a SafeWork pra saber, todo dia,
+              se cada pessoa está com o equipamento certo.
             </p>
           </Reveal>
 
@@ -87,24 +88,13 @@ function SobrePage() {
             </Reveal>
 
             <Reveal delay={120}>
-              <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">Nossa missão</p>
-              <p className="mt-3 font-serif text-xl italic leading-snug text-slate-900 sm:text-2xl">
-                "Tornar a gestão de segurança do trabalho tão simples quanto deveria sempre ter sido — sem
-                planilha, sem retrabalho, com prova de conformidade a um clique."
-              </p>
-
-              <h2 className="mt-8 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-                De uma dor real do chão de fábrica a uma plataforma completa.
+              <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+                Como começamos
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
-                A SafeWork começou depois de ver, de perto, um acidente que poderia ter sido evitado com
-                um simples alerta de CA vencido. A partir daí, construímos a plataforma que gostaríamos
-                que aquela empresa tivesse tido: EPIs, certificados, ocorrências e comunicação em um só
-                lugar, visível para quem decide e para quem executa.
-              </p>
-              <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
-                Hoje seguimos com o mesmo objetivo: cada colaborador chegando em casa no fim do dia,
-                exatamente como saiu de manhã.
+                Um acidente que um alerta simples teria evitado — foi esse o motivo pra juntar entregas de
+                EPI, certificados, ocorrências e conversa entre gestor e colaborador num lugar só, visível
+                pros dois lados.
               </p>
             </Reveal>
           </section>
@@ -135,12 +125,12 @@ function SobrePage() {
             </div>
           </section>
 
-          {/* Closing — a centered editorial statement with one real button, structurally
-              different from the tag-recap (Home), single-line (Soluções), and reassurance
-              (Planos) closings on the other marketing pages. */}
+          {/* Closing — direto, sem o itálico serifado que a foto/H1 já usam em outras
+              páginas; estruturalmente diferente do recap (Início), linha única (Soluções)
+              e reforço de garantia (Planos). */}
           <Reveal className="mt-28 flex flex-col items-center gap-6 text-center">
-            <p className="max-w-lg font-serif text-2xl italic leading-snug text-slate-900 sm:text-3xl">
-              Vamos proteger o seu time também?
+            <p className="max-w-md text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+              Quer ver a SafeWork rodando com o seu time?
             </p>
             <Button asChild size="lg" className="rounded-xl bg-primary px-7 py-6 text-base font-semibold text-primary-foreground hover:bg-primary/90">
               <Link to="/planos" className="flex items-center gap-2">

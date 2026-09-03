@@ -84,6 +84,17 @@ const featureGroups = [
 
 const essentialRows = featureGroups.flatMap((group) => group.rows.filter((row) => row.essential));
 
+function FeatureValue({ value }: { value: string | boolean }) {
+  if (typeof value === "boolean") {
+    return value ? (
+      <Check className="h-4 w-4 shrink-0 text-primary" />
+    ) : (
+      <Minus className="h-4 w-4 shrink-0 text-slate-300" />
+    );
+  }
+  return <span className="text-sm font-medium text-slate-700">{value}</span>;
+}
+
 const faqs = [
   {
     q: "Posso trocar de plano depois?",
@@ -128,8 +139,8 @@ function PlanosPage() {
           <Reveal className="mx-auto max-w-2xl text-center">
             <p className="text-sm font-bold uppercase tracking-[0.25em] text-primary">Planos SafeWork</p>
             <h1 className="mt-4 text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
-              Um plano para cada{" "}
-              <span className="font-serif italic font-medium text-primary">tamanho de operação.</span>
+              Do primeiro capacete{" "}
+              <span className="font-serif italic font-medium text-primary">ao milésimo.</span>
             </h1>
             <p className="mt-5 text-base leading-relaxed text-slate-600 sm:text-lg">
               Comece pequeno e cresça sem trocar de plataforma. Cancele quando quiser.
@@ -162,7 +173,10 @@ function PlanosPage() {
             </div>
           </Reveal>
 
-          <Reveal delay={100} className="mt-14 overflow-x-auto rounded-3xl border border-slate-200/80 bg-white shadow-sm ring-1 ring-slate-900/[0.02]">
+          {/* Tabela comparativa — só em telas largas, onde as 3 colunas cabem sem precisar
+              rolar pro lado. No celular, cada plano vira sua própria seção empilhada logo
+              abaixo, com as mesmas linhas de recurso na vertical. */}
+          <Reveal delay={100} className="mt-14 hidden overflow-x-auto rounded-3xl border border-slate-200/80 bg-white shadow-sm ring-1 ring-slate-900/[0.02] lg:block">
             <table className="w-full min-w-[760px] border-collapse text-sm">
               <thead>
                 <tr>
@@ -294,6 +308,99 @@ function PlanosPage() {
                 </tr>
               </tbody>
             </table>
+          </Reveal>
+
+          {/* Mesmo conteúdo da tabela, mas cada plano como sua própria seção empilhada —
+              sem coluna nenhuma, então não tem rolagem horizontal nem planos lado a lado. */}
+          <Reveal delay={100} className="mt-14 space-y-5 lg:hidden">
+            {plans.map((plan, i) => (
+              <div
+                key={plan.name}
+                className={`overflow-hidden rounded-3xl border shadow-sm ${
+                  plan.highlight ? "border-primary/40 ring-2 ring-primary/15" : "border-slate-200/80"
+                }`}
+              >
+                <div className={`relative p-6 ${plan.highlight ? "bg-primary/[0.04]" : "bg-white"}`}>
+                  {plan.highlight && (
+                    <span className="absolute right-6 top-6 rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                      Popular
+                    </span>
+                  )}
+                  <p className="text-base font-bold text-slate-900">{plan.name}</p>
+                  <p className="mt-1 text-xs text-slate-500">{plan.desc}</p>
+
+                  <div className="mt-4 min-h-[3.75rem]">
+                    {plan.monthly === null ? (
+                      <p className="text-2xl font-extrabold text-slate-900">Sob consulta</p>
+                    ) : (
+                      <div key={annual ? "annual" : "monthly"} className="animate-in fade-in-0 slide-in-from-bottom-0.5 duration-300">
+                        <p className="flex items-baseline gap-1.5">
+                          <span className="text-2xl font-extrabold text-slate-900">
+                            R$ {annual ? plan.annual : plan.monthly}
+                          </span>
+                          <span className="text-xs font-normal text-slate-500">/colab./mês</span>
+                        </p>
+                        <p className="mt-1 text-[11px] font-normal text-slate-400">
+                          {annual ? (
+                            <>
+                              <span className="line-through">R$ {plan.monthly}</span> cobrado anualmente
+                            </>
+                          ) : (
+                            "cobrado mensalmente"
+                          )}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <Button
+                    asChild
+                    size="sm"
+                    className={`mt-4 w-full rounded-lg font-semibold ${
+                      plan.highlight
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : "border border-primary/40 bg-white text-primary hover:bg-primary/10"
+                    }`}
+                    variant={plan.highlight ? "default" : "outline"}
+                  >
+                    <Link to="/login">{plan.cta}</Link>
+                  </Button>
+                </div>
+
+                <div className="divide-y divide-slate-100 border-t border-slate-100">
+                  {!expanded &&
+                    essentialRows.map((row) => (
+                      <div key={row.label} className="flex items-center justify-between gap-3 px-6 py-3">
+                        <span className="text-sm text-slate-600">{row.label}</span>
+                        <FeatureValue value={row.values[i]} />
+                      </div>
+                    ))}
+                  {expanded &&
+                    featureGroups.map((group) => (
+                      <div key={group.title}>
+                        <div className="bg-slate-50/60 px-6 py-2">
+                          <span className="text-xs font-bold uppercase tracking-wide text-slate-400">{group.title}</span>
+                        </div>
+                        {group.rows.map((row) => (
+                          <div key={row.label} className="flex items-center justify-between gap-3 px-6 py-3">
+                            <span className="text-sm text-slate-600">{row.label}</span>
+                            <FeatureValue value={row.values[i]} />
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="group mx-auto flex items-center gap-1.5 text-sm font-semibold text-primary"
+            >
+              {expanded ? "Ver menos" : "Ver comparação completa"}
+              <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} />
+            </button>
           </Reveal>
 
           <Reveal className="mt-24 mx-auto max-w-3xl">

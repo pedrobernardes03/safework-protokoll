@@ -239,17 +239,17 @@ function SolucoesPage() {
               <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-primary/25 blur-3xl" />
 
               <div className="relative grid grid-cols-1 lg:grid-cols-[280px_1fr]">
-                <nav className="flex gap-1 overflow-x-auto border-b border-white/10 p-3 lg:flex-col lg:overflow-visible lg:border-b-0 lg:border-r lg:p-4">
+                <nav className="grid grid-cols-2 gap-1.5 border-b border-white/10 p-3 sm:grid-cols-3 lg:flex lg:grid-cols-none lg:flex-col lg:gap-1 lg:border-b-0 lg:border-r lg:p-4">
                   {modules.map((m, i) => (
                     <button
                       key={m.name}
                       onClick={() => setActive(i)}
-                      className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold whitespace-nowrap transition-colors lg:whitespace-normal ${
+                      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors ${
                         i === active ? "bg-white/10 text-white" : "text-white/45 hover:text-white/80"
                       }`}
                     >
                       <m.icon className="h-4 w-4 shrink-0" />
-                      {m.name}
+                      <span className="truncate">{m.name}</span>
                     </button>
                   ))}
                 </nav>
