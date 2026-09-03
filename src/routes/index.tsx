@@ -40,9 +40,11 @@ function Landing() {
           corta) sobra uma faixa fora do quadro nítido. Em vez de tentar disfarçar essa
           faixa com uma vinheta sobre uma cor sólida — que ficava com uma emenda dura bem
           onde o vídeo real começa — o fundo da faixa é o PRÓPRIO vídeo, borrado e escuro,
-          esticado por trás (mesma ideia do "now playing" de players de música/vídeo): a
-          borda deixa de parecer um retângulo colado, porque o que está ao redor do quadro
-          nítido é a continuação borrada da mesma cena. */}
+          esticado por trás (mesma ideia do "now playing" de players de música/vídeo). Isso
+          sozinho ainda deixava a emenda dura (o borrado é uma cor quase lisa, o vídeo
+          nítido começa de repente em cima dela) — por isso o vídeo nítido também ganha uma
+          máscara radial: as próprias bordas dele se dissolvem em transparência, então o
+          fundo borrado aparece por baixo aos poucos em vez de a emenda ser uma linha só. */}
       <div className="relative shadow-[0_35px_60px_-20px_rgba(15,23,42,0.55)]">
         <section
           className="relative w-full overflow-hidden bg-slate-900"
@@ -54,12 +56,22 @@ function Landing() {
             loop
             muted
             playsInline
-            className="absolute inset-0 h-full w-full scale-125 object-cover opacity-60 blur-3xl"
+            className="absolute inset-0 h-full w-full scale-125 object-cover opacity-80 blur-3xl brightness-75"
           >
             <source src="/hero-safety.mp4" type="video/mp4" />
           </video>
-          <div className="pointer-events-none absolute inset-0 bg-slate-900/55" />
-          <video autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-contain">
+          <div className="pointer-events-none absolute inset-0 bg-slate-900/35" />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full object-contain"
+            style={{
+              maskImage: "radial-gradient(ellipse 75% 75% at 50% 50%, black 55%, transparent 100%)",
+              WebkitMaskImage: "radial-gradient(ellipse 75% 75% at 50% 50%, black 55%, transparent 100%)",
+            }}
+          >
             <source src="/hero-safety.mp4" type="video/mp4" />
           </video>
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
