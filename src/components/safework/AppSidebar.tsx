@@ -9,6 +9,7 @@ import {
   MessageCircle,
   ShieldCheck,
   History,
+  Boxes,
   LogOut,
 } from "lucide-react";
 import {
@@ -29,6 +30,7 @@ const nav: Array<{ title: string; to: string; icon: typeof LayoutDashboard; exac
   { title: "Visão Geral", to: "/gestor", icon: LayoutDashboard, exact: true },
   { title: "Colaboradores", to: "/gestor/colaboradores", icon: Users },
   { title: "Equipamento de Proteção Individual", to: "/gestor/epis", icon: HardHat },
+  { title: "Almoxarifado", to: "/gestor/almoxarifado", icon: Boxes },
   { title: "Certificado de Aprovação (CA)", to: "/gestor/certificados", icon: BadgeCheck },
   { title: "Observações", to: "/gestor/observacoes", icon: MessageSquareWarning },
   { title: "Mensagens", to: "/gestor/mensagens", icon: MessageCircle },

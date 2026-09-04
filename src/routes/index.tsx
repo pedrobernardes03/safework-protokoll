@@ -33,81 +33,87 @@ function Landing() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50/80 via-white to-slate-50/50 text-slate-800 font-sans">
       <MarketingHeader />
 
-      {/* Hero — o vídeo é o fundo de verdade da seção, não um card por cima da página. A
-          sombra vive num wrapper SEM overflow-hidden (a sombra no mesmo elemento que
-          recorta o conteúdo era cortada junto — por isso não aparecia antes). A seção é
-          mais alta que a proporção nativa do vídeo (16:9), então object-contain (nunca
-          corta) sobra uma faixa fora do quadro nítido. Em vez de tentar disfarçar essa
-          faixa com uma vinheta sobre uma cor sólida — que ficava com uma emenda dura bem
-          onde o vídeo real começa — o fundo da faixa é o PRÓPRIO vídeo, borrado e escuro,
-          esticado por trás (mesma ideia do "now playing" de players de música/vídeo). Isso
-          sozinho ainda deixava a emenda dura (o borrado é uma cor quase lisa, o vídeo
-          nítido começa de repente em cima dela) — por isso o vídeo nítido também ganha uma
-          máscara radial: as próprias bordas dele se dissolvem em transparência, então o
-          fundo borrado aparece por baixo aos poucos em vez de a emenda ser uma linha só. */}
+      {/* Hero — preenche a tela inteira na abertura do site. A seção usa min-height:
+          calc(100vh - altura do header), não só 100vh puro: como o texto fica ancorado no
+          rodapé da própria seção, colocar 100vh cheio (ignorando o header sticky que fica
+          ACIMA dela) empurrava esse texto pra pouco abaixo da dobra — dava pra ver só o
+          vídeo, mas não o título. Descontando a altura do header (fixa o bastante entre os
+          dois breakpoints pra usar um valor só), header + seção somam exatamente uma tela,
+          e o título aparece por inteiro sem rolar. Tentei antes um flex-1 pro header
+          "dividir" a tela com a seção, mas isso não funciona quando há muito conteúdo
+          depois: o flex-grow só distribui espaço que sobra dentro da altura do próprio
+          container, e como o resto da página já passa de 100vh, não sobrava espaço — a
+          seção caía pro seu tamanho mínimo em vez de preencher a tela. Um min-height fixo
+          na própria seção não depende de nada do que vem depois. O vídeo é o fundo de
+          verdade da seção, não um card por cima da página. A sombra vive num wrapper SEM
+          overflow-hidden (a sombra no mesmo elemento que recorta o conteúdo era cortada
+          junto — por isso não aparecia antes). Como a seção é mais alta que a proporção
+          nativa do vídeo (16:9), object-contain (nunca corta) sobra uma faixa fora do
+          quadro nítido. Em vez de tentar disfarçar essa faixa com uma vinheta sobre uma cor
+          sólida — que ficava com uma emenda dura bem onde o vídeo real começa — o fundo da
+          faixa é o PRÓPRIO vídeo, na mesma posição (object-contain igual ao vídeo nítido,
+          não object-cover), só que borrado. Por usar exatamente o mesmo enquadramento, o
+          desfoque (que naturalmente espalha cor e transparência para além da borda
+          original do elemento) esfuma sozinho a transição — sem precisar calcular onde a
+          faixa começa em cada tamanho de tela, o que uma vinheta ou máscara fixa em
+          porcentagem não conseguia acertar nos dois formatos (retrato no celular, paisagem
+          no desktop) ao mesmo tempo. */}
       <div className="relative shadow-[0_35px_60px_-20px_rgba(15,23,42,0.55)]">
-        <section
-          className="relative w-full overflow-hidden bg-slate-900"
-          style={{ minHeight: "clamp(360px, 60vh, 680px)" }}
-        >
+        <section className="relative min-h-[calc(100vh-4.5rem)] w-full overflow-hidden bg-slate-900">
           <video
             aria-hidden="true"
             autoPlay
             loop
             muted
             playsInline
-            className="absolute inset-0 h-full w-full scale-125 object-cover opacity-80 blur-3xl brightness-75"
+            className="absolute inset-0 h-full w-full scale-110 object-contain opacity-90 blur-3xl brightness-75"
           >
             <source src="/hero-safety.mp4" type="video/mp4" />
           </video>
-          <div className="pointer-events-none absolute inset-0 bg-slate-900/35" />
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 h-full w-full object-contain"
-            style={{
-              maskImage: "radial-gradient(ellipse 75% 75% at 50% 50%, black 55%, transparent 100%)",
-              WebkitMaskImage: "radial-gradient(ellipse 75% 75% at 50% 50%, black 55%, transparent 100%)",
-            }}
-          >
+          <video autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-contain">
             <source src="/hero-safety.mp4" type="video/mp4" />
           </video>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
+          {/* A faixa de baixo precisa ficar legível em qualquer frame do vídeo (ele roda em
+              loop, o enquadramento muda) — um gradiente suave sozinho não garante isso
+              quando a cena atrás do texto clareia. Por isso a faixa embaixo fica bem mais
+              opaca (quase sólida nos últimos ~40% da altura) e o texto ainda ganha uma
+              sombra própria, redundante de propósito: não depende de adivinhar o brilho
+              médio do vídeo. */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/55 to-transparent" />
           <Reveal className="absolute inset-x-0 bottom-0 px-6 pb-10 sm:px-10 sm:pb-14 lg:px-16">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary sm:text-sm sm:tracking-[0.25em]">
+            {/* O verde padrão do site (--primary) é escuro de propósito — pensado pra ler
+                sobre fundo claro. Em cima do vídeo escuro ele quase some, ainda mais com o
+                brilho variando quadro a quadro. Aqui usa-se o MESMO verde da marca, só que
+                na tonalidade clara que o tema escuro do sistema já define — feita
+                justamente pra contrastar contra fundo escuro. */}
+            <p
+              className="text-xs font-bold uppercase tracking-[0.2em] drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)] sm:text-sm sm:tracking-[0.25em]"
+              style={{ color: "oklch(0.75 0.15 150)" }}
+            >
               Gestão de EPIs
             </p>
-            <h1 className="mt-2 max-w-lg text-2xl font-extrabold leading-[1.1] tracking-tight text-white sm:mt-3 sm:text-4xl lg:text-5xl">
+            <h1 className="mt-2 max-w-lg text-2xl font-extrabold leading-[1.1] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:mt-3 sm:text-4xl lg:text-5xl">
               Cada EPI da sua equipe, com dono e{" "}
-              <span className="font-serif italic font-medium text-primary">prova.</span>
+              <span className="font-serif italic font-medium" style={{ color: "oklch(0.75 0.15 150)" }}>
+                prova.
+              </span>
             </h1>
           </Reveal>
         </section>
       </div>
 
-      <main className="mx-auto max-w-7xl px-6 pb-24 pt-8">
-        {/* Uma faixa de prova mais sóbria — sem linha de divisão logo depois do vídeo (o
-            corte reto ficava esquisito), os números viram o elemento visual principal
-            com o parágrafo como legenda, em vez de disputar peso um com o outro. */}
-        <Reveal className="grid grid-cols-2 gap-8 sm:grid-cols-[auto_auto_1fr] sm:items-center sm:gap-12">
-          <div>
-            <p className="text-3xl font-extrabold text-slate-900 sm:text-4xl">-68%</p>
-            <p className="mt-1 text-xs text-slate-500 sm:text-sm">tempo gasto em auditorias</p>
-          </div>
-          <div className="border-l border-slate-200 pl-8 sm:pl-12">
-            <p className="text-3xl font-extrabold text-slate-900 sm:text-4xl">100%</p>
-            <p className="mt-1 text-xs text-slate-500 sm:text-sm">rastreabilidade de EPIs</p>
-          </div>
-          <p className="col-span-2 text-sm leading-relaxed text-slate-500 sm:col-span-1 sm:border-l sm:border-slate-200 sm:pl-12 sm:text-base">
-            Entrega, validade e troca de equipamento num histórico que responde por si —
-            sem caçar planilha antes da fiscalização.
-          </p>
-        </Reveal>
+      {/* Faixa de transição — sem ela, o navy do vídeo batia direto na área clara da página,
+          uma quebra seca. Começa na mesma cor sólida da seção (slate-900) e derrete pra
+          transparente, revelando o fundo da própria página por trás em vez de saltar de
+          uma cor pra outra de repente. */}
+      <div
+        className="pointer-events-none h-14 w-full sm:h-20"
+        style={{ background: "linear-gradient(to bottom, #0f172a, transparent)" }}
+      />
 
+      <main className="mx-auto max-w-7xl px-6 pb-24 pt-2 sm:pt-0">
         {/* 3D scroll-driven character showcase */}
-        <div className="mt-20">
+        <div className="mt-16 sm:mt-20">
           <Reveal className="mx-auto max-w-2xl text-center">
             <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-medium text-slate-800">
               <span className="h-2 w-2 rounded-full bg-primary" />

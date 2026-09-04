@@ -21,6 +21,7 @@ import { Route as ColaboradorMensagensRouteImport } from './routes/colaborador.m
 import { Route as ColaboradorMeusEpisRouteImport } from './routes/colaborador.meus-epis'
 import { Route as ColaboradorObservacaoRouteImport } from './routes/colaborador.observacao'
 import { Route as GestorIndexRouteImport } from './routes/gestor.index'
+import { Route as GestorAlmoxarifadoRouteImport } from './routes/gestor.almoxarifado'
 import { Route as GestorAuditoriaRouteImport } from './routes/gestor.auditoria'
 import { Route as GestorCertificadosRouteImport } from './routes/gestor.certificados'
 import { Route as GestorColaboradoresRouteImport } from './routes/gestor.colaboradores'
@@ -90,6 +91,11 @@ const GestorIndexRoute = GestorIndexRouteImport.update({
   path: '/',
   getParentRoute: () => GestorRoute,
 } as any)
+const GestorAlmoxarifadoRoute = GestorAlmoxarifadoRouteImport.update({
+  id: '/almoxarifado',
+  path: '/almoxarifado',
+  getParentRoute: () => GestorRoute,
+} as any)
 const GestorAuditoriaRoute = GestorAuditoriaRouteImport.update({
   id: '/auditoria',
   path: '/auditoria',
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/gestor/almoxarifado': typeof GestorAlmoxarifadoRoute
   '/gestor/auditoria': typeof GestorAuditoriaRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/gestor/almoxarifado': typeof GestorAlmoxarifadoRoute
   '/gestor/auditoria': typeof GestorAuditoriaRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/gestor/almoxarifado': typeof GestorAlmoxarifadoRoute
   '/gestor/auditoria': typeof GestorAuditoriaRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
@@ -211,6 +220,7 @@ export interface FileRouteTypes {
     | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/gestor/almoxarifado'
     | '/gestor/auditoria'
     | '/gestor/certificados'
     | '/gestor/colaboradores'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/gestor/almoxarifado'
     | '/gestor/auditoria'
     | '/gestor/certificados'
     | '/gestor/colaboradores'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/gestor/almoxarifado'
     | '/gestor/auditoria'
     | '/gestor/certificados'
     | '/gestor/colaboradores'
@@ -365,6 +377,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GestorIndexRouteImport
       parentRoute: typeof GestorRoute
     }
+    '/gestor/almoxarifado': {
+      id: '/gestor/almoxarifado'
+      path: '/almoxarifado'
+      fullPath: '/gestor/almoxarifado'
+      preLoaderRoute: typeof GestorAlmoxarifadoRouteImport
+      parentRoute: typeof GestorRoute
+    }
     '/gestor/auditoria': {
       id: '/gestor/auditoria'
       path: '/auditoria'
@@ -425,6 +444,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface GestorRouteChildren {
+  GestorAlmoxarifadoRoute: typeof GestorAlmoxarifadoRoute
   GestorAuditoriaRoute: typeof GestorAuditoriaRoute
   GestorCertificadosRoute: typeof GestorCertificadosRoute
   GestorColaboradoresRoute: typeof GestorColaboradoresRoute
@@ -437,6 +457,7 @@ interface GestorRouteChildren {
 }
 
 const GestorRouteChildren: GestorRouteChildren = {
+  GestorAlmoxarifadoRoute: GestorAlmoxarifadoRoute,
   GestorAuditoriaRoute: GestorAuditoriaRoute,
   GestorCertificadosRoute: GestorCertificadosRoute,
   GestorColaboradoresRoute: GestorColaboradoresRoute,
