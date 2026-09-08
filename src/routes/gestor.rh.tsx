@@ -6,6 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Search, Building2, Users, Lock, IdCard, UserX, UserCheck, UserRoundX } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CreatableSelect } from "@/components/safework/CreatableSelect";
@@ -275,15 +286,47 @@ function RHPage() {
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         <EditarColaboradorDialog colaborador={c} onSave={handleSave} setores={setoresOptions} onCreateSetor={handleCreateSetor} />
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          disabled={souEu}
-                          title={souEu ? "Você não pode desativar sua própria conta" : c.ativo ? "Desativar" : "Reativar"}
-                          onClick={() => handleToggleAtivo(c)}
-                        >
-                          {c.ativo ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-                        </Button>
+                        {c.ativo ? (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                disabled={souEu}
+                                title={souEu ? "Você não pode desativar sua própria conta" : "Desativar"}
+                              >
+                                <UserX className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Desativar "{c.nome}"?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza de que deseja desativar este colaborador? Ele será movido para a aba “Desativados”.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleToggleAtivo(c)}
+                                  className="bg-danger text-danger-foreground hover:bg-danger/90"
+                                >
+                                  Desativar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        ) : (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            disabled={souEu}
+                            title="Reativar"
+                            onClick={() => handleToggleAtivo(c)}
+                          >
+                            <UserCheck className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
