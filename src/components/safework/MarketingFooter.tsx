@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ShieldCheck } from "lucide-react";
+import { Logo } from "@/components/safework/Logo";
 import { toast } from "sonner";
 
 const columns = [
@@ -27,12 +27,11 @@ export function MarketingFooter() {
       <div className="mx-auto max-w-7xl px-6 py-14">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2">
-              <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <span className="text-lg font-bold text-slate-900">SafeWork</span>
-            </div>
+            <Logo
+              to="/"
+              imageClassName="h-9 w-9 object-contain"
+              textClassName="text-lg font-bold text-slate-900"
+            />
             <p className="mt-4 max-w-xs text-sm text-slate-500">
               Plataforma de gestão de segurança do trabalho para equipes que levam EPIs, CAs e
               conformidade a sério.

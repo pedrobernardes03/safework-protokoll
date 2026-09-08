@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ShieldCheck, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Logo } from "@/components/safework/Logo";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,12 +25,11 @@ function ForgotPage() {
           <Link to="/login" className="inline-flex items-center gap-8 text-sm text-muted-foreground hover:text-foreground text-white bg-ring p-2 rounded-lg mr-auto">
             <ArrowLeft className="h-6 w-6 " /> <b>Voltar ao Login</b>
           </Link>
-          <div className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground ml-12">
-              <ShieldCheck className="h-4 w-4" />
-            </div>
-            <span className="text-sm font-bold mr-2">SafeWork</span>
-          </div>
+          <Logo
+            to="/"
+            imageClassName="h-8 w-8 object-contain"
+            textClassName="text-sm font-bold"
+          />
         </div>
 
         <div className="rounded-lg border bg-card p-10 shadow-[var(--shadow-card)]">

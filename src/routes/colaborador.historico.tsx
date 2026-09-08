@@ -64,9 +64,9 @@ function Historico() {
               <div
                 className={`relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full border-4 border-background ${
                   h.tipo === "observacao"
-                    ? "bg-warning/15 text-warning"
+                    ? "bg-destructive/15 text-destructive"
                     : h.tipo === "entrega"
-                      ? "bg-primary/10 text-primary"
+                      ? "bg-success/15 text-success"
                       : "bg-success/15 text-success"
                 }`}
               >

@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ShieldCheck, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Logo } from "@/components/safework/Logo";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -36,11 +37,12 @@ function LoginPage() {
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>
-        <div className="absolute left-8 top-8 z-10 flex items-center gap-2 text-primary-foreground drop-shadow-md">
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-white/15 backdrop-blur">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <span className="text-lg font-bold">SafeWork</span>
+        <div className="absolute left-8 top-8 z-10 drop-shadow-md">
+          <Logo
+            to="/"
+            imageClassName="h-10 w-10 object-contain"
+            textClassName="text-lg font-bold text-white"
+          />
         </div>
       </div>
 
