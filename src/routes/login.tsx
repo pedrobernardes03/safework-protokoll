@@ -21,21 +21,21 @@ function LoginPage() {
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-      {/* Painel do vídeo — visível em qualquer largura agora, não só lg:. A caixa interna
-          usa aspect-video (a proporção nativa do arquivo) então o vídeo nunca é cortado;
-          no desktop, onde a coluna estica pra altura cheia da tela, ele fica centralizado
-          dentro do painel escuro em vez de esticar/cortar pra preencher tudo. */}
-      <div className="relative flex items-center justify-center self-start overflow-hidden bg-slate-900 lg:self-stretch">
-        <div className="relative aspect-video w-full">
-          <video
-            src="/login-showcase.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        </div>
+      {/* Painel do vídeo — antes ficava do tamanho da proporção nativa (aspect-video),
+          sobrando fundo escuro vazio em cima/embaixo pra completar a altura da coluna.
+          Agora a altura é decidida pela própria seção (50vh no celular, a coluna inteira
+          no desktop) e o vídeo usa object-cover pra preencher isso por completo — sem
+          faixa vazia, ao custo de cortar um pouco as laterais quando a proporção não bate
+          exatamente com a caixa. */}
+      <div className="relative h-[50vh] self-start overflow-hidden bg-slate-900 lg:h-auto lg:self-stretch">
+        <video
+          src="/login-showcase.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
+        />
         <div className="absolute left-8 top-8 z-10 flex items-center gap-2 text-primary-foreground drop-shadow-md">
           <div className="grid h-10 w-10 place-items-center rounded-lg bg-white/15 backdrop-blur">
             <ShieldCheck className="h-5 w-5" />
