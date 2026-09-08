@@ -5,8 +5,26 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Search, Plus, AlertCircle, Clock, ShieldCheck, RefreshCw, Trash2 } from "lucide-react";
-import { entregas as entregasIniciais, setores as setoresCatalogo, colaboradorRemovido, addLogAuditoria, type EntregaEpi, type EpiStatus } from "@/lib/safework-data";
+import { Search, Plus, AlertCircle, Clock, ShieldCheck, RefreshCw, Trash2, PackageMinus } from "lucide-react";
+import {
+  entregas as entregasIniciais,
+  setores as setoresCatalogo,
+  epis,
+  colaboradores,
+  saidasEmLote as saidasEmLoteIniciais,
+  colaboradorRemovido,
+  addLogAuditoria,
+  updateEpi,
+  addEntrega,
+  updateEntrega,
+  removeEntrega,
+  addSaidaEmLote,
+  gestorAtual,
+  temAcessoGeral,
+  type EntregaEpi,
+  type EpiStatus,
+} from "@/lib/safework-data";
+import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -15,10 +33,9 @@ export const Route = createFileRoute("/gestor/certificados")({
   component: CertificadosPage,
 });
 
-interface Certificado extends EntregaEpi {
-  setor: string;
-  tipoEpi: string;
-}
+// setor e tipoEpi já vêm prontos no próprio registro de entrega (safework-data.ts) — nada
+// pra enriquecer aqui.
+type Certificado = EntregaEpi;
 
 const setores = setoresCatalogo.filter((s) => s !== "Todos");
 
@@ -31,29 +48,6 @@ const tiposEpi = [
   "Proteção do corpo",
   "Proteção auditiva",
 ];
-
-// A entrega bruta (safework-data.ts) não carrega setor/tipo — enriquecida aqui uma vez,
-// no carregamento do módulo, por matrícula/EPI, em vez de recalcular a cada render.
-const setorPorMatricula: Record<string, string> = {
-  "10298": "Manutenção",
-  "10122": "Produção",
-  "10455": "Produção",
-  "10390": "Logística",
-};
-const tipoPorEpi: Record<string, string> = {
-  "Capacete": "Proteção da cabeça",
-  "Óculos": "Proteção visual",
-  "Luvas isolantes": "Proteção das mãos",
-  "Botina": "Proteção dos pés",
-  "Máscara de solda": "Proteção facial",
-  "Colete refletivo": "Proteção do corpo",
-};
-
-const certificadosIniciais: Certificado[] = entregasIniciais.map((e) => ({
-  ...e,
-  setor: setorPorMatricula[e.matricula] ?? "SST",
-  tipoEpi: tipoPorEpi[e.epi] ?? "Proteção da cabeça",
-}));
 
 const HOJE = new Date("2026-08-14");
 
@@ -73,7 +67,8 @@ const statusMap: Record<EpiStatus, { label: string; className: string; dot: stri
 const statusOrdem: Record<EpiStatus, number> = { vencido: 0, proximo: 1, vigente: 2 };
 
 function CertificadosPage() {
-  const [lista, setLista] = useState<Certificado[]>(certificadosIniciais);
+  const [lista, setLista] = useState<Certificado[]>(() => [...entregasIniciais]);
+  const [lote, setLote] = useState(() => [...saidasEmLoteIniciais]);
   const [q, setQ] = useState("");
   const [statusAtivo, setStatusAtivo] = useState<EpiStatus | null>(null);
   const [setorAtivo, setSetorAtivo] = useState<string | null>(null);
@@ -87,6 +82,10 @@ function CertificadosPage() {
     }),
     [lista],
   );
+
+  if (!temAcessoGeral(gestorAtual().perfil)) {
+    return <AcessoRestrito mensagem="O monitoramento de certificados é do time de gestão/segurança." />;
+  }
 
   const list = lista
     .filter((e) => {
@@ -108,26 +107,60 @@ function CertificadosPage() {
     tipoAtivo && { label: tipoAtivo, clear: () => setTipoAtivo(null) },
   ].filter(Boolean) as { label: string; clear: () => void }[];
 
-  const handleAdd = (nova: Certificado) => {
-    setLista((prev) => [nova, ...prev]);
-    addLogAuditoria({ acao: "Registrou entrega de EPI", alvo: `${nova.epi} — ${nova.colaborador}`, categoria: "certificado" });
-    toast.success("Entrega registrada com sucesso.");
+  // Toda mutação passa pelo registro compartilhado (safework-data.ts) — sem isso, sair
+  // desta tela e voltar perdia qualquer entrega/renovação/exclusão feita, porque o
+  // componente reconstruía a lista do zero a partir do estado inicial de novo.
+  const handleAdd = (nova: Omit<Certificado, "id">) => {
+    const criada = addEntrega(nova);
+    setLista([...entregasIniciais]);
+    // A entrega sai do estoque do próprio catálogo de EPIs — sem isso, o Almoxarifado
+    // continuaria mostrando a quantidade de antes mesmo depois do item já estar com o
+    // colaborador.
+    if (criada.epiId) {
+      const epi = epis.find((e) => e.id === criada.epiId);
+      if (epi) updateEpi({ ...epi, estoque: Math.max(0, epi.estoque - 1) });
+    }
+    addLogAuditoria({ acao: "Registrou entrega de EPI", alvo: `${criada.epi} — ${criada.colaborador}`, categoria: "certificado" });
+    toast.success("Entrega registrada com sucesso — baixa de 1 unidade dada no estoque.");
   };
 
   const handleRenovar = (id: string, novaValidade: string) => {
     const alvo = lista.find((e) => e.id === id);
-    setLista((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, validade: novaValidade, status: calcularStatus(novaValidade) } : e)),
-    );
-    if (alvo) addLogAuditoria({ acao: "Renovou certificado", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
+    if (!alvo) return;
+    updateEntrega({ ...alvo, validade: novaValidade, status: calcularStatus(novaValidade) });
+    setLista([...entregasIniciais]);
+    addLogAuditoria({ acao: "Renovou certificado", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
     toast.success("Certificado renovado com sucesso.");
   };
 
   const handleDelete = (id: string) => {
     const alvo = lista.find((e) => e.id === id);
-    setLista((prev) => prev.filter((e) => e.id !== id));
+    removeEntrega(id);
+    setLista([...entregasIniciais]);
+    // Desfaz a baixa dada na hora da entrega — excluir o registro por engano não pode
+    // deixar o estoque permanentemente errado.
+    if (alvo?.epiId) {
+      const epi = epis.find((e) => e.id === alvo.epiId);
+      if (epi) updateEpi({ ...epi, estoque: epi.estoque + 1 });
+    }
     if (alvo) addLogAuditoria({ acao: "Removeu registro de certificado", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
     toast.success("Registro removido.");
+  };
+
+  // Saída em lote pra quando um setor inteiro pede uma quantidade de uma vez (ex.: "RH
+  // pediu 20 botinas") — não gera um certificado individual com CA/validade, só desconta
+  // do estoque em nome de quem assinou pela retirada.
+  const handleBaixaDemanda = (input: { setor: string; epiId: string; quantidade: number; responsavel: string }) => {
+    const criada = addSaidaEmLote(input);
+    if (!criada) return;
+    setLote([...saidasEmLoteIniciais]);
+    addLogAuditoria({
+      acao: "Deu baixa por demanda",
+      alvo: `${criada.epiNome} — ${criada.setor}`,
+      detalhe: `${criada.quantidade} un. · responsável: ${criada.responsavel}`,
+      categoria: "epi",
+    });
+    toast.success(`Baixa de ${criada.quantidade} un. de "${criada.epiNome}" registrada para ${criada.setor}.`);
   };
 
   const grupos = (
@@ -168,8 +201,32 @@ function CertificadosPage() {
             onClick={() => setStatusAtivo((s) => (s === "vigente" ? null : "vigente"))}
           />
         </div>
-        <NovaEntregaDialog onAdd={handleAdd} />
+        <div className="flex flex-wrap items-center gap-2">
+          <BaixaPorDemandaDialog onConfirm={handleBaixaDemanda} />
+          <NovaEntregaDialog onAdd={handleAdd} />
+        </div>
       </section>
+
+      {lote.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-bold text-foreground">Saídas em lote recentes</h2>
+          <div className="divide-y rounded-2xl border bg-card">
+            {lote.slice(0, 5).map((s) => (
+              <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">
+                    {s.epiNome} <span className="text-muted-foreground">— {s.quantidade} un.</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Setor {s.setor} · responsável {s.responsavel} · {new Date(s.data).toLocaleDateString("pt-BR")}
+                  </p>
+                </div>
+                <Badge variant="secondary" className="shrink-0">Baixa por demanda</Badge>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Barra de busca e filtros — sem envelope de card, parte natural do cabeçalho */}
       <section className="flex flex-wrap items-center gap-3">
@@ -308,26 +365,22 @@ function StatusStat({
   );
 }
 
-function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Certificado) => void }) {
+function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Omit<Certificado, "id">) => void }) {
   const [open, setOpen] = useState(false);
-  const [colaborador, setColaborador] = useState("");
-  const [matricula, setMatricula] = useState("");
-  const [cargo, setCargo] = useState("");
-  const [setor, setSetor] = useState("");
-  const [epi, setEpi] = useState("");
-  const [tipoEpi, setTipoEpi] = useState("");
-  const [ca, setCa] = useState("");
+  const [colaboradorId, setColaboradorId] = useState("");
+  const [epiId, setEpiId] = useState("");
   const [dataEntrega, setDataEntrega] = useState("");
   const [validade, setValidade] = useState("");
 
+  // Matrícula, cargo e setor não são mais digitados à mão — vêm do cadastro junto com o
+  // colaborador escolhido, então não tem como errar o nome ou divergir do que já existe em
+  // Colaboradores. Mesma ideia pro CA/tipo do EPI, que vem do catálogo.
+  const colaboradorSelecionado = colaboradores.find((c) => c.id === colaboradorId);
+  const epiSelecionado = epis.find((e) => e.id === epiId);
+
   const reset = () => {
-    setColaborador("");
-    setMatricula("");
-    setCargo("");
-    setSetor("");
-    setEpi("");
-    setTipoEpi("");
-    setCa("");
+    setColaboradorId("");
+    setEpiId("");
     setDataEntrega("");
     setValidade("");
   };
@@ -340,21 +393,22 @@ function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Certificado) => void })
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Registrar nova entrega</DialogTitle>
-          <DialogDescription>Vincule um EPI e o CA correspondente a um colaborador.</DialogDescription>
+          <DialogDescription>Escolha o colaborador e o EPI do catálogo — a entrega já dá baixa de 1 unidade no estoque.</DialogDescription>
         </DialogHeader>
         <form
           className="grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
+            if (!colaboradorSelecionado || !epiSelecionado) return;
             onAdd({
-              id: Math.random().toString(36).slice(2),
-              colaborador,
-              matricula,
-              cargo,
-              setor,
-              epi,
-              tipoEpi,
-              ca,
+              colaborador: colaboradorSelecionado.nome,
+              matricula: colaboradorSelecionado.matricula,
+              cargo: colaboradorSelecionado.cargo,
+              setor: colaboradorSelecionado.setor,
+              epi: epiSelecionado.nome,
+              epiId: epiSelecionado.id,
+              tipoEpi: epiSelecionado.categoria,
+              ca: epiSelecionado.ca,
               dataEntrega,
               validade,
               status: calcularStatus(validade),
@@ -363,34 +417,37 @@ function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Certificado) => void })
             reset();
           }}
         >
-          <Field label="Colaborador"><Input required value={colaborador} onChange={(e) => setColaborador(e.target.value)} /></Field>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Field label="Matrícula"><Input required value={matricula} onChange={(e) => setMatricula(e.target.value)} /></Field>
-            <Field label="Cargo"><Input required value={cargo} onChange={(e) => setCargo(e.target.value)} /></Field>
-          </div>
-          <Field label="Setor">
-            <Select required value={setor} onValueChange={setSetor}>
-              <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+          <Field label="Colaborador">
+            <Select required value={colaboradorId} onValueChange={setColaboradorId}>
+              <SelectTrigger><SelectValue placeholder="Selecione o colaborador..." /></SelectTrigger>
               <SelectContent>
-                {setores.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                {colaboradores.filter((c) => c.ativo).map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.nome} — Matr. {c.matricula}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {colaboradorSelecionado && (
+              <p className="text-xs text-muted-foreground">
+                {colaboradorSelecionado.cargo} · {colaboradorSelecionado.setor}
+              </p>
+            )}
           </Field>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Field label="EPI"><Input required value={epi} onChange={(e) => setEpi(e.target.value)} /></Field>
-            <Field label="Número do CA"><Input required value={ca} onChange={(e) => setCa(e.target.value)} /></Field>
-          </div>
-          <Field label="Tipo de EPI">
-            <Select required value={tipoEpi} onValueChange={setTipoEpi}>
-              <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+          <Field label="EPI">
+            <Select required value={epiId} onValueChange={setEpiId}>
+              <SelectTrigger><SelectValue placeholder="Selecione o item do catálogo..." /></SelectTrigger>
               <SelectContent>
-                {tiposEpi.map((t) => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                {epis.map((e) => (
+                  <SelectItem key={e.id} value={e.id} disabled={e.estoque <= 0}>
+                    {e.nome} — {e.estoque > 0 ? `${e.estoque} em estoque` : "sem estoque"}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {epiSelecionado && (
+              <p className="text-xs text-muted-foreground">
+                CA {epiSelecionado.ca} · {epiSelecionado.categoria}
+              </p>
+            )}
           </Field>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Data de entrega"><Input required type="date" value={dataEntrega} onChange={(e) => setDataEntrega(e.target.value)} /></Field>
@@ -399,6 +456,116 @@ function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Certificado) => void })
           <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
             <Button type="submit">Registrar</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function BaixaPorDemandaDialog({
+  onConfirm,
+}: {
+  onConfirm: (input: { setor: string; epiId: string; quantidade: number; responsavel: string; responsavelId?: string }) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [setor, setSetor] = useState("");
+  const [epiId, setEpiId] = useState("");
+  const [quantidade, setQuantidade] = useState("");
+  const [responsavelId, setResponsavelId] = useState("");
+
+  const epiSelecionado = epis.find((e) => e.id === epiId);
+  // O responsável só faz sentido dentro de quem já está no setor que está pedindo — cai
+  // pra lista inteira só se ainda não existir ninguém daquele setor no cadastro.
+  const candidatosDoSetor = setor ? colaboradores.filter((c) => c.ativo && c.setor === setor) : [];
+  const responsaveis = candidatosDoSetor.length > 0 ? candidatosDoSetor : colaboradores.filter((c) => c.ativo);
+  const responsavelSelecionado = colaboradores.find((c) => c.id === responsavelId);
+
+  const quantidadeNum = Number(quantidade) || 0;
+  const excedeEstoque = epiSelecionado ? quantidadeNum > epiSelecionado.estoque : false;
+
+  const reset = () => {
+    setSetor("");
+    setEpiId("");
+    setQuantidade("");
+    setResponsavelId("");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="shrink-0"><PackageMinus className="mr-2 h-4 w-4" /> Baixa por demanda</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Baixa de estoque por demanda</DialogTitle>
+          <DialogDescription>
+            Pra quando um setor pede uma quantidade de uma vez (ex.: "RH pediu 20 botinas") — sem certificado
+            individual, só desconta do estoque em nome de quem assina pela retirada.
+          </DialogDescription>
+        </DialogHeader>
+        <form
+          className="grid gap-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!epiSelecionado || !responsavelSelecionado || quantidadeNum <= 0 || excedeEstoque) return;
+            onConfirm({
+              setor,
+              epiId: epiSelecionado.id,
+              quantidade: quantidadeNum,
+              responsavel: responsavelSelecionado.nome,
+              responsavelId: responsavelSelecionado.id,
+            });
+            setOpen(false);
+            reset();
+          }}
+        >
+          <Field label="Setor solicitante">
+            <Select required value={setor} onValueChange={(v) => { setSetor(v); setResponsavelId(""); }}>
+              <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+              <SelectContent>
+                {setores.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="EPI">
+            <Select required value={epiId} onValueChange={setEpiId}>
+              <SelectTrigger><SelectValue placeholder="Selecione o item do catálogo..." /></SelectTrigger>
+              <SelectContent>
+                {epis.map((e) => (
+                  <SelectItem key={e.id} value={e.id} disabled={e.estoque <= 0}>
+                    {e.nome} — {e.estoque > 0 ? `${e.estoque} em estoque` : "sem estoque"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Quantidade">
+            <Input
+              required
+              type="number"
+              min={1}
+              max={epiSelecionado?.estoque}
+              value={quantidade}
+              onChange={(e) => setQuantidade(e.target.value)}
+            />
+            {excedeEstoque && <p className="text-xs text-danger">Só há {epiSelecionado?.estoque} un. em estoque.</p>}
+          </Field>
+          <Field label="Responsável pela retirada">
+            <Select required value={responsavelId} onValueChange={setResponsavelId} disabled={!setor}>
+              <SelectTrigger><SelectValue placeholder={setor ? "Selecione..." : "Escolha o setor primeiro"} /></SelectTrigger>
+              <SelectContent>
+                {responsaveis.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.nome} — {c.setor}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <DialogFooter className="mt-2">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+            <Button type="submit" disabled={excedeEstoque || quantidadeNum <= 0}>Dar baixa</Button>
           </DialogFooter>
         </form>
       </DialogContent>

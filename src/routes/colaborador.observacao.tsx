@@ -6,7 +6,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { colaboradores, epis, iconeParaEpi, addObservacao, addMensagem, addNotificacao, addLogAuditoria, type Observacao } from "@/lib/safework-data";
+import {
+  colaboradores,
+  epis,
+  iconeParaEpi,
+  addObservacao,
+  addMensagem,
+  addNotificacao,
+  addLogAuditoria,
+  MATRICULA_COLABORADOR_ATUAL,
+  type Observacao,
+} from "@/lib/safework-data";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -19,8 +29,7 @@ const tipos = ["Danificado", "Desgastado", "Desconfortável", "Outro"] as const;
 
 // A área do colaborador simula sempre o mesmo usuário (Carlos Menezes), igual ao resto
 // das telas de colaborador — usado tanto para criar a observação quanto a mensagem.
-const MATRICULA = "10298";
-const colaboradorAtual = colaboradores.find((c) => c.matricula === MATRICULA)!;
+const colaboradorAtual = colaboradores.find((c) => c.matricula === MATRICULA_COLABORADOR_ATUAL)!;
 const COLABORADOR = { nome: colaboradorAtual.nome, matricula: colaboradorAtual.matricula, cargo: colaboradorAtual.cargo };
 
 // A observação pode ser sobre qualquer equipamento do catálogo — não só os que são

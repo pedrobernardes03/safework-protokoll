@@ -4,7 +4,7 @@ import { CheckCircle2, Check, MessageSquarePlus, History, ShieldCheck, MessageCi
 import { CollaboratorShell } from "@/components/safework/CollaboratorShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { colaboradores, epis, iconeParaEpi, addLogAuditoria, type Epi } from "@/lib/safework-data";
+import { colaboradores, epis, iconeParaEpi, addLogAuditoria, MATRICULA_COLABORADOR_ATUAL, type Epi } from "@/lib/safework-data";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/colaborador/meus-epis")({
@@ -12,17 +12,13 @@ export const Route = createFileRoute("/colaborador/meus-epis")({
   component: MeusEpis,
 });
 
-// Área do colaborador simula sempre o mesmo usuário (Carlos Menezes), igual ao resto
-// das telas de colaborador.
-const MATRICULA = "10298";
-
 function formatValidade(iso: string) {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 }
 
 function MeusEpis() {
-  const colaborador = colaboradores.find((c) => c.matricula === MATRICULA)!;
+  const colaborador = colaboradores.find((c) => c.matricula === MATRICULA_COLABORADOR_ATUAL)!;
   // Só entra aqui o que está em `episObrigatorios` deste colaborador específico — é isso
   // que evita, por exemplo, pedir confirmação de colete para quem não usa colete.
   const meusEpis: Epi[] = epis.filter((e) => colaborador.episObrigatorios.includes(e.id));

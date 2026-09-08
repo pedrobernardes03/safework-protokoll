@@ -1,5 +1,13 @@
-import React, { createContext, useContext, useState } from "react";
-import { notificacoes as notificacoesIniciais, type Notificacao } from "@/lib/safework-data";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import {
+  notificacoes as notificacoesCompartilhadas,
+  inscreverNotificacoes,
+  marcarNotificacaoLida,
+  marcarTodasNotificacoesLidas,
+  removerNotificacao,
+  limparNotificacoes,
+  type Notificacao,
+} from "@/lib/safework-data";
 
 export type { TipoNotificacao, PrioridadeNotificacao, Notificacao } from "@/lib/safework-data";
 
@@ -16,29 +24,25 @@ interface NotificationsContextType {
 const NotificationsContext = createContext<NotificationsContextType | undefined>(undefined);
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
-  const [notificacoes, setNotificacoes] = useState<Notificacao[]>(notificacoesIniciais);
+  const [notificacoes, setNotificacoes] = useState<Notificacao[]>(notificacoesCompartilhadas);
+
+  // Reflete no state do React qualquer mutação feita em qualquer outra tela (RH cadastrando
+  // alguém, colaborador mandando mensagem etc.) — sem isso, o sininho só atualizava depois
+  // de um F5, porque o state abaixo era lido uma única vez, no mount.
+  useEffect(() => {
+    return inscreverNotificacoes(() => setNotificacoes([...notificacoesCompartilhadas]));
+  }, []);
 
   const naoLidasCount = notificacoes.filter((n) => !n.lida).length;
 
   const badgeTexto = naoLidasCount > 99 ? "99+" : naoLidasCount.toString();
 
-  const marcarComoLida = (id: string) => {
-    setNotificacoes((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, lida: true } : n))
-    );
-  };
-
-  const marcarTodasComoLidas = () => {
-    setNotificacoes((prev) => prev.map((n) => ({ ...n, lida: true })));
-  };
-
-  const excluirNotificacao = (id: string) => {
-    setNotificacoes((prev) => prev.filter((n) => n.id !== id));
-  };
-
-  const limparTodas = () => {
-    setNotificacoes([]);
-  };
+  // Cada mutador abaixo já dispara o pub/sub sozinho (ver safework-data.ts), que por sua
+  // vez chama o `setNotificacoes` lá de cima — não precisa repetir isso aqui.
+  const marcarComoLida = (id: string) => marcarNotificacaoLida(id);
+  const marcarTodasComoLidas = () => marcarTodasNotificacoesLidas();
+  const excluirNotificacao = (id: string) => removerNotificacao(id);
+  const limparTodas = () => limparNotificacoes();
 
   return (
     <NotificationsContext.Provider

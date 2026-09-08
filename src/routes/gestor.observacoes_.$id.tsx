@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, MessageCircle } from "lucide-react";
-import { observacoes, addMensagem, addLogAuditoria, colaboradorRemovido, type Observacao } from "@/lib/safework-data";
+import { observacoes, addMensagem, addLogAuditoria, colaboradorRemovido, gestorAtual, temAcessoGeral, type Observacao } from "@/lib/safework-data";
+import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -45,6 +46,10 @@ function DetailPage() {
   // Sempre começa em branco: é uma caixa de "nova nota para enviar", não um campo que
   // guarda o texto antigo — por isso zera sozinha a cada envio.
   const [acao, setAcao] = useState("");
+
+  if (!temAcessoGeral(gestorAtual().perfil)) {
+    return <AcessoRestrito mensagem="As observações de EPI são do time de gestão/segurança." />;
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">

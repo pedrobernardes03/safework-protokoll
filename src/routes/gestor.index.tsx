@@ -24,7 +24,10 @@ import {
   entregas,
   ultimasMovimentacoes,
   colaboradoresAtencao,
+  gestorAtual,
+  temAcessoGeral,
 } from "@/lib/safework-data";
+import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
 
 export const Route = createFileRoute("/gestor/")({
   head: () => ({ meta: [{ title: "Dashboard — SafeWork" }] }),
@@ -71,6 +74,10 @@ function Dashboard() {
 
   const colaboradoresFiltrados = setorAtivo ? colaboradores.filter((c) => c.setor === setorAtivo) : colaboradores;
   const matriculasFiltradas = useMemo(() => new Set(colaboradoresFiltrados.map((c) => c.matricula)), [colaboradoresFiltrados]);
+
+  if (!temAcessoGeral(gestorAtual().perfil)) {
+    return <AcessoRestrito mensagem="Essa visão geral é do time de gestão. Seu perfil tem uma tela própria — use o menu ao lado." />;
+  }
 
   const entregasFiltradas = entregas.filter((e) => matriculasFiltradas.has(e.matricula));
   const observacoesFiltradas = observacoes.filter((o) => o.status === "Pendente" && matriculasFiltradas.has(o.matricula));
@@ -177,7 +184,7 @@ function Dashboard() {
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Link
-            to="/gestor/colaboradores"
+            to="/gestor/rh"
             className="flex flex-col justify-between rounded-2xl border bg-card p-4 transition hover:border-primary/30"
           >
             <Users className="h-4 w-4 text-primary" />

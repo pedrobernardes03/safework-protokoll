@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChatThread } from "@/components/safework/ChatThread";
 import { Badge } from "@/components/ui/badge";
-import { conversas as conversasIniciais, addMensagem, colaboradorRemovido, type Conversa } from "@/lib/safework-data";
+import { conversas as conversasIniciais, addMensagem, colaboradorRemovido, gestorAtual, temAcessoGeral, type Conversa } from "@/lib/safework-data";
+import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
 
 export const Route = createFileRoute("/gestor/mensagens")({
   head: () => ({ meta: [{ title: "Mensagens — SafeWork" }] }),
@@ -25,6 +26,10 @@ function MensagensPage() {
   // não importa (as duas colunas ficam sempre visíveis lado a lado, via sm:flex abaixo),
   // então esse estado só existe pra controlar a navegação no celular.
   const [telaCelular, setTelaCelular] = useState<"lista" | "conversa">("lista");
+
+  if (!temAcessoGeral(gestorAtual().perfil)) {
+    return <AcessoRestrito mensagem="As mensagens com colaboradores são do time de gestão/segurança." />;
+  }
 
   const abrirConversa = (matricula: string) => {
     setSelecionada(matricula);

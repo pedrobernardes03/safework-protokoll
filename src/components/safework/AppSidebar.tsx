@@ -4,12 +4,14 @@ import {
   LayoutDashboard,
   Users,
   HardHat,
+  ListChecks,
   BadgeCheck,
   MessageSquareWarning,
   MessageCircle,
   ShieldCheck,
   History,
   Boxes,
+  ShoppingCart,
   LogOut,
 } from "lucide-react";
 import {
@@ -28,7 +30,7 @@ import { gestorAtual } from "@/lib/safework-data";
 
 const nav: Array<{ title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { title: "Visão Geral", to: "/gestor", icon: LayoutDashboard, exact: true },
-  { title: "Colaboradores", to: "/gestor/colaboradores", icon: Users },
+  { title: "EPIs por Colaborador", to: "/gestor/colaboradores", icon: ListChecks },
   { title: "Equipamento de Proteção Individual", to: "/gestor/epis", icon: HardHat },
   { title: "Almoxarifado", to: "/gestor/almoxarifado", icon: Boxes },
   { title: "Certificado de Aprovação (CA)", to: "/gestor/certificados", icon: BadgeCheck },
@@ -43,13 +45,33 @@ const navAdministrador: { title: string; to: string; icon: typeof LayoutDashboar
   icon: ShieldCheck,
 };
 
+const navCompras: { title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean } = {
+  title: "Compras",
+  to: "/gestor/compras",
+  icon: ShoppingCart,
+};
+
+const navRH: { title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean } = {
+  title: "Colaboradores",
+  to: "/gestor/rh",
+  icon: Users,
+};
+
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const isActive = (to: string, exact?: boolean) =>
     exact ? path === to : path === to || path.startsWith(to + "/");
-  // Item só visível para quem tem perfil Administrador — o resto da equipe de gestão
-  // não precisa (nem deve) ver a tela de controle de acesso.
-  const items = gestorAtual().perfil === "Administrador" ? [...nav, navAdministrador] : nav;
+  const perfil = gestorAtual().perfil;
+  // "Compras" e "RH" são restritos de propósito: cada um só enxerga a própria tela, nada
+  // do resto do painel. Administrador continua vendo tudo.
+  const items =
+    perfil === "Compras"
+      ? [navCompras]
+      : perfil === "RH"
+        ? [navRH]
+        : perfil === "Administrador"
+          ? [...nav, navRH, navCompras, navAdministrador]
+          : nav;
 
   return (
     <Sidebar collapsible="icon">

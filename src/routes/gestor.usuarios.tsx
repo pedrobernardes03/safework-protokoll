@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { ShieldCheck, ShieldAlert, UserCog, Lock, UserX, UserCheck, Trash2, Cpu } from "lucide-react";
+import { ShieldCheck, ShieldAlert, UserCog, Lock, UserX, UserCheck, Trash2, Cpu, ShoppingCart, IdCard } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { colaboradores, gestorAtual, updateColaborador, removeColaborador, addLogAuditoria, type Colaborador, type Perfil } from "@/lib/safework-data";
+import {
+  colaboradores,
+  gestorAtual,
+  updateColaborador,
+  removeColaborador,
+  addLogAuditoria,
+  MATRICULA_COLABORADOR_ATUAL,
+  type Colaborador,
+  type Perfil,
+} from "@/lib/safework-data";
 
 export const Route = createFileRoute("/gestor/usuarios")({
   head: () => ({ meta: [{ title: "Usuários e Permissões — SafeWork" }] }),
@@ -27,6 +36,8 @@ export const Route = createFileRoute("/gestor/usuarios")({
 const grupos: { perfil: Perfil; titulo: string; descricao: string; className: string }[] = [
   { perfil: "Administrador", titulo: "Administradores", descricao: "Acesso total, incluindo esta tela de permissões.", className: "bg-primary/10 text-primary" },
   { perfil: "Gestor", titulo: "Gestores", descricao: "Acesso ao painel de gestão: colaboradores, EPIs, certificados e observações.", className: "bg-warning/20 text-warning-foreground" },
+  { perfil: "Compras", titulo: "Compras", descricao: "Só enxerga a fila de pedidos de reposição enviados pelo Almoxarifado.", className: "bg-blue-500/10 text-blue-600" },
+  { perfil: "RH", titulo: "RH", descricao: "Só enxerga o cadastro da equipe — nome, CPF, matrícula, cargo e setor.", className: "bg-violet-500/10 text-violet-600" },
   { perfil: "Colaborador", titulo: "Sem acesso ao painel", descricao: "Só enxergam a área do colaborador, no celular.", className: "bg-muted text-muted-foreground" },
 ];
 
@@ -93,7 +104,17 @@ function UsuariosPage() {
         {grupos.map((g) => (
           <div key={g.perfil} className="flex items-center gap-2.5">
             <span className={`grid h-8 w-8 place-items-center rounded-full ${g.className}`}>
-              {g.perfil === "Administrador" ? <ShieldCheck className="h-4 w-4" /> : g.perfil === "Gestor" ? <UserCog className="h-4 w-4" /> : <ShieldAlert className="h-4 w-4" />}
+              {g.perfil === "Administrador" ? (
+                <ShieldCheck className="h-4 w-4" />
+              ) : g.perfil === "Gestor" ? (
+                <UserCog className="h-4 w-4" />
+              ) : g.perfil === "Compras" ? (
+                <ShoppingCart className="h-4 w-4" />
+              ) : g.perfil === "RH" ? (
+                <IdCard className="h-4 w-4" />
+              ) : (
+                <ShieldAlert className="h-4 w-4" />
+              )}
             </span>
             <div>
               <p className="text-lg font-bold leading-none">{lista.filter((c) => c.perfil === g.perfil).length}</p>
@@ -124,6 +145,10 @@ function UsuariosPage() {
             <div className="divide-y bg-card">
               {pessoas.map((c) => {
                 const souEu = c.id === eu.id;
+                // A área do colaborador (celular) sempre simula essa matrícula específica —
+                // excluí-la quebraria aquela área inteira (as telas assumem que ela sempre
+                // existe). Só bloqueia a exclusão; desativar ou mudar o perfil dela é seguro.
+                const ehColaboradorDemo = c.matricula === MATRICULA_COLABORADOR_ATUAL;
                 return (
                   <div key={c.id} className={`flex flex-wrap items-center justify-between gap-3 px-5 py-3 ${!c.ativo ? "opacity-50" : ""}`}>
                     <div className="flex min-w-0 items-center gap-3">
@@ -154,6 +179,8 @@ function UsuariosPage() {
                         <SelectContent>
                           <SelectItem value="Colaborador">Colaborador</SelectItem>
                           <SelectItem value="Gestor">Gestor</SelectItem>
+                          <SelectItem value="Compras">Compras</SelectItem>
+                          <SelectItem value="RH">RH</SelectItem>
                           <SelectItem value="Administrador">Administrador</SelectItem>
                         </SelectContent>
                       </Select>
@@ -170,7 +197,19 @@ function UsuariosPage() {
 
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost" disabled={souEu} className="text-danger hover:text-danger" title={souEu ? "Você não pode excluir sua própria conta" : "Excluir"}>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            disabled={souEu || ehColaboradorDemo}
+                            className="text-danger hover:text-danger"
+                            title={
+                              souEu
+                                ? "Você não pode excluir sua própria conta"
+                                : ehColaboradorDemo
+                                  ? "Esta conta é usada pela simulação da área do colaborador e não pode ser excluída"
+                                  : "Excluir"
+                            }
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>

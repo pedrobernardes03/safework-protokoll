@@ -2,26 +2,24 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { CollaboratorShell } from "@/components/safework/CollaboratorShell";
 import { ChatThread } from "@/components/safework/ChatThread";
-import { conversas, addMensagem, addNotificacao } from "@/lib/safework-data";
+import { colaboradores, conversas, addMensagem, addNotificacao, MATRICULA_COLABORADOR_ATUAL } from "@/lib/safework-data";
 
 export const Route = createFileRoute("/colaborador/mensagens")({
   head: () => ({ meta: [{ title: "Mensagens — SafeWork" }] }),
   component: MensagensColaboradorPage,
 });
 
-// A área do colaborador simula sempre o mesmo usuário (Carlos Menezes, matrícula 10298),
-// igual ao resto das telas de colaborador — por isso a conversa é fixa por matrícula.
-const MATRICULA = "10298";
-
 function MensagensColaboradorPage() {
   const [, setTick] = useState(0);
-  const conversa = conversas.find((c) => c.matricula === MATRICULA);
+  const colaborador = colaboradores.find((c) => c.matricula === MATRICULA_COLABORADOR_ATUAL);
+  const conversa = conversas.find((c) => c.matricula === MATRICULA_COLABORADOR_ATUAL);
 
   const handleSend = (texto: string) => {
-    addMensagem(MATRICULA, "Carlos Menezes", "Eletricista", "colaborador", texto);
+    if (!colaborador) return;
+    addMensagem(MATRICULA_COLABORADOR_ATUAL, colaborador.nome, colaborador.cargo, "colaborador", texto);
     addNotificacao({
       tipo: "nova_mensagem",
-      titulo: "Nova mensagem — Carlos Menezes",
+      titulo: `Nova mensagem — ${colaborador.nome}`,
       descricao: texto,
       prioridade: "baixa",
       link: "/gestor/mensagens",

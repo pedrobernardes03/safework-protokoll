@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, ArrowRight, AlertCircle, Clock3, CheckCircle2 } from "lucide-react";
-import { observacoes, colaboradorRemovido, type Observacao } from "@/lib/safework-data";
+import { observacoes, colaboradorRemovido, gestorAtual, temAcessoGeral, type Observacao } from "@/lib/safework-data";
+import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
 import { useState } from "react";
 
 export const Route = createFileRoute("/gestor/observacoes")({
@@ -20,6 +21,10 @@ const colunas: { status: Status; icon: typeof AlertCircle; tint: string; text: s
 
 function ObservacoesPage() {
   const [q, setQ] = useState("");
+
+  if (!temAcessoGeral(gestorAtual().perfil)) {
+    return <AcessoRestrito mensagem="As observações de EPI são do time de gestão/segurança." />;
+  }
 
   const filtered = observacoes.filter((o) => {
     const s = q.toLowerCase();

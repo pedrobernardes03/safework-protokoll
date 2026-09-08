@@ -24,8 +24,11 @@ import {
   addFuncaoEpi,
   addSetor,
   addLogAuditoria,
+  gestorAtual,
+  temAcessoGeral,
   type Epi,
 } from "@/lib/safework-data";
+import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
 
 export const Route = createFileRoute("/gestor/epis")({
   head: () => ({ meta: [{ title: "Cadastro de EPIs — SafeWork" }] }),
@@ -45,6 +48,10 @@ function EpisPage() {
     lista.forEach((e) => counts.set(e.categoria, (counts.get(e.categoria) ?? 0) + 1));
     return Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
   }, [lista]);
+
+  if (!temAcessoGeral(gestorAtual().perfil)) {
+    return <AcessoRestrito mensagem="O catálogo de EPIs é do time de gestão/segurança." />;
+  }
 
   const list = lista.filter(
     (e) =>

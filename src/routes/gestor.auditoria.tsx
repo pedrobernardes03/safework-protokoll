@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, Users, HardHat, BadgeCheck, MessageSquareWarning, History, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Users, HardHat, BadgeCheck, MessageSquareWarning, History, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { logsAuditoria, type CategoriaAuditoria } from "@/lib/safework-data";
+import { logsAuditoria, gestorAtual, temAcessoGeral, type CategoriaAuditoria } from "@/lib/safework-data";
+import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
 
 const POR_PAGINA = 15;
 
@@ -18,6 +19,7 @@ const categorias: { id: CategoriaAuditoria; label: string; icon: typeof Users; c
   { id: "epi", label: "EPIs", icon: HardHat, className: "bg-success/10 text-success" },
   { id: "certificado", label: "Certificados", icon: BadgeCheck, className: "bg-warning/20 text-warning-foreground" },
   { id: "observacao", label: "Observações", icon: MessageSquareWarning, className: "bg-danger/10 text-danger" },
+  { id: "compra", label: "Compras", icon: ShoppingCart, className: "bg-blue-500/10 text-blue-600" },
 ];
 
 function formatData(iso: string) {
@@ -28,6 +30,10 @@ function AuditoriaPage() {
   const [q, setQ] = useState("");
   const [categoriaAtiva, setCategoriaAtiva] = useState<CategoriaAuditoria | null>(null);
   const [pagina, setPagina] = useState(1);
+
+  if (!temAcessoGeral(gestorAtual().perfil)) {
+    return <AcessoRestrito mensagem="O log de auditoria é do time de gestão/segurança." />;
+  }
 
   const filtrados = logsAuditoria.filter((l) => {
     const s = q.toLowerCase();
@@ -53,7 +59,7 @@ function AuditoriaPage() {
         <div>
           <p className="text-sm font-semibold">Log de auditoria</p>
           <p className="text-xs text-muted-foreground">
-            Todas as ações que afetam colaboradores, EPIs, certificados e observações ficam registradas aqui — quem fez, o quê e quando.
+            Todas as ações que afetam colaboradores, EPIs, certificados, observações e pedidos de compra ficam registradas aqui — quem fez, o quê e quando.
           </p>
         </div>
       </div>

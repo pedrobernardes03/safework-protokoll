@@ -6,7 +6,7 @@ export type EpiStatus = "vigente" | "proximo" | "vencido";
 // Setores da empresa — únicos e compartilhados entre colaboradores e o catálogo de EPIs.
 // "Todos" é um setor especial só para EPIs de uso universal (capacete, óculos, etc.);
 // nenhum colaborador de verdade tem "Todos" como setor.
-export const setores: string[] = ["Todos", "SST", "TI", "Manutenção", "Produção", "Logística"];
+export const setores: string[] = ["Todos", "SST", "TI", "Compras", "RH", "Manutenção", "Produção", "Logística"];
 
 export function addSetor(nome: string) {
   if (!setores.includes(nome)) setores.push(nome);
@@ -61,6 +61,14 @@ const iconePorCategoria: Record<string, LucideIcon> = {
 
 export function iconeParaEpi(categoria: string): LucideIcon {
   return iconePorCategoria[categoria] ?? HardHat;
+}
+
+// EPIs de um setor: os marcados para aquele setor especificamente, mais os de uso
+// universal ("Todos", ex.: capacete). Compartilhado entre o cadastro do RH (que usa isso
+// só pra pré-preencher um ponto de partida sensato ao criar alguém) e a tela de EPIs por
+// Colaborador da Segurança do Trabalho (que usa como atalho de sugestão).
+export function episDoSetor(setor: string): Epi[] {
+  return epis.filter((e) => e.setores.includes(setor) || e.setores.includes("Todos"));
 }
 
 export function addEpi(input: Omit<Epi, "id">): Epi {
@@ -230,7 +238,15 @@ export function addMensagem(
   return conversa;
 }
 
-export type Perfil = "Colaborador" | "Gestor" | "Administrador";
+// "Compras" e "RH" são perfis restritos de propósito: cada um só enxerga a própria tela
+// (Compras não vê cadastro de gente, RH não vê catálogo de EPI nem certificados) — ver
+// AppSidebar.tsx pra saber exatamente o que cada perfil vê no menu. A divisão de trabalho
+// em cima do cadastro de colaborador é deliberada: RH cadastra a pessoa (nome, CPF,
+// matrícula, cargo, setor, e-mail), a Segurança do Trabalho decide os EPIs obrigatórios
+// dela (em /gestor/colaboradores) e o TI controla nível de acesso/desativação (em
+// /gestor/usuarios) — três times, três responsabilidades, sem um pisar no trabalho do
+// outro.
+export type Perfil = "Colaborador" | "Gestor" | "Administrador" | "Compras" | "RH";
 
 export interface Colaborador {
   id: string;
@@ -257,6 +273,8 @@ export const colaboradores: Colaborador[] = [
   { id: "4", nome: "Rafael Souza", matricula: "10122", cpf: "456.789.012-33", cargo: "Soldador", setor: "Produção", email: "rafael.s@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "5"], ativo: true },
   { id: "5", nome: "Marina Alves", matricula: "10390", cpf: "567.890.123-44", cargo: "Ajudante geral", setor: "Logística", email: "marina.a@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "6"], ativo: true },
   { id: "6", nome: "Rodrigo Lima", matricula: "10007", cpf: "678.901.234-55", cargo: "Analista de TI", setor: "TI", email: "rodrigo.lima@empresa.com", perfil: "Administrador", episObrigatorios: [], ativo: true },
+  { id: "7", nome: "Fernanda Costa", matricula: "10520", cpf: "789.012.345-66", cargo: "Analista de Compras", setor: "Compras", email: "fernanda.costa@empresa.com", perfil: "Compras", episObrigatorios: [], ativo: true },
+  { id: "8", nome: "Paloma Ribeiro", matricula: "10610", cpf: "890.123.456-77", cargo: "Analista de RH", setor: "RH", email: "paloma.ribeiro@empresa.com", perfil: "RH", episObrigatorios: [], ativo: true },
 ];
 
 // Simula a sessão logada da área do gestor (não há autenticação real ainda) — é o que
@@ -264,6 +282,22 @@ export const colaboradores: Colaborador[] = [
 const MATRICULA_GESTOR_ATUAL = "10001";
 export function gestorAtual(): Colaborador {
   return colaboradores.find((c) => c.matricula === MATRICULA_GESTOR_ATUAL)!;
+}
+
+// Mesma ideia do lado do colaborador (Carlos Menezes) — a área dele simula sempre esse
+// mesmo usuário. Exportado aqui pra virar a fonte única desse número: as telas do
+// colaborador usam pra achar o próprio cadastro, e /gestor/usuarios usa pra recusar
+// excluir essa conta (excluir uma das duas identidades simuladas quebraria a área
+// correspondente inteira, já que o `!` nas telas assume que ela sempre existe).
+export const MATRICULA_COLABORADOR_ATUAL = "10298";
+
+// As telas "gerais" do painel (dashboard, EPIs, Almoxarifado, Certificados, Observações,
+// Mensagens, Auditoria, EPIs por Colaborador) são do time de gestão/segurança — não são
+// do TI, do RH nem do Compras, cada um com sua própria tela restrita. Sem essa checagem,
+// alguém logado como Compras ou RH conseguia digitar a URL de qualquer uma dessas telas
+// direto e ter acesso completo, apesar do menu escondê-las.
+export function temAcessoGeral(perfil: Perfil): boolean {
+  return perfil === "Administrador" || perfil === "Gestor";
 }
 
 export function addColaborador(input: Omit<Colaborador, "id">): Colaborador {
@@ -292,7 +326,7 @@ export function colaboradorRemovido(matricula: string): boolean {
 // Log de auditoria — quem fez o quê, e quando. Sem isso, ações sensíveis (excluir
 // colaborador, mudar nível de acesso, mexer no catálogo de EPI) só geravam um toast e
 // não deixavam rastro nenhum, o que contradiz a proposta de "rastreabilidade" do produto.
-export type CategoriaAuditoria = "usuario" | "epi" | "certificado" | "observacao";
+export type CategoriaAuditoria = "usuario" | "epi" | "certificado" | "observacao" | "compra";
 
 export interface LogAuditoria {
   id: string;
@@ -336,12 +370,80 @@ export function addLogAuditoria(input: {
   return log;
 }
 
+// Ponte Almoxarifado → Compras: o Almoxarifado só enxerga e cria pedidos (não decide nada
+// de compra em si); o Compras só vê a fila de pedidos e marca como comprado — cada um
+// mexe numa ponta só. Guarda nome/CA como texto (não só o id) porque o pedido precisa
+// continuar legível mesmo se o item for editado ou removido do catálogo depois.
+export type StatusCompra = "pendente" | "comprado";
+
+export interface SolicitacaoCompra {
+  id: string;
+  epiId: string;
+  epiNome: string;
+  ca: string;
+  quantidade: number;
+  data: string;
+  dataComprado?: string;
+  solicitadoPor: string;
+  status: StatusCompra;
+}
+
+export const solicitacoesCompra: SolicitacaoCompra[] = [
+  {
+    id: "sc1",
+    epiId: "3",
+    epiNome: "Luvas isolantes",
+    ca: "31402",
+    quantidade: 20,
+    data: "2026-07-20T10:00:00",
+    dataComprado: "2026-07-25T15:30:00",
+    solicitadoPor: "Ana Beatriz Silva",
+    status: "comprado",
+  },
+];
+
+export function addSolicitacaoCompra(input: {
+  epiId: string;
+  epiNome: string;
+  ca: string;
+  quantidade: number;
+  solicitadoPor: string;
+}): SolicitacaoCompra {
+  const nova: SolicitacaoCompra = {
+    id: Math.random().toString(36).slice(2),
+    data: new Date().toISOString(),
+    status: "pendente",
+    ...input,
+  };
+  solicitacoesCompra.unshift(nova);
+  return nova;
+}
+
+// Marcar como comprado já dá entrada no estoque do EPI correspondente — sem isso, o
+// pedido "sumiria" no histórico de Compras e alguém ainda teria que lembrar de voltar no
+// catálogo e somar a quantidade à mão.
+export function marcarComprado(id: string) {
+  const solicitacao = solicitacoesCompra.find((s) => s.id === id);
+  if (!solicitacao || solicitacao.status === "comprado") return;
+  solicitacao.status = "comprado";
+  solicitacao.dataComprado = new Date().toISOString();
+  const epi = epis.find((e) => e.id === solicitacao.epiId);
+  if (epi) updateEpi({ ...epi, estoque: epi.estoque + solicitacao.quantidade });
+}
+
 export interface EntregaEpi {
   id: string;
   colaborador: string;
   matricula: string;
   cargo: string;
+  setor: string;
   epi: string;
+  tipoEpi: string;
+  // Liga a entrega ao catálogo (epis[].id) — é o que permite dar baixa no estoque
+  // certo quando a entrega é registrada. Opcional porque os registros históricos abaixo
+  // vieram de antes dessa ligação existir e não têm como apontar pra um item específico
+  // (alguns até têm nome abreviado, ex. "Capacete" em vez de "Capacete de segurança").
+  epiId?: string;
   ca: string;
   dataEntrega: string;
   validade: string;
@@ -349,37 +451,75 @@ export interface EntregaEpi {
 }
 
 export const entregas: EntregaEpi[] = [
-  { id: "1", colaborador: "Carlos Menezes", matricula: "10298", cargo: "Eletricista", epi: "Capacete", ca: "12345", dataEntrega: "2025-08-15", validade: "2026-08-15", status: "proximo" },
-  { id: "2", colaborador: "Carlos Menezes", matricula: "10298", cargo: "Eletricista", epi: "Luvas isolantes", ca: "31402", dataEntrega: "2025-03-10", validade: "2026-03-20", status: "vencido" },
-  { id: "3", colaborador: "Juliana Prado", matricula: "10455", cargo: "Operadora", epi: "Óculos", ca: "22987", dataEntrega: "2025-11-02", validade: "2026-11-02", status: "vigente" },
-  { id: "4", colaborador: "Rafael Souza", matricula: "10122", cargo: "Soldador", epi: "Máscara de solda", ca: "50213", dataEntrega: "2025-05-18", validade: "2026-05-18", status: "vencido" },
-  { id: "5", colaborador: "Rafael Souza", matricula: "10122", cargo: "Soldador", epi: "Botina", ca: "40551", dataEntrega: "2026-01-10", validade: "2027-01-10", status: "vigente" },
-  { id: "6", colaborador: "Marina Alves", matricula: "10390", cargo: "Ajudante geral", epi: "Colete refletivo", ca: "60112", dataEntrega: "2025-09-01", validade: "2026-09-01", status: "proximo" },
+  { id: "1", colaborador: "Carlos Menezes", matricula: "10298", cargo: "Eletricista", setor: "Manutenção", epi: "Capacete", tipoEpi: "Proteção da cabeça", ca: "12345", dataEntrega: "2025-08-15", validade: "2026-08-15", status: "proximo" },
+  { id: "2", colaborador: "Carlos Menezes", matricula: "10298", cargo: "Eletricista", setor: "Manutenção", epi: "Luvas isolantes", tipoEpi: "Proteção das mãos", ca: "31402", dataEntrega: "2025-03-10", validade: "2026-03-20", status: "vencido" },
+  { id: "3", colaborador: "Juliana Prado", matricula: "10455", cargo: "Operadora", setor: "Produção", epi: "Óculos", tipoEpi: "Proteção visual", ca: "22987", dataEntrega: "2025-11-02", validade: "2026-11-02", status: "vigente" },
+  { id: "4", colaborador: "Rafael Souza", matricula: "10122", cargo: "Soldador", setor: "Produção", epi: "Máscara de solda", tipoEpi: "Proteção facial", ca: "50213", dataEntrega: "2025-05-18", validade: "2026-05-18", status: "vencido" },
+  { id: "5", colaborador: "Rafael Souza", matricula: "10122", cargo: "Soldador", setor: "Produção", epi: "Botina", tipoEpi: "Proteção dos pés", ca: "40551", dataEntrega: "2026-01-10", validade: "2027-01-10", status: "vigente" },
+  { id: "6", colaborador: "Marina Alves", matricula: "10390", cargo: "Ajudante geral", setor: "Logística", epi: "Colete refletivo", tipoEpi: "Proteção do corpo", ca: "60112", dataEntrega: "2025-09-01", validade: "2026-09-01", status: "proximo" },
 ];
 
-export const dashboardStats = {
-  vencidos: entregas.filter((e) => e.status === "vencido").length,
-  proximos: entregas.filter((e) => e.status === "proximo").length,
-  vigentes: entregas.filter((e) => e.status === "vigente").length,
-  totalColaboradores: 12,
-  admitidosMes: 2,
-  afastados: 0,
-  venceramHoje: 1,
-  colaboradorMaisProximo: "Carlos Menezes",
-  prazoMedioVencimento: "18 dias",
-  observacoesCriticas: 1,
-  ultimaObservacao: "OBS-1042 — Carlos Menezes",
-  episEntreguesMes: 14,
-  casCadastrados: 18,
-  colaboradoresSemEpiObrigatorio: 1,
-  taxaConformidade: 92.5,
-  entregasSemana: 4,
-  ultimoColaborador: "Fernando Costa (Manutenção)",
-  ultimoEpiEntregue: "Capacete de Segurança (Carlos M.)",
-  proximoCaVencer: "CA 12345 (Vence amanhã)",
-  episEmUso: 38,
-  tempoMedioVencimentoCas: "42 dias",
-};
+export function addEntrega(input: Omit<EntregaEpi, "id">): EntregaEpi {
+  const nova: EntregaEpi = { id: Math.random().toString(36).slice(2), ...input };
+  entregas.unshift(nova);
+  return nova;
+}
+
+export function updateEntrega(atualizada: EntregaEpi) {
+  const idx = entregas.findIndex((e) => e.id === atualizada.id);
+  if (idx !== -1) entregas[idx] = atualizada;
+}
+
+export function removeEntrega(id: string) {
+  const idx = entregas.findIndex((e) => e.id === id);
+  if (idx !== -1) entregas.splice(idx, 1);
+}
+
+// Saída em lote — pra quando um setor inteiro pede uma quantidade de EPI de uma vez (ex.:
+// "RH pediu 20 botinas para o pessoal novo") em vez de uma entrega individual com CA e
+// validade por pessoa. Não usa `entregas`/EntregaEpi de propósito: aqui não existe um
+// colaborador recebendo um item específico com validade a controlar, só um responsável
+// que assina pela retirada do lote inteiro — misturar isso na tela de Certificados poluiria
+// o monitoramento de CA com registros que não têm data de validade nenhuma.
+export interface SaidaEmLote {
+  id: string;
+  setor: string;
+  epiId: string;
+  epiNome: string;
+  quantidade: number;
+  responsavel: string;
+  // Igual ao epiId acima: guarda o id de verdade (quando o responsável é alguém do
+  // cadastro) além do nome em texto, pra não deixar essa ponta sem FK enquanto o resto
+  // do dado tem.
+  responsavelId?: string;
+  data: string;
+}
+
+export const saidasEmLote: SaidaEmLote[] = [];
+
+export function addSaidaEmLote(input: {
+  setor: string;
+  epiId: string;
+  quantidade: number;
+  responsavel: string;
+  responsavelId?: string;
+}): SaidaEmLote | null {
+  const epi = epis.find((e) => e.id === input.epiId);
+  if (!epi) return null;
+  updateEpi({ ...epi, estoque: Math.max(0, epi.estoque - input.quantidade) });
+  const nova: SaidaEmLote = {
+    id: Math.random().toString(36).slice(2),
+    data: new Date().toISOString(),
+    setor: input.setor,
+    epiId: input.epiId,
+    epiNome: epi.nome,
+    quantidade: input.quantidade,
+    responsavel: input.responsavel,
+    responsavelId: input.responsavelId,
+  };
+  saidasEmLote.unshift(nova);
+  return nova;
+}
 
 export interface Movimentacao {
   id: string;
@@ -413,45 +553,7 @@ export const colaboradoresAtencao: ColaboradorAtencao[] = [
   { id: "1", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Sem EPI obrigatório (Luva Isolante)", prioridade: "alta", acaoRotulo: "Entregar EPI", acaoHref: "/gestor/certificados" },
   { id: "2", nome: "Rafael Souza", cargo: "Soldador", motivo: "CA 50213 vencido (Máscara de Solda)", prioridade: "alta", acaoRotulo: "Renovar CA", acaoHref: "/gestor/certificados" },
   { id: "3", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Observação pendente crítica (Rachadura)", prioridade: "media", acaoRotulo: "Analisar", acaoHref: "/gestor/observacoes" },
-  { id: "4", nome: "Fernando Costa", cargo: "Técnico de Manutenção", motivo: "Pendência de entrega no onboarding", prioridade: "media", acaoRotulo: "Agendar", acaoHref: "/gestor/colaboradores" },
-];
-
-export const resumoMensal = {
-  episEntregues: { valor: 14, variacao: "+18% vs mês ant." },
-  novosColaboradores: { valor: 2, variacao: "+100%" },
-  observacoesRegistradas: { valor: 6, variacao: "-25%" },
-  casVencidos: { valor: 2, variacao: "Estável" },
-  casRenovados: { valor: 5, variacao: "+25%" },
-};
-
-// Dados para gráficos
-export const graficoTiposEpi = [
-  { name: "Proteção Cabeça", quantidade: 12, fill: "#3b82f6" },
-  { name: "Proteção Ocular", quantidade: 8, fill: "#8b5cf6" },
-  { name: "Mãos & Braços", quantidade: 15, fill: "#ec4899" },
-  { name: "Calçados", quantidade: 10, fill: "#10b981" },
-  { name: "Auditivo & Outros", quantidade: 6, fill: "#f59e0b" },
-];
-
-export const graficoEvolucaoEntregas = [
-  { mes: "Mar", entregas: 8, devolucoes: 1 },
-  { mes: "Abr", entregas: 11, devolucoes: 2 },
-  { mes: "Mai", entregas: 9, devolucoes: 0 },
-  { mes: "Jun", entregas: 15, devolucoes: 3 },
-  { mes: "Jul", entregas: 12, devolucoes: 1 },
-  { mes: "Ago", entregas: 14, devolucoes: 2 },
-];
-
-export const graficoStatusCa = [
-  { status: "Vigentes", quantidade: 14, fill: "oklch(0.6 0.15 155)" },
-  { status: "A Vencer (30d)", quantidade: 2, fill: "oklch(0.78 0.16 80)" },
-  { status: "Vencidos", quantidade: 2, fill: "oklch(0.6 0.22 27)" },
-];
-
-export const graficoStatusObservacoes = [
-  { status: "Resolvidas", quantidade: 5, fill: "oklch(0.6 0.15 155)" },
-  { status: "Em Análise", quantidade: 2, fill: "oklch(0.42 0.1 150)" },
-  { status: "Pendentes", quantidade: 1, fill: "oklch(0.78 0.16 80)" },
+  { id: "4", nome: "Fernando Costa", cargo: "Técnico de Manutenção", motivo: "Pendência de entrega no onboarding", prioridade: "media", acaoRotulo: "Agendar", acaoHref: "/gestor/certificados" },
 ];
 
 export type TipoNotificacao = "ca_vencido" | "ca_proximo" | "epi_entregue" | "novo_colaborador" | "nova_observacao" | "nova_mensagem";
@@ -531,6 +633,25 @@ export const notificacoes: Notificacao[] = [
   },
 ];
 
+// NotificationProvider (useNotifications.tsx) só lê `notificacoes` uma vez, no mount, pro
+// próprio state do React — sem isso, uma notificação criada por uma tela (ex.: RH
+// cadastrando alguém) mutava o array aqui embaixo mas o sininho no header nunca ficava
+// sabendo, só apareceria depois de um F5. Esse pub/sub avisa o provider sempre que o
+// array muda, pra ele re-sincronizar o próprio state a partir da fonte compartilhada —
+// mesma ideia do `setLista([...epis])` que as telas fazem depois de mutar o catálogo,
+// só que aqui quem mutou e quem precisa re-renderizar são componentes diferentes.
+type OuvinteNotificacoes = () => void;
+const ouvintesNotificacoes = new Set<OuvinteNotificacoes>();
+
+export function inscreverNotificacoes(ouvinte: OuvinteNotificacoes): () => void {
+  ouvintesNotificacoes.add(ouvinte);
+  return () => ouvintesNotificacoes.delete(ouvinte);
+}
+
+function avisarOuvintesNotificacoes() {
+  ouvintesNotificacoes.forEach((ouvinte) => ouvinte());
+}
+
 export function addNotificacao(input: { tipo: TipoNotificacao; titulo: string; descricao: string; prioridade: PrioridadeNotificacao; link?: string }) {
   const notif: Notificacao = {
     id: Math.random().toString(36).slice(2),
@@ -539,6 +660,29 @@ export function addNotificacao(input: { tipo: TipoNotificacao; titulo: string; d
     ...input,
   };
   notificacoes.unshift(notif);
+  avisarOuvintesNotificacoes();
   return notif;
+}
+
+export function marcarNotificacaoLida(id: string) {
+  const notif = notificacoes.find((n) => n.id === id);
+  if (notif) notif.lida = true;
+  avisarOuvintesNotificacoes();
+}
+
+export function marcarTodasNotificacoesLidas() {
+  notificacoes.forEach((n) => { n.lida = true; });
+  avisarOuvintesNotificacoes();
+}
+
+export function removerNotificacao(id: string) {
+  const idx = notificacoes.findIndex((n) => n.id === id);
+  if (idx !== -1) notificacoes.splice(idx, 1);
+  avisarOuvintesNotificacoes();
+}
+
+export function limparNotificacoes() {
+  notificacoes.splice(0, notificacoes.length);
+  avisarOuvintesNotificacoes();
 }
 
