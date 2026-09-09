@@ -1,14 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  ShieldCheck,
-  Clock,
-  Users,
-  Factory,
-  Building2,
-  Box,
-  Truck,
-  Shield,
-} from "lucide-react";
+import { Factory, Building2, Box, Truck, Shield } from "lucide-react";
 import { MarketingHeader } from "@/components/safework/MarketingHeader";
 import { MarketingFooter } from "@/components/safework/MarketingFooter";
 import { Reveal } from "@/components/safework/Reveal";
@@ -85,14 +76,10 @@ function Landing() {
                 sobre fundo claro. Em cima do vídeo escuro ele quase some, ainda mais com o
                 brilho variando quadro a quadro. Aqui usa-se o MESMO verde da marca, só que
                 na tonalidade clara que o tema escuro do sistema já define — feita
-                justamente pra contrastar contra fundo escuro. */}
-            <p
-              className="text-xs font-bold uppercase tracking-[0.2em] drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)] sm:text-sm sm:tracking-[0.25em]"
-              style={{ color: "oklch(0.75 0.15 150)" }}
-            >
-              Gestão de EPIs
-            </p>
-            <h1 className="mt-2 max-w-lg text-2xl font-extrabold leading-[1.1] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:mt-3 sm:text-4xl lg:text-5xl">
+                justamente pra contrastar contra fundo escuro. Sem etiqueta em caixa alta
+                acima do título — "GESTÃO DE EPIS" não dizia nada que o título abaixo já não
+                diga sozinho. */}
+            <h1 className="max-w-lg text-2xl font-extrabold leading-[1.1] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:text-4xl lg:text-5xl">
               Cada EPI da sua equipe, com dono e{" "}
               <span className="font-serif italic font-medium" style={{ color: "oklch(0.75 0.15 150)" }}>
                 prova.
@@ -114,12 +101,8 @@ function Landing() {
       <main className="mx-auto max-w-7xl px-6 pb-24 pt-2 sm:pt-0">
         {/* 3D scroll-driven character showcase */}
         <div className="mt-16 sm:mt-20">
-          <Reveal className="mx-auto max-w-2xl text-center">
-            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-medium text-slate-800">
-              <span className="h-2 w-2 rounded-full bg-primary" />
-              Como funciona
-            </div>
-            <h2 className="mt-4 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
               Segurança visível em cada etapa do turno.
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-slate-500 sm:text-base lg:hidden">
@@ -129,61 +112,54 @@ function Landing() {
             <p className="mt-3 hidden text-sm leading-relaxed text-slate-500 sm:text-base lg:block">
               Role a página — a câmera foca em cada EPI conforme o sistema mostra o que faz por ele.
             </p>
-          </Reveal>
+          </div>
 
           <CharacterShowcase />
         </div>
 
-        {/* Feature Highlights Row Container (4 Pillars) */}
-        <section className="mt-20 rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
+        {/* O que o CharacterShowcase mostrou de forma interativa (o passo a passo do
+            turno), esta seção reforça de outro jeito: quatro garantias concretas do
+            próprio produto — não os quatro clichês de "tudo em um lugar / equipes
+            conectadas" que caberiam em qualquer landing page de SaaS. Cada item nomeia um
+            mecanismo real (o checklist por função, o desconto automático de estoque, o
+            aviso de CA, o log de auditoria) em vez de um benefício abstrato. Sem ícone,
+            sem card, sem hover — só uma borda fina marcando cada claim como distinta, e o
+            texto carregando o peso sozinho. */}
+        <section className="mt-24">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
-                icon: ShieldCheck,
-                title: "Tudo em um só lugar",
-                desc: "EPIs, CAs e comunicação centralizados.",
+                title: "Sem lista genérica",
+                desc: "Cada colaborador só confirma o EPI que a função dele exige — nunca a mesma lista pra todo mundo.",
               },
               {
-                icon: Clock,
-                title: "Tempo é segurança",
-                desc: "Reduza retrabalho e ganhe agilidade.",
+                title: "Estoque sempre atual",
+                desc: "Toda entrega desconta o Almoxarifado na hora; a falta nunca é descoberta tarde demais.",
               },
               {
-                icon: ShieldCheck,
-                title: "Conformidade garantida",
-                desc: "Auditorias e documentos sempre em dia.",
+                title: "Vencimento sob aviso",
+                desc: "Nenhum CA vence de surpresa — o sistema cobra a renovação antes do prazo, não depois dele.",
               },
               {
-                icon: Users,
-                title: "Equipes conectadas",
-                desc: "Mais transparência entre colaboradores e gestores.",
+                title: "Rastro completo",
+                desc: "Quem entregou, quem confirmou, quem mudou o quê: auditável a qualquer momento.",
               },
-            ].map((item, i) => (
-              <Reveal
-                key={item.title}
-                delay={i * 100}
-                className="group flex items-start gap-4 pt-4 sm:pt-0 sm:px-5 first:pl-0"
-              >
-                <div className="grid h-10 w-12 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
-                  <item.icon className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">{item.title}</h3>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.desc}</p>
-                </div>
-              </Reveal>
+            ].map((item) => (
+              <div key={item.title} className="border-t border-slate-200 pt-5">
+                <h3 className="text-base font-bold text-slate-900">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-500">{item.desc}</p>
+              </div>
             ))}
           </div>
         </section>
 
         {/* Client Trust Section */}
-        <Reveal className="mt-20 space-y-8 text-center">
+        <div className="mt-24 space-y-8 text-center">
           <p className="text-sm font-semibold text-slate-600">
-            Mais de{" "}
             <span className="font-bold text-primary">
               <CountUp value={1200} suffix="+" />
             </span>{" "}
-            empresas já confiam
+            empresas confiam na SafeWork
           </p>
 
           <Marquee className="opacity-75 grayscale transition-all hover:grayscale-0">
@@ -197,7 +173,7 @@ function Landing() {
               </div>
             ))}
           </Marquee>
-        </Reveal>
+        </div>
       </main>
 
       <MarketingFooter />
