@@ -75,9 +75,9 @@ function EpisPorColaboradorPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:justify-between">
-        <div className="min-w-0">
-          <h2 className="truncate text-2xl font-bold tracking-tight">EPIs por Colaborador</h2>
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1 min-w-0">
+          <h2 className="text-2xl font-bold tracking-tight">EPIs por Colaborador</h2>
           <p className="text-sm text-muted-foreground">
             Defina o que cada um é obrigado a confirmar no checklist dele.{" "}
             <Link to="/gestor/rh" className="text-primary hover:underline">

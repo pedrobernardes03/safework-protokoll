@@ -142,9 +142,9 @@ function RHPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h2 className="truncate text-2xl font-bold tracking-tight">Colaboradores</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Colaboradores</h2>
           <p className="text-sm text-muted-foreground">Cadastre e mantenha os dados da equipe em dia.</p>
         </div>
         {visualizacao === "ativos" && (
