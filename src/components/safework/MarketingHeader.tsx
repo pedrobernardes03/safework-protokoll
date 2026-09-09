@@ -21,7 +21,7 @@ export function MarketingHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
         <Logo
           to="/"
-          imageClassName="h-9 w-9 rounded-xl object-contain sm:h-10 sm:w-10"
+          imageClassName="h-9 w-9 object-contain sm:h-10 sm:w-10"
           textClassName="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl"
         />
 
@@ -71,7 +71,7 @@ export function MarketingHeader() {
             <SheetHeader className="text-left">
               <SheetTitle>
                 <Logo
-                  imageClassName="h-9 w-9 rounded-xl object-contain"
+                  imageClassName="h-9 w-9 object-contain"
                   textClassName="text-xl font-extrabold tracking-tight text-slate-900"
                 />
               </SheetTitle>

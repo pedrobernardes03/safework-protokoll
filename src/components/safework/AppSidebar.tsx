@@ -77,7 +77,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <Link to="/gestor" className="flex items-center gap-3 px-2 py-3">
-          <Logo showText={false} imageClassName="h-14 w-14 shrink-0 object-contain" />
+          <Logo showText={false} imageClassName="h-12 w-12 shrink-0 object-contain" />
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="text-sm font-bold leading-tight">SafeWork</p>
             <p className="truncate text-xs text-muted-foreground">Gestão de Segurança</p>

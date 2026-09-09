@@ -37,12 +37,12 @@ function ObservacoesPage() {
           colorida — Certificados já usa esse padrão; Observações é fundamentalmente um
           fluxo de trabalho (reportado → em análise → resolvido), então o layout reflete
           isso como um kanban em vez de reaproveitar a mesma estrutura. */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Observações dos EPIs</h2>
           <p className="text-sm text-muted-foreground">Acompanhe cada ocorrência do relato até a resolução.</p>
         </div>
-        <div className="relative w-full max-w-xs">
+        <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={q}

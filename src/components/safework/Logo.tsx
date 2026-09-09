@@ -11,7 +11,7 @@ interface LogoProps {
 export function Logo({
   showText = true,
   className = "flex items-center gap-3",
-  imageClassName = "h-16 w-16 rounded-xl object-contain",
+  imageClassName = "h-12 w-12 object-contain",
   textClassName = "text-2xl font-extrabold tracking-tight",
   to,
 }: LogoProps) {

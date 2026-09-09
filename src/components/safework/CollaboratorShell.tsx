@@ -17,7 +17,7 @@ export function CollaboratorShell({ children, back }: { children: ReactNode; bac
     <div className="min-h-screen bg-accent/20">
       <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-20 max-w-4xl items-center justify-between px-4 sm:px-6">
-          <Logo to="/colaborador/meus-epis" imageClassName="h-14 w-14 rounded-xl object-contain" textClassName="text-2xl font-extrabold tracking-tight" />
+          <Logo to="/colaborador/meus-epis" imageClassName="h-12 w-12 object-contain sm:h-14 sm:w-14" textClassName="text-2xl font-extrabold tracking-tight" />
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">
               <p className="text-sm font-medium leading-tight">{colaborador?.nome}</p>
