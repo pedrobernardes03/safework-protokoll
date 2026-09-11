@@ -22,22 +22,20 @@ function LoginPage() {
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-      {/* Painel do vídeo — visível em qualquer largura agora, não só lg:. A caixa interna
-          usa aspect-video (a proporção nativa do arquivo) então o vídeo nunca é cortado;
-          no desktop, onde a coluna estica pra altura cheia da tela, ele fica centralizado
-          dentro do painel escuro em vez de esticar/cortar pra preencher tudo. */}
-      <div className="relative flex items-center justify-center self-start overflow-hidden bg-slate-900 lg:self-stretch">
-        <div className="relative aspect-video w-full">
-          <video
-            src="/login-showcase.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        </div>
-        <div className="absolute left-8 top-8 z-10 drop-shadow-md">
+      {/* Painel do vídeo em background cinematográfico full-bleed */}
+      <div className="relative min-h-[260px] sm:min-h-[320px] lg:min-h-screen w-full overflow-hidden bg-slate-950">
+        <video
+          src="/login-showcase.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none"
+        />
+        {/* Camada escura sobre o vídeo para contraste, equilíbrio e integração visual */}
+        <div className="absolute inset-0 bg-black/45" />
+
+        <div className="absolute left-6 top-6 sm:left-8 sm:top-8 z-10 drop-shadow-md">
           <Logo
             to="/"
             imageClassName="h-10 w-10 object-contain"
