@@ -5,10 +5,10 @@ import {
   Users,
   BadgeCheck,
   MessageSquareWarning,
-  GraduationCap,
-  BarChart3,
+  Boxes,
+  History,
   MessageCircle,
-  FileText,
+  ShoppingCart,
   AlertTriangle,
   ArrowRight,
 } from "lucide-react";
@@ -126,40 +126,66 @@ const modules = [
     ),
   },
   {
-    icon: GraduationCap,
-    name: "Treinamentos",
-    desc: "Agenda, controle de presença e certificados de treinamentos de segurança do trabalho, por colaborador e por turma.",
+    icon: Boxes,
+    name: "Almoxarifado",
+    desc: "Visão única do estoque de cada EPI — o que já falta, o que está ficando baixo e o que está saudável — pronta para virar pedido de reposição sem passar por planilha.",
     widget: (
       <div className="space-y-4">
         {[
-          { name: "NR-35 · Trabalho em altura", pct: 92 },
-          { name: "NR-6 · Uso de EPIs", pct: 78 },
-        ].map((t) => (
-          <div key={t.name}>
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-white/80">{t.name}</span>
-              <span className="font-bold text-primary">{t.pct}%</span>
+          { name: "Luva de proteção", note: "Em falta", pct: 3, tone: "danger" as const },
+          { name: "Óculos de proteção", note: "8 un. restantes", pct: 22, tone: "warn" as const },
+          { name: "Capacete de segurança", note: "46 un. restantes", pct: 92, tone: "ok" as const },
+        ].map((item) => (
+          <div key={item.name}>
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium text-white/90">{item.name}</span>
+              <span
+                className={`text-xs font-semibold ${
+                  item.tone === "danger" ? "text-red-400" : item.tone === "warn" ? "text-amber-400" : "text-emerald-400"
+                }`}
+              >
+                {item.note}
+              </span>
             </div>
-            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-              <div className="h-full rounded-full bg-primary" style={{ width: `${t.pct}%` }} />
+            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+              <div
+                className={`h-full rounded-full ${
+                  item.tone === "danger" ? "bg-red-400" : item.tone === "warn" ? "bg-amber-400" : "bg-emerald-400"
+                }`}
+                style={{ width: `${item.pct}%` }}
+              />
             </div>
           </div>
         ))}
+        <p className="pt-1 text-xs text-white/40">2 itens abaixo do ponto de reposição · um clique envia a lista ao Compras</p>
       </div>
     ),
   },
   {
-    icon: BarChart3,
-    name: "Analytics & Relatórios",
-    desc: "Indicadores de conformidade, custo de EPIs e tendências por setor, exportáveis a qualquer momento em PDF ou Excel.",
+    icon: ShoppingCart,
+    name: "Compras",
+    desc: "O pedido de reposição chega do Almoxarifado pronto, com item, quantidade e CA. Marcar como comprado já dá entrada automática no estoque — sem lançamento manual.",
     widget: (
-      <div>
-        <div className="flex h-24 items-end gap-2.5">
-          {[38, 62, 48, 74, 55, 90, 68].map((h, i) => (
-            <div key={i} className="flex-1 rounded-t-sm bg-primary" style={{ height: `${h}%`, opacity: 0.5 + (h / 100) * 0.5 }} />
-          ))}
-        </div>
-        <p className="mt-3 text-xs text-white/40">Conformidade semanal por setor</p>
+      <div className="divide-y divide-white/10 border-t border-white/10">
+        {[
+          { name: "Luva de proteção", qtd: "20 un.", status: "pendente" as const },
+          { name: "Óculos de proteção", qtd: "12 un.", status: "pendente" as const },
+          { name: "Botina de segurança", qtd: "15 un.", status: "comprado" as const },
+        ].map((item) => (
+          <div key={item.name} className="flex items-center justify-between gap-3 py-3.5">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-white/90">{item.name}</p>
+              <p className="text-xs text-white/40">{item.qtd}</p>
+            </div>
+            <span
+              className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                item.status === "pendente" ? "bg-amber-400/15 text-amber-300" : "bg-emerald-400/15 text-emerald-400"
+              }`}
+            >
+              {item.status === "pendente" ? "Pendente" : "Comprado"}
+            </span>
+          </div>
+        ))}
       </div>
     ),
   },
@@ -180,19 +206,22 @@ const modules = [
     ),
   },
   {
-    icon: FileText,
-    name: "Documentos & Auditoria",
-    desc: "Controle de versão de procedimentos e políticas de segurança, com trilha de auditoria completa de cada alteração.",
+    icon: History,
+    name: "Auditoria",
+    desc: "Entrega, troca, aprovação de compra, mudança de acesso: toda ação relevante fica registrada com autor, alvo e horário. Nada se perde entre setores.",
     widget: (
       <div className="divide-y divide-white/10 border-t border-white/10">
         {[
-          { name: "Política de EPIs v3.2", meta: "há 2 dias · Bruno Alves" },
-          { name: "Procedimento NR-6", meta: "há 1 semana · Marina Alves" },
-          { name: "Checklist de auditoria interna", meta: "há 3 semanas · Carlos Souza" },
-        ].map((doc) => (
-          <div key={doc.name} className="flex items-center justify-between gap-3 py-3.5">
-            <p className="text-sm font-medium text-white/90">{doc.name}</p>
-            <span className="shrink-0 text-xs text-white/40">{doc.meta}</span>
+          { linha: "Solicitou compra · Luva de proteção", autor: "Ana Ferreira", quando: "há 8 min" },
+          { linha: "Confirmou uso de EPIs obrigatórios", autor: "João Silva", quando: "há 41 min" },
+          { linha: "Aprovou certificado renovado · CA 34521", autor: "Bruno Alves", quando: "há 2h" },
+        ].map((log) => (
+          <div key={log.linha} className="flex items-center justify-between gap-3 py-3.5">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-white/90">{log.linha}</p>
+              <p className="truncate text-xs text-white/40">{log.autor}</p>
+            </div>
+            <span className="shrink-0 text-xs text-white/40">{log.quando}</span>
           </div>
         ))}
       </div>
@@ -215,22 +244,24 @@ function SolucoesPage() {
 
         <main className="mx-auto max-w-6xl px-6 pb-28 pt-8">
           <Reveal className="max-w-2xl">
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-primary">Soluções SafeWork</p>
-            <h1 className="mt-4 text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
+            <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
               Um módulo para cada etapa da{" "}
               <span className="font-serif italic font-medium text-primary">segurança do trabalho.</span>
             </h1>
             <p className="mt-5 text-base leading-relaxed text-slate-600 sm:text-lg">
-              Da entrega do primeiro EPI ao relatório mensal de conformidade, tudo centralizado em uma
-              única plataforma.
+              Da entrega do primeiro EPI ao pedido de reposição no Compras, tudo centralizado em uma
+              única plataforma — do colaborador ao almoxarifado.
             </p>
           </Reveal>
 
           {/* One cohesive product panel instead of a wall of repeated cards — reuses the
               same dark glass-panel language as the homepage's live-monitoring hero, so it
               reads as this site's actual design system rather than a generic tile grid.
-              Selecting a module swaps the detail pane instead of stacking eight boxes. */}
-          <Reveal delay={100} className="mt-16">
+              Selecting a module swaps the detail pane instead of stacking eight boxes.
+              No entrance animation here: the hero above is this page's one orchestrated
+              reveal, everything below just appears — scattering fade-ups on every section
+              reads as templated rather than designed. */}
+          <div className="mt-16">
             <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[oklch(0.22_0.04_150)] via-[oklch(0.2_0.03_150)] to-[oklch(0.32_0.08_165)] shadow-2xl shadow-slate-900/30">
               <div
                 className="pointer-events-none absolute inset-0 opacity-[0.05]"
@@ -238,7 +269,7 @@ function SolucoesPage() {
               />
               <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-primary/25 blur-3xl" />
 
-              <div className="relative grid grid-cols-1 lg:grid-cols-[280px_1fr]">
+              <div className="relative grid grid-cols-1 lg:grid-cols-[312px_1fr]">
                 <nav className="grid grid-cols-2 gap-1.5 border-b border-white/10 p-3 sm:grid-cols-3 lg:flex lg:grid-cols-none lg:flex-col lg:gap-1 lg:border-b-0 lg:border-r lg:p-4">
                   {modules.map((m, i) => (
                     <button
@@ -266,34 +297,37 @@ function SolucoesPage() {
                 </div>
               </div>
             </div>
-          </Reveal>
+          </div>
 
-          {/* Personas — a slim two-column strip, no bordered cards or bullet lists */}
-          <Reveal className="mt-16 grid grid-cols-1 gap-8 border-t border-slate-200 pt-10 sm:grid-cols-2">
+          {/* Personas — a slim two-column strip, no bordered cards, no small-caps labels */}
+          <div className="mt-16 grid grid-cols-1 gap-8 border-t border-slate-200 pt-10 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Colaborador</p>
-              <p className="mt-2 text-2xl font-extrabold text-slate-900">
-                <CountUp value={30} suffix="s" />{" "}
-                <span className="text-base font-semibold text-slate-400">para confirmar os EPIs do dia</span>
+              <p className="text-2xl font-extrabold text-slate-900">
+                <CountUp value={30} suffix="s" />
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                é o que o <span className="font-semibold text-slate-700">colaborador</span> leva para confirmar
+                os EPIs do dia, direto do celular.
               </p>
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Gestor</p>
-              <p className="mt-2 text-2xl font-extrabold text-slate-900">
-                1 <span className="text-base font-semibold text-slate-400">painel para toda a equipe</span>
+              <p className="text-2xl font-extrabold text-slate-900">1</p>
+              <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                painel onde o <span className="font-semibold text-slate-700">gestor</span> acompanha toda a
+                equipe, sem planilha paralela.
               </p>
             </div>
-          </Reveal>
+          </div>
 
           {/* Closing — a single quiet line instead of the full-width gradient CTA slab
               used on the other marketing pages. */}
-          <Reveal className="mt-16 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-16 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-bold tracking-tight text-slate-900">Pronta para ver na prática?</h2>
             <Link to="/gestor" className="group inline-flex items-center gap-2 text-sm font-semibold text-primary">
               Explorar a plataforma
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
-          </Reveal>
+          </div>
         </main>
       </div>
 
