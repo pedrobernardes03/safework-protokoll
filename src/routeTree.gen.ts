@@ -29,6 +29,7 @@ import { Route as GestorComprasRouteImport } from './routes/gestor.compras'
 import { Route as GestorEpisRouteImport } from './routes/gestor.epis'
 import { Route as GestorMensagensRouteImport } from './routes/gestor.mensagens'
 import { Route as GestorObservacoesRouteImport } from './routes/gestor.observacoes'
+import { Route as GestorPerfilRouteImport } from './routes/gestor.perfil'
 import { Route as GestorRhRouteImport } from './routes/gestor.rh'
 import { Route as GestorUsuariosRouteImport } from './routes/gestor.usuarios'
 import { Route as GestorObservacoesIdRouteImport } from './routes/gestor.observacoes_.$id'
@@ -133,6 +134,11 @@ const GestorObservacoesRoute = GestorObservacoesRouteImport.update({
   path: '/observacoes',
   getParentRoute: () => GestorRoute,
 } as any)
+const GestorPerfilRoute = GestorPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => GestorRoute,
+} as any)
 const GestorRhRoute = GestorRhRouteImport.update({
   id: '/rh',
   path: '/rh',
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/gestor/epis': typeof GestorEpisRoute
   '/gestor/mensagens': typeof GestorMensagensRoute
   '/gestor/observacoes': typeof GestorObservacoesRoute
+  '/gestor/perfil': typeof GestorPerfilRoute
   '/gestor/rh': typeof GestorRhRoute
   '/gestor/usuarios': typeof GestorUsuariosRoute
   '/gestor/': typeof GestorIndexRoute
@@ -193,6 +200,7 @@ export interface FileRoutesByTo {
   '/gestor/epis': typeof GestorEpisRoute
   '/gestor/mensagens': typeof GestorMensagensRoute
   '/gestor/observacoes': typeof GestorObservacoesRoute
+  '/gestor/perfil': typeof GestorPerfilRoute
   '/gestor/rh': typeof GestorRhRoute
   '/gestor/usuarios': typeof GestorUsuariosRoute
   '/gestor': typeof GestorIndexRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/gestor/epis': typeof GestorEpisRoute
   '/gestor/mensagens': typeof GestorMensagensRoute
   '/gestor/observacoes': typeof GestorObservacoesRoute
+  '/gestor/perfil': typeof GestorPerfilRoute
   '/gestor/rh': typeof GestorRhRoute
   '/gestor/usuarios': typeof GestorUsuariosRoute
   '/gestor/': typeof GestorIndexRoute
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/gestor/epis'
     | '/gestor/mensagens'
     | '/gestor/observacoes'
+    | '/gestor/perfil'
     | '/gestor/rh'
     | '/gestor/usuarios'
     | '/gestor/'
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/gestor/epis'
     | '/gestor/mensagens'
     | '/gestor/observacoes'
+    | '/gestor/perfil'
     | '/gestor/rh'
     | '/gestor/usuarios'
     | '/gestor'
@@ -295,6 +306,7 @@ export interface FileRouteTypes {
     | '/gestor/epis'
     | '/gestor/mensagens'
     | '/gestor/observacoes'
+    | '/gestor/perfil'
     | '/gestor/rh'
     | '/gestor/usuarios'
     | '/gestor/'
@@ -457,6 +469,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GestorObservacoesRouteImport
       parentRoute: typeof GestorRoute
     }
+    '/gestor/perfil': {
+      id: '/gestor/perfil'
+      path: '/perfil'
+      fullPath: '/gestor/perfil'
+      preLoaderRoute: typeof GestorPerfilRouteImport
+      parentRoute: typeof GestorRoute
+    }
     '/gestor/rh': {
       id: '/gestor/rh'
       path: '/rh'
@@ -490,6 +509,7 @@ interface GestorRouteChildren {
   GestorEpisRoute: typeof GestorEpisRoute
   GestorMensagensRoute: typeof GestorMensagensRoute
   GestorObservacoesRoute: typeof GestorObservacoesRoute
+  GestorPerfilRoute: typeof GestorPerfilRoute
   GestorRhRoute: typeof GestorRhRoute
   GestorUsuariosRoute: typeof GestorUsuariosRoute
   GestorIndexRoute: typeof GestorIndexRoute
@@ -505,6 +525,7 @@ const GestorRouteChildren: GestorRouteChildren = {
   GestorEpisRoute: GestorEpisRoute,
   GestorMensagensRoute: GestorMensagensRoute,
   GestorObservacoesRoute: GestorObservacoesRoute,
+  GestorPerfilRoute: GestorPerfilRoute,
   GestorRhRoute: GestorRhRoute,
   GestorUsuariosRoute: GestorUsuariosRoute,
   GestorIndexRoute: GestorIndexRoute,

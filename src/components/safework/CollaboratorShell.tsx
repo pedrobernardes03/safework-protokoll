@@ -16,7 +16,7 @@ export function CollaboratorShell({ children, back }: { children: ReactNode; bac
   return (
     <div className="min-h-screen bg-accent/20">
       <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex h-20 max-w-4xl items-center justify-between px-4 sm:px-6">
+        <div className="mx-auto flex h-20 max-w-5xl items-center justify-between px-4 sm:px-6">
           <Logo to="/colaborador/meus-epis" imageClassName="h-12 w-12 object-contain sm:h-14 sm:w-14" textClassName="text-2xl font-extrabold tracking-tight" />
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">
@@ -33,7 +33,7 @@ export function CollaboratorShell({ children, back }: { children: ReactNode; bac
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
+      <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
         {back && path !== "/colaborador/meus-epis" && (
           <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2">
             <Link to={back.to}><ArrowLeft className="mr-1 h-4 w-4" /> {back.label}</Link>
