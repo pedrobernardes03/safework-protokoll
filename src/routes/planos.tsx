@@ -73,7 +73,7 @@ const featureGroups = [
     rows: [
       { label: "Login corporativo (SSO)", values: [false, false, true], essential: false },
       { label: "Integrações (ERP, RH, API)", values: [false, false, true], essential: true },
-      { label: "Auditoria e logs completos", values: [false, false, true], essential: false },
+      { label: "Auditoria e logs completos", values: [true, true, true], essential: false },
     ],
   },
   {
@@ -137,8 +137,7 @@ function PlanosPage() {
 
         <main className="mx-auto max-w-7xl px-6 pb-24 pt-8">
           <Reveal className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-primary">Planos SafeWork</p>
-            <h1 className="mt-4 text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
+            <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
               Do primeiro capacete{" "}
               <span className="font-serif italic font-medium text-primary">ao milésimo.</span>
             </h1>
@@ -148,7 +147,7 @@ function PlanosPage() {
 
             <div className="relative mt-8 inline-grid grid-cols-2 items-center rounded-full border border-slate-200 bg-white p-1.5 text-sm font-semibold shadow-sm">
               <div
-                className="absolute inset-y-1.5 left-1.5 w-[calc(50%-0.1875rem)] rounded-full bg-primary shadow-sm transition-transform duration-300 ease-out"
+                className="absolute inset-y-1.5 left-1.5 w-[calc(50%-0.1875rem)] rounded-full bg-primary shadow-md shadow-primary/30 transition-transform duration-300 [transition-timing-function:cubic-bezier(.34,1.56,.64,1)]"
                 style={{ transform: annual ? "translateX(100%)" : "translateX(0)" }}
               />
               <button
@@ -176,7 +175,7 @@ function PlanosPage() {
           {/* Tabela comparativa — só em telas largas, onde as 3 colunas cabem sem precisar
               rolar pro lado. No celular, cada plano vira sua própria seção empilhada logo
               abaixo, com as mesmas linhas de recurso na vertical. */}
-          <Reveal delay={100} className="mt-14 hidden overflow-x-auto rounded-3xl border border-slate-200/80 bg-white shadow-sm ring-1 ring-slate-900/[0.02] lg:block">
+          <div className="mt-14 hidden overflow-x-auto rounded-3xl border border-slate-200/80 bg-white shadow-sm ring-1 ring-slate-900/[0.02] lg:block">
             <table className="w-full min-w-[760px] border-collapse text-sm">
               <thead>
                 <tr>
@@ -308,11 +307,11 @@ function PlanosPage() {
                 </tr>
               </tbody>
             </table>
-          </Reveal>
+          </div>
 
           {/* Mesmo conteúdo da tabela, mas cada plano como sua própria seção empilhada —
               sem coluna nenhuma, então não tem rolagem horizontal nem planos lado a lado. */}
-          <Reveal delay={100} className="mt-14 space-y-5 lg:hidden">
+          <div className="mt-14 space-y-5 lg:hidden">
             {plans.map((plan, i) => (
               <div
                 key={plan.name}
@@ -401,9 +400,9 @@ function PlanosPage() {
               {expanded ? "Ver menos" : "Ver comparação completa"}
               <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} />
             </button>
-          </Reveal>
+          </div>
 
-          <Reveal className="mt-24 mx-auto max-w-3xl">
+          <div className="mt-24 mx-auto max-w-3xl">
             <h2 className="text-center text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
               Perguntas frequentes
             </h2>
@@ -419,12 +418,12 @@ function PlanosPage() {
                 </AccordionItem>
               ))}
             </Accordion>
-          </Reveal>
+          </div>
 
           {/* Closing — a short reassurance line instead of the full-width gradient CTA
               slab used elsewhere: every plan already has its own CTA button above, so a
               second "talk to sales" block here would just repeat the same action. */}
-          <Reveal className="mt-16 flex flex-col items-center gap-3 border-t border-slate-200 pt-10 text-center">
+          <div className="mt-16 flex flex-col items-center gap-3 border-t border-slate-200 pt-10 text-center">
             <p className="text-sm text-slate-500">
               14 dias grátis em qualquer plano · sem cartão de crédito · cancele quando quiser
             </p>
@@ -432,7 +431,7 @@ function PlanosPage() {
               Ainda com dúvidas? Fale com o nosso time
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
-          </Reveal>
+          </div>
         </main>
       </div>
 
