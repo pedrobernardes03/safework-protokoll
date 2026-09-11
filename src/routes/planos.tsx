@@ -147,7 +147,7 @@ function PlanosPage() {
 
             <div className="relative mt-8 inline-grid grid-cols-2 items-center rounded-full border border-slate-200 bg-white p-1.5 text-sm font-semibold shadow-sm">
               <div
-                className="absolute inset-y-1.5 left-1.5 w-[calc(50%-0.1875rem)] rounded-full bg-primary shadow-sm transition-transform duration-300 ease-out"
+                className="absolute inset-y-1.5 left-1.5 w-[calc(50%-0.1875rem)] rounded-full bg-primary shadow-md shadow-primary/30 transition-transform duration-300 [transition-timing-function:cubic-bezier(.34,1.56,.64,1)]"
                 style={{ transform: annual ? "translateX(100%)" : "translateX(0)" }}
               />
               <button

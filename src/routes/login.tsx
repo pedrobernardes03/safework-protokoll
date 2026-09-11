@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Lock, User, Eye, EyeOff } from "lucide-react";
 import { Logo } from "@/components/safework/Logo";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -96,7 +97,7 @@ function LoginPage() {
 
             <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
               <label className="flex items-center gap-2 text-muted-foreground">
-                <Checkbox id="lembrar" className="rounded-[4px]" />
+                <Checkbox id="lembrar" />
                 Lembrar acesso
               </label>
               <Link to="/esqueci-senha" className="text-primary hover:underline">
@@ -112,7 +113,7 @@ function LoginPage() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Entrando...
+                  <Spinner className="border-primary-foreground/25 border-t-primary-foreground" /> Entrando...
                 </>
               ) : (
                 "Entrar"
