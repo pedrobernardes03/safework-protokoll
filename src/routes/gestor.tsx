@@ -48,7 +48,7 @@ function GestorLayout() {
     sessionStorage.clear();
     localStorage.clear();
     toast.success("Sessão encerrada com sucesso.");
-    navigate({ to: "/login" });
+    navigate({ to: "/" });
   };
 
   return (
