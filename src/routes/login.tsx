@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Lock, User, Eye, EyeOff } from "lucide-react";
+import { Lock, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/safework/Logo";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -48,6 +48,19 @@ function LoginPage() {
       {/* Form panel */}
       <div className="flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md">
+          <div className="mb-6">
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="-ml-2 text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              <Link to="/">
+                <ArrowLeft className="mr-1.5 h-4 w-4" /> Voltar
+              </Link>
+            </Button>
+          </div>
+
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 [animation-fill-mode:both]">
             <h2 className="text-2xl font-bold tracking-tight">Bem-vindo de volta</h2>
             <p className="mt-1 text-sm text-muted-foreground">

@@ -20,6 +20,7 @@ import { Route as ColaboradorHistoricoRouteImport } from './routes/colaborador.h
 import { Route as ColaboradorMensagensRouteImport } from './routes/colaborador.mensagens'
 import { Route as ColaboradorMeusEpisRouteImport } from './routes/colaborador.meus-epis'
 import { Route as ColaboradorObservacaoRouteImport } from './routes/colaborador.observacao'
+import { Route as ColaboradorPerfilRouteImport } from './routes/colaborador.perfil'
 import { Route as GestorIndexRouteImport } from './routes/gestor.index'
 import { Route as GestorAlmoxarifadoRouteImport } from './routes/gestor.almoxarifado'
 import { Route as GestorAuditoriaRouteImport } from './routes/gestor.auditoria'
@@ -87,6 +88,11 @@ const ColaboradorMeusEpisRoute = ColaboradorMeusEpisRouteImport.update({
 const ColaboradorObservacaoRoute = ColaboradorObservacaoRouteImport.update({
   id: '/colaborador/observacao',
   path: '/colaborador/observacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColaboradorPerfilRoute = ColaboradorPerfilRouteImport.update({
+  id: '/colaborador/perfil',
+  path: '/colaborador/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GestorIndexRoute = GestorIndexRouteImport.update({
@@ -167,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/colaborador/perfil': typeof ColaboradorPerfilRoute
   '/gestor/almoxarifado': typeof GestorAlmoxarifadoRoute
   '/gestor/auditoria': typeof GestorAuditoriaRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/colaborador/perfil': typeof ColaboradorPerfilRoute
   '/gestor/almoxarifado': typeof GestorAlmoxarifadoRoute
   '/gestor/auditoria': typeof GestorAuditoriaRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/colaborador/mensagens': typeof ColaboradorMensagensRoute
   '/colaborador/meus-epis': typeof ColaboradorMeusEpisRoute
   '/colaborador/observacao': typeof ColaboradorObservacaoRoute
+  '/colaborador/perfil': typeof ColaboradorPerfilRoute
   '/gestor/almoxarifado': typeof GestorAlmoxarifadoRoute
   '/gestor/auditoria': typeof GestorAuditoriaRoute
   '/gestor/certificados': typeof GestorCertificadosRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/colaborador/perfil'
     | '/gestor/almoxarifado'
     | '/gestor/auditoria'
     | '/gestor/certificados'
@@ -272,6 +282,7 @@ export interface FileRouteTypes {
     | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/colaborador/perfil'
     | '/gestor/almoxarifado'
     | '/gestor/auditoria'
     | '/gestor/certificados'
@@ -298,6 +309,7 @@ export interface FileRouteTypes {
     | '/colaborador/mensagens'
     | '/colaborador/meus-epis'
     | '/colaborador/observacao'
+    | '/colaborador/perfil'
     | '/gestor/almoxarifado'
     | '/gestor/auditoria'
     | '/gestor/certificados'
@@ -325,6 +337,7 @@ export interface RootRouteChildren {
   ColaboradorMensagensRoute: typeof ColaboradorMensagensRoute
   ColaboradorMeusEpisRoute: typeof ColaboradorMeusEpisRoute
   ColaboradorObservacaoRoute: typeof ColaboradorObservacaoRoute
+  ColaboradorPerfilRoute: typeof ColaboradorPerfilRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -404,6 +417,13 @@ declare module '@tanstack/react-router' {
       path: '/colaborador/observacao'
       fullPath: '/colaborador/observacao'
       preLoaderRoute: typeof ColaboradorObservacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/colaborador/perfil': {
+      id: '/colaborador/perfil'
+      path: '/colaborador/perfil'
+      fullPath: '/colaborador/perfil'
+      preLoaderRoute: typeof ColaboradorPerfilRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gestor/': {
@@ -547,6 +567,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColaboradorMensagensRoute: ColaboradorMensagensRoute,
   ColaboradorMeusEpisRoute: ColaboradorMeusEpisRoute,
   ColaboradorObservacaoRoute: ColaboradorObservacaoRoute,
+  ColaboradorPerfilRoute: ColaboradorPerfilRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
