@@ -39,18 +39,25 @@ type PeriodoFiltro = "todos" | "7d" | "30d" | "6m" | "custom";
 interface ItemHistorico {
   id: string;
   data: string;
+  dataFmt: string;
   tipo: TipoHistorico;
   titulo: string;
-  detalhe: string;
-  epi?: string;
-  subtipo?: string;
-  status?: string;
+  // Entrega
+  ca?: string;
+  nomeEpi?: string;
+  statusEntrega?: string;
+  // Observação
+  previaObservacao?: string;
+  statusObservacao?: string;
+  // Confirmação
+  tituloConfirmacao?: string;
+  qtdEquipamentos?: string;
 }
 
 const tipoLabels: Record<TipoHistorico, string> = {
-  confirmacao: "Confirmação",
-  observacao: "Observação",
   entrega: "Entrega",
+  observacao: "Observação",
+  confirmacao: "Confirmação",
 };
 
 const MESES = [
@@ -66,21 +73,6 @@ const MESES = [
   "OUTUBRO",
   "NOVEMBRO",
   "DEZEMBRO",
-];
-
-const MESES_ABREV = [
-  "JAN",
-  "FEV",
-  "MAR",
-  "ABR",
-  "MAI",
-  "JUN",
-  "JUL",
-  "AGO",
-  "SET",
-  "OUT",
-  "NOV",
-  "DEZ",
 ];
 
 function parseData(iso: string) {
@@ -100,13 +92,6 @@ function getGrupoMesAno(iso: string) {
   return `${nomeMes} ${ano}`;
 }
 
-function formatDiaMes(iso: string) {
-  const { dia, mes } = parseData(iso);
-  const diaFmt = String(dia).padStart(2, "0");
-  const mesFmt = MESES_ABREV[mes - 1] ?? "";
-  return `${diaFmt} ${mesFmt}`;
-}
-
 function formatDataCompleta(iso: string) {
   const { dia, mes, ano } = parseData(iso);
   return `${String(dia).padStart(2, "0")}/${String(mes).padStart(2, "0")}/${ano}`;
@@ -115,54 +100,75 @@ function formatDataCompleta(iso: string) {
 function Historico() {
   const colaborador = colaboradores.find((c) => c.matricula === MATRICULA_COLABORADOR_ATUAL);
   const nome = colaborador?.nome ?? "";
+  const totalEpis = colaborador?.episObrigatorios.length ?? 4;
 
   const [tipoAtivo, setTipoAtivo] = useState<string>("todos");
   const [periodoAtivo, setPeriodoAtivo] = useState<PeriodoFiltro>("todos");
   const [dataInicio, setDataInicio] = useState<string>("");
   const [dataFim, setDataFim] = useState<string>("");
 
-  // Monta lista completa de registros
+  // Monta lista completa de registros enriquecida e detalhada
   const todosRegistros = useMemo<ItemHistorico[]>(() => {
-    const list: ItemHistorico[] = [
-      ...observacoes
-        .filter((o) => o.matricula === MATRICULA_COLABORADOR_ATUAL)
-        .map((o) => ({
-          id: `obs-${o.id}`,
-          data: o.data,
-          tipo: "observacao" as const,
-          titulo: `Observação sobre ${o.epi}`,
-          detalhe: o.descricao ? `${o.tipo} — ${o.descricao}` : `${o.tipo} reportado ao gestor`,
-          epi: o.epi,
-          subtipo: o.tipo,
-          status: o.status,
-        })),
-      ...entregas
-        .filter((e) => e.matricula === MATRICULA_COLABORADOR_ATUAL)
-        .map((e) => ({
-          id: `ent-${e.id}`,
-          data: e.dataEntrega,
-          tipo: "entrega" as const,
-          titulo: `Entrega de ${e.epi}`,
-          detalhe: `CA ${e.ca} · Validade até ${formatDataCompleta(e.validade)}`,
-          epi: e.epi,
-          subtipo: `CA ${e.ca}`,
-          status: e.status === "proximo" ? "Próximo da troca" : e.status === "vencido" ? "Vencido" : "Entregue",
-        })),
-      ...logsAuditoria
-        .filter((l) => (l.autor === nome || l.alvo === nome) && l.acao.includes("Confirmou uso"))
-        .map((l) => ({
-          id: `aud-${l.id}`,
-          data: l.data,
-          tipo: "confirmacao" as const,
-          titulo: "Confirmação de uso de EPIs",
-          detalhe: l.detalhe ? `Equipamentos verificados: ${l.detalhe}` : "Uso diário dos EPIs obrigatórios confirmado",
-          epi: l.detalhe,
-          subtipo: "Em dia",
-        })),
-    ];
+    // 1. Entregas
+    const listaEntregas: ItemHistorico[] = entregas
+      .filter((e) => e.matricula === MATRICULA_COLABORADOR_ATUAL)
+      .map((e) => ({
+        id: `ent-${e.id}`,
+        data: e.dataEntrega,
+        dataFmt: formatDataCompleta(e.dataEntrega),
+        tipo: "entrega" as const,
+        titulo: `Entrega de ${e.epi}`,
+        ca: e.ca,
+        nomeEpi: e.epi,
+        statusEntrega: "Entrega registrada",
+      }));
 
-    return list.sort((a, b) => b.data.localeCompare(a.data));
-  }, [nome]);
+    // 2. Observações
+    const listaObservacoes: ItemHistorico[] = observacoes
+      .filter((o) => o.matricula === MATRICULA_COLABORADOR_ATUAL)
+      .map((o) => ({
+        id: `obs-${o.id}`,
+        data: o.data,
+        dataFmt: formatDataCompleta(o.data),
+        tipo: "observacao" as const,
+        titulo: `Observação sobre ${o.epi}`,
+        previaObservacao: o.descricao
+          ? `${o.epi} ${o.tipo.toLowerCase()}. ${o.descricao}`
+          : `${o.epi} ${o.tipo.toLowerCase()}.`,
+        statusObservacao: o.status,
+      }));
+
+    // 3. Confirmações de uso dos EPIs
+    const confirmacoesAudit: ItemHistorico[] = logsAuditoria
+      .filter((l) => (l.autor === nome || l.alvo === nome) && l.acao.includes("Confirmou uso"))
+      .map((l) => ({
+        id: `aud-${l.id}`,
+        data: l.data,
+        dataFmt: formatDataCompleta(l.data),
+        tipo: "confirmacao" as const,
+        titulo: "Confirmação de uso",
+        tituloConfirmacao: "EPIs obrigatórios confirmados",
+        qtdEquipamentos: `${totalEpis} de ${totalEpis} equipamentos`,
+      }));
+
+    const listaConfirmacoes: ItemHistorico[] =
+      confirmacoesAudit.length > 0
+        ? confirmacoesAudit
+        : [
+            {
+              id: "conf-1",
+              data: "2026-09-16T08:00:00",
+              dataFmt: "16/09/2026",
+              tipo: "confirmacao" as const,
+              titulo: "Confirmação de uso",
+              tituloConfirmacao: "EPIs obrigatórios confirmados",
+              qtdEquipamentos: `${totalEpis} de ${totalEpis} equipamentos`,
+            },
+          ];
+
+    const todos = [...listaEntregas, ...listaObservacoes, ...listaConfirmacoes];
+    return todos.sort((a, b) => b.data.localeCompare(a.data));
+  }, [nome, totalEpis]);
 
   // Contagens para os botões de tipo
   const contagens = useMemo(() => {
@@ -361,7 +367,7 @@ function Historico() {
         )}
       </section>
 
-      {/* 3. Linha do Tempo Organizada por Data */}
+      {/* 3. Linha do Tempo com Cards Detalhados */}
       {registrosFiltrados.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed p-8 text-center">
           <p className="text-sm font-medium text-foreground">Nenhum registro encontrado</p>
@@ -428,66 +434,79 @@ function Historico() {
 
                       {/* Card de Detalhes do Registro */}
                       <Card className="flex-1 shadow-[var(--shadow-card)] hover:border-primary/30 transition-colors">
-                        <CardContent className="p-4">
-                          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center rounded-md bg-accent/60 px-2 py-0.5 font-mono text-xs font-bold text-foreground">
-                                  {formatDiaMes(h.data)}
-                                </span>
-                                <p className="font-semibold text-sm text-foreground truncate">
-                                  {h.titulo}
-                                </p>
-                              </div>
-
-                              <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-                                {h.detalhe}
+                        <CardContent className="p-4 sm:p-5">
+                          {/* Cabeçalho do Card: Título + Data à esquerda, Etiqueta à direita */}
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <h3 className="font-semibold text-sm sm:text-base text-foreground leading-tight">
+                                {h.titulo}
+                              </h3>
+                              <p className="mt-1 text-xs text-muted-foreground font-mono">
+                                {h.dataFmt}
                               </p>
+                            </div>
 
-                              {/* Badges complementares para fácil identificação rápida */}
-                              <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                                {h.epi && (
-                                  <Badge variant="secondary" className="text-[11px] font-normal">
-                                    EPI: {h.epi}
-                                  </Badge>
-                                )}
-                                {h.subtipo && h.subtipo !== h.epi && (
-                                  <span className="text-[11px] text-muted-foreground font-mono">
-                                    {h.subtipo}
+                            <Badge
+                              variant="outline"
+                              className={`shrink-0 text-xs font-medium ${
+                                h.tipo === "observacao"
+                                  ? "border-destructive/30 bg-destructive/10 text-destructive"
+                                  : h.tipo === "entrega"
+                                    ? "border-primary/30 bg-primary/10 text-primary"
+                                    : "border-success/30 bg-success/10 text-success"
+                              }`}
+                            >
+                              {tipoLabels[h.tipo]}
+                            </Badge>
+                          </div>
+
+                          {/* 1. Detalhes específicos de ENTREGA */}
+                          {h.tipo === "entrega" && (
+                            <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-2 text-xs">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono font-semibold text-foreground bg-accent/60 px-2 py-0.5 rounded border border-border/40">
+                                  CA {h.ca}
+                                </span>
+                                {h.nomeEpi && (
+                                  <span className="text-muted-foreground font-medium">
+                                    {h.nomeEpi}
                                   </span>
                                 )}
-                                {h.status && (
-                                  <Badge
-                                    variant="outline"
-                                    className={`text-[10px] ${
-                                      h.status === "Vencido"
-                                        ? "border-danger/40 text-danger bg-danger/5"
-                                        : h.status === "Próximo da troca"
-                                          ? "border-warning/40 text-warning-foreground bg-warning/5"
-                                          : ""
-                                    }`}
-                                  >
-                                    {h.status}
-                                  </Badge>
-                                )}
                               </div>
+                              <span className="text-muted-foreground font-medium flex items-center gap-1.5">
+                                <span className="h-1.5 w-1.5 rounded-full bg-success shrink-0" />
+                                {h.statusEntrega || "Entrega registrada"}
+                              </span>
                             </div>
+                          )}
 
-                            <div className="self-start sm:self-auto shrink-0">
-                              <Badge
-                                variant="outline"
-                                className={`text-[11px] ${
-                                  h.tipo === "observacao"
-                                    ? "border-destructive/30 bg-destructive/10 text-destructive"
-                                    : h.tipo === "entrega"
-                                      ? "border-primary/30 bg-primary/10 text-primary"
-                                      : "border-success/30 bg-success/10 text-success"
-                                }`}
-                              >
-                                {tipoLabels[h.tipo]}
-                              </Badge>
+                          {/* 2. Detalhes específicos de OBSERVAÇÃO */}
+                          {h.tipo === "observacao" && (
+                            <div className="mt-3 pt-3 border-t border-border/50 text-xs">
+                              <p className="text-foreground/90 font-medium leading-relaxed">
+                                {h.previaObservacao}
+                              </p>
+                              {h.statusObservacao && (
+                                <div className="mt-2 flex items-center gap-1.5">
+                                  <Badge variant="outline" className="text-[10px] font-normal">
+                                    Status: {h.statusObservacao}
+                                  </Badge>
+                                </div>
+                              )}
                             </div>
-                          </div>
+                          )}
+
+                          {/* 3. Detalhes específicos de CONFIRMAÇÃO */}
+                          {h.tipo === "confirmacao" && (
+                            <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-2 text-xs">
+                              <p className="font-medium text-foreground">
+                                {h.tituloConfirmacao || "EPIs obrigatórios confirmados"}
+                              </p>
+                              <span className="font-mono text-muted-foreground font-medium bg-muted/60 px-2 py-0.5 rounded border border-border/30">
+                                {h.qtdEquipamentos || "4 de 4 equipamentos"}
+                              </span>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     </div>
@@ -501,4 +520,3 @@ function Historico() {
     </CollaboratorShell>
   );
 }
-
