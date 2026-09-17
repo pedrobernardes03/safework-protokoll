@@ -61,7 +61,7 @@ function GestorLayout() {
     sessionStorage.clear();
     setMatricula(null);
     toast.success("Sessão encerrada com sucesso.");
-    navigate({ to: "/login" });
+    navigate({ to: "/" });
   };
 
   if (!hidratado || !matricula) return null;

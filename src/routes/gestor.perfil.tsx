@@ -32,7 +32,7 @@ function PerfilPage() {
     sessionStorage.clear();
     localStorage.clear();
     toast.success("Sessão encerrada com sucesso.");
-    navigate({ to: "/login" });
+    navigate({ to: "/" });
   };
 
   // Dados complementares do perfil corporativo
