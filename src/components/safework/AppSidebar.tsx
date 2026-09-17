@@ -28,50 +28,44 @@ import {
 } from "@/components/ui/sidebar";
 import { gestorAtual } from "@/lib/safework-data";
 
-const nav: Array<{ title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
+type NavItem = { title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean };
+
+// Navegação da SST — dashboard, EPIs e o resto do que é trabalho da Segurança do Trabalho.
+// Almoxarifado saiu daqui de propósito: agora é perfil próprio, com login próprio.
+const navSST: NavItem[] = [
   { title: "Visão Geral", to: "/gestor", icon: LayoutDashboard, exact: true },
   { title: "EPIs por Colaborador", to: "/gestor/colaboradores", icon: ListChecks },
   { title: "Equipamento de Proteção Individual", to: "/gestor/epis", icon: HardHat },
-  { title: "Almoxarifado", to: "/gestor/almoxarifado", icon: Boxes },
   { title: "Certificado de Aprovação (CA)", to: "/gestor/certificados", icon: BadgeCheck },
   { title: "Observações", to: "/gestor/observacoes", icon: MessageSquareWarning },
   { title: "Mensagens", to: "/gestor/mensagens", icon: MessageCircle },
   { title: "Auditoria", to: "/gestor/auditoria", icon: History },
 ];
 
-const navAdministrador: { title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean } = {
-  title: "Usuários e Permissões",
-  to: "/gestor/usuarios",
-  icon: ShieldCheck,
-};
-
-const navCompras: { title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean } = {
-  title: "Compras",
-  to: "/gestor/compras",
-  icon: ShoppingCart,
-};
-
-const navRH: { title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean } = {
-  title: "Colaboradores",
-  to: "/gestor/rh",
-  icon: Users,
-};
+const navTI: NavItem = { title: "Usuários e Permissões", to: "/gestor/usuarios", icon: ShieldCheck };
+const navCompras: NavItem = { title: "Compras", to: "/gestor/compras", icon: ShoppingCart };
+const navRH: NavItem = { title: "Colaboradores", to: "/gestor/rh", icon: Users };
+const navAlmoxarifado: NavItem = { title: "Almoxarifado", to: "/gestor/almoxarifado", icon: Boxes };
 
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const isActive = (to: string, exact?: boolean) =>
     exact ? path === to : path === to || path.startsWith(to + "/");
   const perfil = gestorAtual().perfil;
-  // "Compras" e "RH" são restritos de propósito: cada um só enxerga a própria tela, nada
-  // do resto do painel. Administrador continua vendo tudo.
-  const items =
+  // Cada perfil vê só a(s) tela(s) do próprio trabalho — nada do resto do painel.
+  // Administrador é o único que enxerga tudo (acesso de exceção).
+  const items: NavItem[] =
     perfil === "Compras"
       ? [navCompras]
       : perfil === "RH"
         ? [navRH]
-        : perfil === "Administrador"
-          ? [...nav, navRH, navCompras, navAdministrador]
-          : nav;
+        : perfil === "TI"
+          ? [navTI]
+          : perfil === "Almoxarifado"
+            ? [navAlmoxarifado]
+            : perfil === "Administrador"
+              ? [...navSST, navAlmoxarifado, navRH, navCompras, navTI]
+              : navSST;
 
   return (
     <Sidebar collapsible="icon">

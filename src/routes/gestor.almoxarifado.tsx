@@ -10,7 +10,6 @@ import {
   setores,
   iconeParaEpi,
   gestorAtual,
-  temAcessoGeral,
   solicitacoesCompra,
   addSolicitacaoCompra,
   addLogAuditoria,
@@ -53,8 +52,9 @@ function AlmoxarifadoPage() {
   // re-renderizar depois de um envio e refletir o estado novo do array.
   const [, forcarAtualizacao] = useState(0);
 
-  if (!temAcessoGeral(gestorAtual().perfil)) {
-    return <AcessoRestrito mensagem="O Almoxarifado é do time de gestão/segurança." />;
+  const perfil = gestorAtual().perfil;
+  if (perfil !== "Almoxarifado" && perfil !== "Administrador") {
+    return <AcessoRestrito mensagem="Essa tela é do setor de Almoxarifado." />;
   }
 
   const combina = (e: (typeof epis)[number]) =>

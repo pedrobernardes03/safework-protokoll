@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowRight, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Logo } from "@/components/safework/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
@@ -44,16 +44,11 @@ export function MarketingHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button asChild variant="ghost" className="font-semibold text-slate-700 hover:text-slate-900">
-            <Link to="/login">Entrar</Link>
-          </Button>
           <Button
             asChild
             className="rounded-xl bg-primary text-primary-foreground font-semibold px-5 py-2.5 shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/30"
           >
-            <Link to="/gestor" className="flex items-center gap-2">
-              Área do Gestor <ArrowRight className="h-4 w-4" />
-            </Link>
+            <Link to="/login">Entrar</Link>
           </Button>
         </div>
 
@@ -95,15 +90,8 @@ export function MarketingHeader() {
             </nav>
             <div className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-6">
               <SheetClose asChild>
-                <Button asChild variant="outline" className="font-semibold">
-                  <Link to="/login">Entrar</Link>
-                </Button>
-              </SheetClose>
-              <SheetClose asChild>
                 <Button asChild className="rounded-xl bg-primary font-semibold text-primary-foreground">
-                  <Link to="/gestor" className="flex items-center justify-center gap-2">
-                    Área do Gestor <ArrowRight className="h-4 w-4" />
-                  </Link>
+                  <Link to="/login">Entrar</Link>
                 </Button>
               </SheetClose>
             </div>
