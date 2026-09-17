@@ -48,15 +48,16 @@ function LoginPage() {
       {/* Form panel */}
       <div className="flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md">
-          <div className="mb-6">
+          <div className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <Button
               asChild
               variant="ghost"
               size="sm"
-              className="-ml-2 text-muted-foreground hover:text-foreground cursor-pointer"
+              className="group -ml-2 h-9 px-3 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-accent/60 hover:text-foreground cursor-pointer"
             >
               <Link to="/">
-                <ArrowLeft className="mr-1.5 h-4 w-4" /> Voltar
+                <ArrowLeft className="mr-1.5 h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1" />
+                <span>Voltar</span>
               </Link>
             </Button>
           </div>
