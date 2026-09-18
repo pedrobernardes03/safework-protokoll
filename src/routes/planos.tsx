@@ -139,7 +139,7 @@ function PlanosPage() {
           <Reveal className="mx-auto max-w-2xl text-center">
             <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
               Do primeiro capacete{" "}
-              <span className="font-serif italic font-medium text-primary">ao milésimo.</span>
+              <span className="font-serif font-black text-primary">ao milésimo.</span>
             </h1>
             <p className="mt-5 text-base leading-relaxed text-slate-600 sm:text-lg">
               Comece pequeno e cresça sem trocar de plataforma. Cancele quando quiser.

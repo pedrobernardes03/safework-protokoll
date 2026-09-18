@@ -56,7 +56,7 @@ function SobrePage() {
           <Reveal className="max-w-3xl">
             <h1 className="text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 sm:text-6xl">
               Segurança do trabalho,{" "}
-              <span className="font-serif italic font-medium text-primary">levada a sério.</span>
+              <span className="text-primary">levada a sério.</span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
               Existimos desde 2019. Hoje mais de 1.200 empresas usam a SafeWork pra saber, todo dia,

@@ -246,7 +246,9 @@ function SolucoesPage() {
           <Reveal className="max-w-2xl">
             <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
               Um módulo para cada etapa da{" "}
-              <span className="font-serif italic font-medium text-primary">segurança do trabalho.</span>
+              <span className="text-primary underline decoration-4 decoration-primary/40 underline-offset-4">
+                segurança do trabalho.
+              </span>
             </h1>
             <p className="mt-5 text-base leading-relaxed text-slate-600 sm:text-lg">
               Da entrega do primeiro EPI ao pedido de reposição no Compras, tudo centralizado em uma
