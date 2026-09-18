@@ -76,8 +76,15 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <Link to="/gestor" className="flex items-center gap-3 px-2 py-3">
-          <Logo showText={false} imageClassName="h-12 w-12 shrink-0 object-contain" />
+        <Link
+          to="/gestor"
+          className="flex items-center gap-2.5 rounded-lg px-2 py-2 transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 hover:bg-sidebar-accent/50"
+        >
+          <Logo
+            showText={false}
+            className="flex items-center justify-center shrink-0"
+            imageClassName="h-8 w-8 shrink-0 object-contain transition-all duration-200 group-data-[collapsible=icon]:h-7 group-data-[collapsible=icon]:w-7"
+          />
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="text-sm font-bold leading-tight">SafeWork</p>
             <p className="truncate text-xs text-muted-foreground">Gestão de Segurança</p>
