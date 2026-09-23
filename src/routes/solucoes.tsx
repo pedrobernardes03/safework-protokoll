@@ -239,14 +239,18 @@ function SolucoesPage() {
 
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[460px]">
-          <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2">
+            <div className="absolute inset-0 animate-blob rounded-full bg-primary/10 blur-3xl" />
+          </div>
         </div>
 
         <main className="mx-auto max-w-6xl px-6 pb-28 pt-8">
           <Reveal className="max-w-2xl">
             <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
               Um módulo para cada etapa da{" "}
-              <span className="font-serif italic font-medium text-primary">segurança do trabalho.</span>
+              <span className="text-primary underline decoration-4 decoration-primary/40 underline-offset-4">
+                segurança do trabalho.
+              </span>
             </h1>
             <p className="mt-5 text-base leading-relaxed text-slate-600 sm:text-lg">
               Da entrega do primeiro EPI ao pedido de reposição no Compras, tudo centralizado em uma
@@ -264,10 +268,10 @@ function SolucoesPage() {
           <div className="mt-16">
             <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[oklch(0.22_0.04_150)] via-[oklch(0.2_0.03_150)] to-[oklch(0.32_0.08_165)] shadow-2xl shadow-slate-900/30">
               <div
-                className="pointer-events-none absolute inset-0 opacity-[0.05]"
+                className="pointer-events-none absolute inset-0 animate-spin-slow opacity-[0.05]"
                 style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "22px 22px" }}
               />
-              <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-primary/25 blur-3xl" />
+              <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 animate-glow-pulse rounded-full bg-primary/25 blur-3xl" />
 
               <div className="relative grid grid-cols-1 lg:grid-cols-[312px_1fr]">
                 <nav className="grid grid-cols-2 gap-1.5 border-b border-white/10 p-3 sm:grid-cols-3 lg:flex lg:grid-cols-none lg:flex-col lg:gap-1 lg:border-b-0 lg:border-r lg:p-4">

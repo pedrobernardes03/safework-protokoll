@@ -124,7 +124,9 @@ function PlanosPage() {
 
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[460px]">
-          <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2">
+            <div className="absolute inset-0 animate-blob rounded-full bg-primary/10 blur-3xl" />
+          </div>
           <div
             className="absolute inset-0 opacity-60"
             style={{
@@ -139,13 +141,10 @@ function PlanosPage() {
           <Reveal className="mx-auto max-w-2xl text-center">
             <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
               Do primeiro capacete{" "}
-              <span className="font-serif italic font-medium text-primary">ao milésimo.</span>
+              <span className="font-serif font-black text-primary">ao milésimo.</span>
             </h1>
-            <p className="mt-5 text-base leading-relaxed text-slate-600 sm:text-lg">
-              Comece pequeno e cresça sem trocar de plataforma. Cancele quando quiser.
-            </p>
 
-            <div className="relative mt-8 inline-grid grid-cols-2 items-center rounded-full border border-slate-200 bg-white p-1.5 text-sm font-semibold shadow-sm">
+            <div className="relative mt-10 inline-grid grid-cols-2 items-center rounded-full border border-slate-200 bg-white p-1.5 text-sm font-semibold shadow-sm">
               <div
                 className="absolute inset-y-1.5 left-1.5 w-[calc(50%-0.1875rem)] rounded-full bg-primary shadow-md shadow-primary/30 transition-transform duration-300 [transition-timing-function:cubic-bezier(.34,1.56,.64,1)]"
                 style={{ transform: annual ? "translateX(100%)" : "translateX(0)" }}
@@ -186,7 +185,7 @@ function PlanosPage() {
                       className={`relative min-w-[190px] p-6 text-left align-top font-normal ${plan.highlight ? "bg-primary/[0.04]" : ""}`}
                     >
                       {plan.highlight && (
-                        <span className="absolute right-6 top-6 rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                        <span className="absolute right-6 top-6 animate-pop-in rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-bold text-primary-foreground">
                           Popular
                         </span>
                       )}
@@ -321,7 +320,7 @@ function PlanosPage() {
               >
                 <div className={`relative p-6 ${plan.highlight ? "bg-primary/[0.04]" : "bg-white"}`}>
                   {plan.highlight && (
-                    <span className="absolute right-6 top-6 rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                    <span className="absolute right-6 top-6 animate-pop-in rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-bold text-primary-foreground">
                       Popular
                     </span>
                   )}

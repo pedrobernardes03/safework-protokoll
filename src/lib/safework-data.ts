@@ -6,7 +6,7 @@ export type EpiStatus = "vigente" | "proximo" | "vencido";
 // Setores da empresa — únicos e compartilhados entre colaboradores e o catálogo de EPIs.
 // "Todos" é um setor especial só para EPIs de uso universal (capacete, óculos, etc.);
 // nenhum colaborador de verdade tem "Todos" como setor.
-export const setores: string[] = ["Todos", "SST", "TI", "Compras", "RH", "Manutenção", "Produção", "Logística"];
+export const setores: string[] = ["Todos", "SST", "TI", "Compras", "RH", "Almoxarifado", "Manutenção", "Produção", "Logística"];
 
 export function addSetor(nome: string) {
   if (!setores.includes(nome)) setores.push(nome);
@@ -238,15 +238,16 @@ export function addMensagem(
   return conversa;
 }
 
-// "Compras" e "RH" são perfis restritos de propósito: cada um só enxerga a própria tela
-// (Compras não vê cadastro de gente, RH não vê catálogo de EPI nem certificados) — ver
-// AppSidebar.tsx pra saber exatamente o que cada perfil vê no menu. A divisão de trabalho
-// em cima do cadastro de colaborador é deliberada: RH cadastra a pessoa (nome, CPF,
-// matrícula, cargo, setor, e-mail), a Segurança do Trabalho decide os EPIs obrigatórios
-// dela (em /gestor/colaboradores) e o TI controla nível de acesso/desativação (em
-// /gestor/usuarios) — três times, três responsabilidades, sem um pisar no trabalho do
-// outro.
-export type Perfil = "Colaborador" | "Gestor" | "Administrador" | "Compras" | "RH";
+// Cada perfil de gestão é restrito de propósito: cada um só enxerga a própria tela, com
+// só a funcionalidade do próprio trabalho — ver AppSidebar.tsx pra saber exatamente o que
+// cada perfil vê no menu. A divisão é deliberada: RH cadastra a pessoa (nome, CPF,
+// matrícula, cargo, setor, e-mail), a Segurança do Trabalho (SST) decide os EPIs
+// obrigatórios dela e cuida do catálogo/certificados/observações, o TI controla nível de
+// acesso/desativação (em /gestor/usuarios), o Almoxarifado só vê o estoque e manda pedido
+// pro Compras, e o Compras só vê a fila de pedidos — cinco times, cinco responsabilidades,
+// sem um pisar no trabalho do outro. "Administrador" continua existindo como um acesso
+// total de exceção (suporte/recuperação), mas ninguém tem esse perfil por padrão.
+export type Perfil = "Colaborador" | "SST" | "TI" | "RH" | "Compras" | "Almoxarifado" | "Administrador";
 
 export interface Colaborador {
   id: string;
@@ -267,22 +268,57 @@ export interface Colaborador {
 }
 
 export const colaboradores: Colaborador[] = [
-  { id: "1", nome: "Ana Beatriz Silva", matricula: "10001", cpf: "123.456.789-00", cargo: "Engenheira de Segurança", setor: "SST", email: "ana.silva@empresa.com", perfil: "Administrador", episObrigatorios: [], ativo: true },
+  { id: "1", nome: "Ana Beatriz Silva", matricula: "10001", cpf: "123.456.789-00", cargo: "Engenheira de Segurança", setor: "SST", email: "ana.silva@empresa.com", perfil: "SST", episObrigatorios: [], ativo: true },
   { id: "2", nome: "Carlos Menezes", matricula: "10298", cpf: "234.567.890-11", cargo: "Eletricista", setor: "Manutenção", email: "carlos.m@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "2", "3", "4"], ativo: true },
   { id: "3", nome: "Juliana Prado", matricula: "10455", cpf: "345.678.901-22", cargo: "Operadora de máquina", setor: "Produção", email: "juliana.p@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "2", "4"], ativo: true },
   { id: "4", nome: "Rafael Souza", matricula: "10122", cpf: "456.789.012-33", cargo: "Soldador", setor: "Produção", email: "rafael.s@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "5"], ativo: true },
   { id: "5", nome: "Marina Alves", matricula: "10390", cpf: "567.890.123-44", cargo: "Ajudante geral", setor: "Logística", email: "marina.a@empresa.com", perfil: "Colaborador", episObrigatorios: ["1", "4", "6"], ativo: true },
-  { id: "6", nome: "Rodrigo Lima", matricula: "10007", cpf: "678.901.234-55", cargo: "Analista de TI", setor: "TI", email: "rodrigo.lima@empresa.com", perfil: "Administrador", episObrigatorios: [], ativo: true },
+  { id: "6", nome: "Rodrigo Lima", matricula: "10007", cpf: "678.901.234-55", cargo: "Analista de TI", setor: "TI", email: "rodrigo.lima@empresa.com", perfil: "TI", episObrigatorios: [], ativo: true },
   { id: "7", nome: "Fernanda Costa", matricula: "10520", cpf: "789.012.345-66", cargo: "Analista de Compras", setor: "Compras", email: "fernanda.costa@empresa.com", perfil: "Compras", episObrigatorios: [], ativo: true },
   { id: "8", nome: "Paloma Ribeiro", matricula: "10610", cpf: "890.123.456-77", cargo: "Analista de RH", setor: "RH", email: "paloma.ribeiro@empresa.com", perfil: "RH", episObrigatorios: [], ativo: true },
+  { id: "9", nome: "Diego Martins", matricula: "10733", cpf: "901.234.567-88", cargo: "Assistente de Almoxarifado", setor: "Almoxarifado", email: "diego.martins@empresa.com", perfil: "Almoxarifado", episObrigatorios: [], ativo: true },
 ];
 
-// Simula a sessão logada da área do gestor (não há autenticação real ainda) — é o que
-// permite telas como /gestor/usuarios saberem se quem está olhando é Administrador.
-const MATRICULA_GESTOR_ATUAL = "10001";
-export function gestorAtual(): Colaborador {
-  return colaboradores.find((c) => c.matricula === MATRICULA_GESTOR_ATUAL)!;
+// Simula a sessão logada da área do gestor (não há autenticação real ainda). Guardada no
+// localStorage pra dar pra "entrar" com um perfil diferente (ver GestorLoginPicker) e
+// continuar naquele perfil entre uma navegação e outra — sem isso só dava pra simular uma
+// única pessoa (sempre a mesma), o que não permite testar a separação por perfil de verdade.
+const CHAVE_SESSAO_GESTOR = "safework:gestor_atual";
+const MATRICULA_GESTOR_PADRAO = "10001";
+
+export function getMatriculaGestorAtual(): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(CHAVE_SESSAO_GESTOR);
 }
+
+export function definirGestorAtual(matricula: string) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(CHAVE_SESSAO_GESTOR, matricula);
+}
+
+export function encerrarSessaoGestor() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(CHAVE_SESSAO_GESTOR);
+}
+
+export function gestorAtual(): Colaborador {
+  const matricula = getMatriculaGestorAtual() ?? MATRICULA_GESTOR_PADRAO;
+  return (
+    colaboradores.find((c) => c.matricula === matricula) ??
+    colaboradores.find((c) => c.matricula === MATRICULA_GESTOR_PADRAO)!
+  );
+}
+
+// Pra onde /login manda cada perfil depois de autenticar contra o Supabase.
+export const rotaInicialPorPerfil: Record<Perfil, string> = {
+  SST: "/gestor",
+  Administrador: "/gestor",
+  TI: "/gestor/usuarios",
+  RH: "/gestor/rh",
+  Compras: "/gestor/compras",
+  Almoxarifado: "/gestor/almoxarifado",
+  Colaborador: "/colaborador/meus-epis",
+};
 
 // Mesma ideia do lado do colaborador (Carlos Menezes) — a área dele simula sempre esse
 // mesmo usuário. Exportado aqui pra virar a fonte única desse número: as telas do
@@ -291,13 +327,13 @@ export function gestorAtual(): Colaborador {
 // correspondente inteira, já que o `!` nas telas assume que ela sempre existe).
 export const MATRICULA_COLABORADOR_ATUAL = "10298";
 
-// As telas "gerais" do painel (dashboard, EPIs, Almoxarifado, Certificados, Observações,
-// Mensagens, Auditoria, EPIs por Colaborador) são do time de gestão/segurança — não são
-// do TI, do RH nem do Compras, cada um com sua própria tela restrita. Sem essa checagem,
-// alguém logado como Compras ou RH conseguia digitar a URL de qualquer uma dessas telas
-// direto e ter acesso completo, apesar do menu escondê-las.
+// As telas "gerais" do painel (dashboard, EPIs, Certificados, Observações, Mensagens,
+// Auditoria, EPIs por Colaborador) são do time de Segurança do Trabalho (SST) — não são
+// do TI, do RH, do Compras nem do Almoxarifado, cada um com sua própria tela restrita. Sem
+// essa checagem, alguém logado como Compras ou RH conseguia digitar a URL de qualquer uma
+// dessas telas direto e ter acesso completo, apesar do menu escondê-las.
 export function temAcessoGeral(perfil: Perfil): boolean {
-  return perfil === "Administrador" || perfil === "Gestor";
+  return perfil === "Administrador" || perfil === "SST";
 }
 
 export function addColaborador(input: Omit<Colaborador, "id">): Colaborador {
@@ -340,9 +376,9 @@ export interface LogAuditoria {
 }
 
 export const logsAuditoria: LogAuditoria[] = [
-  { id: "l1", data: "2026-08-12T09:15:00", autor: "Ana Beatriz Silva", autorPerfil: "Administrador", acao: "Cadastrou colaborador", alvo: "Marina Alves", categoria: "usuario" },
-  { id: "l2", data: "2026-08-14T14:20:00", autor: "Ana Beatriz Silva", autorPerfil: "Administrador", acao: "Renovou certificado", alvo: "Luvas isolantes — Carlos Menezes", categoria: "certificado" },
-  { id: "l3", data: "2026-08-18T11:05:00", autor: "Ana Beatriz Silva", autorPerfil: "Administrador", acao: "Cadastrou EPI", alvo: "Colete refletivo", categoria: "epi" },
+  { id: "l1", data: "2026-08-12T09:15:00", autor: "Paloma Ribeiro", autorPerfil: "RH", acao: "Cadastrou colaborador", alvo: "Marina Alves", categoria: "usuario" },
+  { id: "l2", data: "2026-08-14T14:20:00", autor: "Ana Beatriz Silva", autorPerfil: "SST", acao: "Renovou certificado", alvo: "Luvas isolantes — Carlos Menezes", categoria: "certificado" },
+  { id: "l3", data: "2026-08-18T11:05:00", autor: "Ana Beatriz Silva", autorPerfil: "SST", acao: "Cadastrou EPI", alvo: "Colete refletivo", categoria: "epi" },
 ];
 
 export function addLogAuditoria(input: {

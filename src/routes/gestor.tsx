@@ -1,10 +1,11 @@
 import { createFileRoute, Outlet, useRouterState, useNavigate, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/safework/AppSidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { NotificationProvider } from "@/hooks/useNotifications";
 import { NotificationPopover } from "@/components/safework/NotificationPopover";
-import { gestorAtual } from "@/lib/safework-data";
+import { gestorAtual, getMatriculaGestorAtual, encerrarSessaoGestor } from "@/lib/safework-data";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,15 +42,32 @@ function GestorLayout() {
   const title =
     titleMap[path] ??
     (path.startsWith("/gestor/observacoes/") ? "Detalhes da observação" : "SafeWork");
-  const gestor = gestorAtual();
-  const iniciais = gestor.nome.split(" ").slice(0, 2).map((n) => n[0]).join("");
+
+  // A sessão é a matrícula de quem autenticou em /login (checado contra o Supabase),
+  // guardada no localStorage. `hidratado` evita decidir "tem sessão ou não" antes de checar
+  // o localStorage — sem isso dava pra ver um flash da tela errada no primeiro render.
+  const [matricula, setMatricula] = useState<string | null>(null);
+  const [hidratado, setHidratado] = useState(false);
+
+  useEffect(() => {
+    const atual = getMatriculaGestorAtual();
+    setMatricula(atual);
+    setHidratado(true);
+    if (!atual) navigate({ to: "/login" });
+  }, [navigate]);
 
   const handleLogout = () => {
+    encerrarSessaoGestor();
     sessionStorage.clear();
-    localStorage.clear();
+    setMatricula(null);
     toast.success("Sessão encerrada com sucesso.");
     navigate({ to: "/" });
   };
+
+  if (!hidratado || !matricula) return null;
+
+  const gestor = gestorAtual();
+  const iniciais = gestor.nome.split(" ").slice(0, 2).map((n) => n[0]).join("");
 
   return (
     <NotificationProvider>

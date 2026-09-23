@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { ShieldCheck, ShieldAlert, UserCog, Lock, UserX, UserCheck, Trash2, Cpu, ShoppingCart, IdCard } from "lucide-react";
+import { ShieldCheck, ShieldAlert, HardHat, Lock, UserX, UserCheck, Trash2, Cpu, ShoppingCart, IdCard, Boxes } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -34,10 +34,12 @@ export const Route = createFileRoute("/gestor/usuarios")({
 });
 
 const grupos: { perfil: Perfil; titulo: string; descricao: string; className: string }[] = [
-  { perfil: "Administrador", titulo: "Administradores", descricao: "Acesso total, incluindo esta tela de permissões.", className: "bg-primary/10 text-primary" },
-  { perfil: "Gestor", titulo: "Gestores", descricao: "Acesso ao painel de gestão: colaboradores, EPIs, certificados e observações.", className: "bg-warning/20 text-warning-foreground" },
+  { perfil: "Administrador", titulo: "Administradores", descricao: "Acesso total de exceção, incluindo esta tela de permissões.", className: "bg-primary/10 text-primary" },
+  { perfil: "SST", titulo: "Segurança do Trabalho", descricao: "Dashboard, catálogo de EPIs, certificados, observações e mensagens.", className: "bg-warning/20 text-warning-foreground" },
+  { perfil: "TI", titulo: "TI", descricao: "Só esta tela — controla nível de acesso e desativação de contas.", className: "bg-primary/10 text-primary" },
   { perfil: "Compras", titulo: "Compras", descricao: "Só enxerga a fila de pedidos de reposição enviados pelo Almoxarifado.", className: "bg-blue-500/10 text-blue-600" },
   { perfil: "RH", titulo: "RH", descricao: "Só enxerga o cadastro da equipe — nome, CPF, matrícula, cargo e setor.", className: "bg-violet-500/10 text-violet-600" },
+  { perfil: "Almoxarifado", titulo: "Almoxarifado", descricao: "Só o estoque de EPIs e o envio de pedido de reposição ao Compras.", className: "bg-amber-500/10 text-amber-600" },
   { perfil: "Colaborador", titulo: "Sem acesso ao painel", descricao: "Só enxergam a área do colaborador, no celular.", className: "bg-muted text-muted-foreground" },
 ];
 
@@ -45,13 +47,13 @@ function UsuariosPage() {
   const eu = gestorAtual();
   const [lista, setLista] = useState<Colaborador[]>(() => [...colaboradores]);
 
-  if (eu.perfil !== "Administrador") {
+  if (eu.perfil !== "TI" && eu.perfil !== "Administrador") {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-3 rounded-2xl border border-dashed py-16 text-center">
         <Lock className="h-8 w-8 text-muted-foreground" />
         <p className="font-semibold">Acesso restrito</p>
         <p className="text-sm text-muted-foreground">
-          Só administradores podem ver e alterar permissões de acesso ao painel.
+          Só o TI pode ver e alterar permissões de acesso ao painel.
         </p>
       </div>
     );
@@ -106,12 +108,16 @@ function UsuariosPage() {
             <span className={`grid h-8 w-8 place-items-center rounded-full ${g.className}`}>
               {g.perfil === "Administrador" ? (
                 <ShieldCheck className="h-4 w-4" />
-              ) : g.perfil === "Gestor" ? (
-                <UserCog className="h-4 w-4" />
+              ) : g.perfil === "SST" ? (
+                <HardHat className="h-4 w-4" />
+              ) : g.perfil === "TI" ? (
+                <Cpu className="h-4 w-4" />
               ) : g.perfil === "Compras" ? (
                 <ShoppingCart className="h-4 w-4" />
               ) : g.perfil === "RH" ? (
                 <IdCard className="h-4 w-4" />
+              ) : g.perfil === "Almoxarifado" ? (
+                <Boxes className="h-4 w-4" />
               ) : (
                 <ShieldAlert className="h-4 w-4" />
               )}
@@ -178,9 +184,11 @@ function UsuariosPage() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Colaborador">Colaborador</SelectItem>
-                          <SelectItem value="Gestor">Gestor</SelectItem>
+                          <SelectItem value="SST">Segurança do Trabalho</SelectItem>
+                          <SelectItem value="TI">TI</SelectItem>
                           <SelectItem value="Compras">Compras</SelectItem>
                           <SelectItem value="RH">RH</SelectItem>
+                          <SelectItem value="Almoxarifado">Almoxarifado</SelectItem>
                           <SelectItem value="Administrador">Administrador</SelectItem>
                         </SelectContent>
                       </Select>

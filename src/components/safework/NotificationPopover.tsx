@@ -71,9 +71,9 @@ export function NotificationPopover() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button size="icon" variant="ghost" className="relative h-9 w-9 rounded-full">
-          <Bell className="h-4 w-4" />
+          <Bell className={`h-4 w-4 ${naoLidasCount > 0 ? "animate-wiggle-loop" : ""}`} />
           {naoLidasCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-danger-foreground animate-in zoom-in-50">
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 animate-pop-in items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-danger-foreground">
               {badgeTexto}
             </span>
           )}

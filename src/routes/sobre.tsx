@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,13 +39,17 @@ const values = [
 ] as const;
 
 function SobrePage() {
+  const [activeValue, setActiveValue] = useState(0);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50/80 via-white to-slate-50/50 text-slate-800 font-sans">
       <MarketingHeader />
 
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[460px]">
-          <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2">
+            <div className="absolute inset-0 animate-blob rounded-full bg-primary/10 blur-3xl" />
+          </div>
         </div>
 
         <main className="mx-auto max-w-7xl px-6 pb-28 pt-8">
@@ -53,12 +58,8 @@ function SobrePage() {
           <Reveal className="max-w-3xl">
             <h1 className="text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 sm:text-6xl">
               Segurança do trabalho,{" "}
-              <span className="font-serif italic font-medium text-primary">levada a sério.</span>
+              <span className="text-primary">levada a sério.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-              Existimos desde 2019. Hoje mais de 1.200 empresas usam a SafeWork pra saber, todo dia,
-              se cada pessoa está com o equipamento certo.
-            </p>
           </Reveal>
 
           {/* Stats — one divided strip instead of four identical gradient-number cards.
@@ -75,49 +76,72 @@ function SobrePage() {
             ))}
           </div>
 
-          <section className="mt-20 grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
+          {/* Como começamos — a foto trocada por um momento crível de inspeção real (não
+              duas pessoas paradas encarando a câmera com prancheta, que lia como banco de
+              imagens genérico). O texto ganhou peso pra não sobrar vazio ao lado da foto:
+              uma frase de abertura grande carrega a história, a de apoio só complementa. */}
+          <section className="mt-20 grid grid-cols-1 gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-center">
             <div className="relative">
               <div className="absolute -bottom-4 left-6 right-6 h-8 rounded-full bg-slate-900/10 blur-xl" />
               <img
                 src="/about-team.jpg"
-                alt="Gestora e colaborador em um canteiro de obras, ambos usando capacete e colete de segurança"
-                className="relative aspect-[4/3] w-full rounded-3xl object-cover shadow-xl"
+                alt="Colaborador de capacete e colete de segurança inspecionando uma janela e anotando em uma prancheta"
+                className="relative aspect-[4/5] w-full rounded-3xl object-cover object-[70%_25%] shadow-xl"
               />
             </div>
 
-            <div>
+            <div className="border-l-4 border-primary/25 pl-6">
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
                 Como começamos
               </h2>
-              <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
-                Um acidente que um alerta simples teria evitado — foi esse o motivo pra juntar entregas de
-                EPI, certificados, ocorrências e conversa entre gestor e colaborador num lugar só, visível
-                pros dois lados.
+              <p className="mt-4 text-xl font-bold leading-snug tracking-tight text-slate-800 sm:text-2xl">
+                Um acidente que um{" "}
+                <span className="font-serif italic font-medium text-primary">alerta simples</span> teria
+                evitado.
+              </p>
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-500 sm:text-base">
+                Foi esse o motivo para juntar entregas de EPI, certificados, ocorrências e a conversa entre
+                gestor e colaborador em um só lugar, visível para os dois lados.
               </p>
             </div>
           </section>
 
-          {/* Values — a numbered editorial list instead of four identical icon cards.
-              The number already carries the "this is item N of 4" signal, so no icon
-              rides along next to the title — it was decoration standing in for a job the
-              title text and copy already do on their own. */}
+          {/* Values — clicking a title swaps the statement on the right, like Soluções'
+              module picker but light and editorial instead of a dark widget panel. Breaks
+              from the static number+title+desc grid this section used before, which was
+              structurally the same "four bordered items" shape as the homepage's claims
+              list — this one is a single interactive component instead. */}
           <section className="mt-24">
             <h2 className="max-w-xl text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
               O que guia nossas decisões.
             </h2>
 
-            <div className="mt-10 grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2">
-              {values.map(({ title, desc }, i) => (
-                <div key={title} className="flex gap-5 border-t border-slate-200 pt-6">
-                  <span className="font-serif text-3xl italic text-slate-300">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900">{title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-500">{desc}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="mt-10 grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-[260px_1fr] lg:items-start">
+              <div className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:gap-1 lg:overflow-visible lg:pb-0">
+                {values.map(({ title }, i) => (
+                  <button
+                    key={title}
+                    type="button"
+                    onClick={() => setActiveValue(i)}
+                    className={`shrink-0 rounded-lg px-4 py-3 text-left text-sm font-semibold transition-colors lg:rounded-none lg:border-l-2 lg:px-4 lg:py-2.5 ${
+                      i === activeValue
+                        ? "bg-primary/5 text-primary lg:border-primary lg:bg-transparent"
+                        : "border-transparent text-slate-400 hover:text-slate-600 lg:border-slate-200"
+                    }`}
+                  >
+                    {title}
+                  </button>
+                ))}
+              </div>
+
+              <div key={activeValue} className="animate-in fade-in-0 slide-in-from-bottom-1 duration-300">
+                <span className="font-serif text-4xl italic text-primary/25">
+                  {String(activeValue + 1).padStart(2, "0")}
+                </span>
+                <p className="mt-3 max-w-xl text-xl font-medium leading-snug text-slate-800 sm:text-2xl">
+                  {values[activeValue].desc}
+                </p>
+              </div>
             </div>
           </section>
 

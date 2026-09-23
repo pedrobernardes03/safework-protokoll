@@ -4,6 +4,10 @@ type LayerState = { scale: number; x: number; y: number };
 
 const FULL: LayerState = { scale: 1, x: 0.5, y: 0.5 };
 
+// Cinco paradas, cada uma um close bem mais fechado do que antes (era bem mais aberto e
+// dava pra confundir "capacete" com "óculos", já que os dois miravam quase o mesmo ponto
+// da cabeça) — agora cada peça enche o quadro sozinha: capacete (só a parte de cima),
+// óculos (só os olhos), colete (peito), calça (coxa/joelho) e sapato (bota).
 const topics = [
   {
     side: "left" as const,
@@ -11,65 +15,57 @@ const topics = [
     eyebrow: "Checklist diário",
     title: "Cada EPI confirmado em segundos.",
     desc: "O colaborador confere o uso do capacete direto do celular, sem planilha, antes de começar o turno.",
-    scale: 6.5,
+    scale: 5.8,
     x: 0.454,
-    y: 0.19,
+    y: 0.15,
   },
   {
     side: "right" as const,
-    stage: 3,
+    stage: 2,
     eyebrow: "Check-in inteligente",
     title: "Reconhecimento facial na entrada.",
     desc: "Cada colaborador confirma presença por biometria facial, já vinculada ao checklist de EPIs do turno.",
-    scale: 6.0,
+    scale: 7.6,
     x: 0.454,
-    y: 0.22,
+    y: 0.18,
+  },
+  {
+    side: "left" as const,
+    stage: 3,
+    eyebrow: "Identificação em campo",
+    title: "Conformidade visível de longe.",
+    desc: "Coletes e crachás digitais dão ao gestor uma leitura instantânea de quem está protegido.",
+    scale: 4.2,
+    x: 0.49,
+    y: 0.3,
+  },
+  {
+    side: "right" as const,
+    stage: 4,
+    eyebrow: "Padrão em campo",
+    title: "Uniforme completo, sempre em dia.",
+    desc: "Calça, colete, capacete — cada peça do padrão de segurança entra no mesmo checklist, sem exceção.",
+    scale: 3.5,
+    x: 0.5,
+    y: 0.62,
   },
   {
     side: "left" as const,
     stage: 5,
-    eyebrow: "Identificação em campo",
-    title: "Conformidade visível de longe.",
-    desc: "Coletes e crachás digitais dão ao gestor uma leitura instantânea de quem está protegido.",
-    scale: 3.0,
-    x: 0.48,
-    y: 0.35,
-  },
-  {
-    side: "right" as const,
-    stage: 7,
     eyebrow: "Histórico completo",
     title: "Pronto para qualquer auditoria.",
     desc: "Da botina ao capacete, cada troca fica registrada — exportável a qualquer momento.",
-    scale: 3.3,
+    scale: 4.3,
     x: 0.517,
-    y: 0.845,
-  },
-  {
-    side: "left" as const,
-    stage: 9,
-    eyebrow: "Visão geral",
-    title: "Todo o EPI, em uma só tela.",
-    desc: "Do capacete à bota, o gestor acompanha o conjunto completo de proteção em tempo real.",
-    scale: 1.3,
-    x: 0.454,
-    y: 0.4,
+    y: 0.85,
   },
 ];
 
-const keyframes: LayerState[] = [
-  FULL,
-  topics[0],
-  FULL,
-  topics[1],
-  FULL,
-  topics[2],
-  FULL,
-  topics[3],
-  FULL,
-  topics[4],
-  FULL,
-];
+// Só um FULL, no começo (a "vista aberta" antes de o scroll assumir a câmera) — depois
+// disso a câmera corre direto de um EPI pro outro, sem voltar pro zoom-out entre cada um
+// (era exatamente esse zoom-out no meio que fazia a animação parecer "resetar" a cada
+// troca em vez de continuar o movimento).
+const keyframes: LayerState[] = [FULL, topics[0], topics[1], topics[2], topics[3], topics[4]];
 
 function smoothstep(t: number) {
   return t * t * (3 - 2 * t);

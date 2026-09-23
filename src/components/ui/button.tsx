@@ -5,17 +5,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium cursor-pointer transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-1 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium cursor-pointer transition-[transform,box-shadow,background-color,background-position,color] duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:hover:translate-y-0 disabled:active:scale-100 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow active:shadow-none",
-        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow active:shadow-none",
+        // Solid fill gets a diagonal sheen that sweeps across on hover (background-position
+        // move, not an extra DOM node, so it survives asChild/Slot) on top of the lift.
+        default:
+          "relative overflow-hidden bg-primary bg-[linear-gradient(115deg,transparent_25%,rgba(255,255,255,0.35)_50%,transparent_75%)] bg-[length:250%_100%] bg-[position:150%_0] text-primary-foreground shadow hover:bg-primary/90 hover:bg-[position:-50%_0] hover:shadow-lg hover:shadow-primary/25 duration-500",
+        destructive:
+          "relative overflow-hidden bg-destructive bg-[linear-gradient(115deg,transparent_25%,rgba(255,255,255,0.3)_50%,transparent_75%)] bg-[length:250%_100%] bg-[position:150%_0] text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:bg-[position:-50%_0] duration-500",
         outline:
-          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground hover:border-accent/80",
-        secondary: "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+          "border border-input bg-background shadow-sm hover:border-primary/50 hover:bg-accent hover:text-accent-foreground",
+        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        link: "text-primary underline-offset-4 hover:underline hover:translate-y-0 active:scale-100",
       },
       size: {
         default: "h-9 px-4 py-2",
