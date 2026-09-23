@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarketingHeader } from "@/components/safework/MarketingHeader";
 import { MarketingFooter } from "@/components/safework/MarketingFooter";
 import { Reveal } from "@/components/safework/Reveal";
 import { CountUp } from "@/components/safework/CountUp";
+import { Mascot } from "@/components/safework/Mascot";
+import { HowItWorksOverlay } from "@/components/safework/HowItWorksOverlay";
 
 export const Route = createFileRoute("/sobre")({
   head: () => ({ meta: [{ title: "Sobre nós — SafeWork" }] }),
@@ -40,6 +42,7 @@ const values = [
 
 function SobrePage() {
   const [activeValue, setActiveValue] = useState(0);
+  const [howItWorksOpen, setHowItWorksOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50/80 via-white to-slate-50/50 text-slate-800 font-sans">
@@ -60,6 +63,17 @@ function SobrePage() {
               Segurança do trabalho,{" "}
               <span className="text-primary">levada a sério.</span>
             </h1>
+          </Reveal>
+
+          <Reveal delay={80}>
+            <button
+              type="button"
+              onClick={() => setHowItWorksOpen(true)}
+              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-5 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+            >
+              <PlayCircle className="h-5 w-5" />
+              Ver como funciona
+            </button>
           </Reveal>
 
           {/* Stats — one divided strip instead of four identical gradient-number cards.
@@ -162,6 +176,8 @@ function SobrePage() {
       </div>
 
       <MarketingFooter />
+
+      <HowItWorksOverlay open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
     </div>
   );
 }
