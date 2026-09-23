@@ -47,7 +47,9 @@ function SobrePage() {
 
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[460px]">
-          <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2">
+            <div className="absolute inset-0 animate-blob rounded-full bg-primary/10 blur-3xl" />
+          </div>
         </div>
 
         <main className="mx-auto max-w-7xl px-6 pb-28 pt-8">
@@ -58,10 +60,6 @@ function SobrePage() {
               Segurança do trabalho,{" "}
               <span className="text-primary">levada a sério.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-              Existimos desde 2019. Hoje mais de 1.200 empresas usam a SafeWork pra saber, todo dia,
-              se cada pessoa está com o equipamento certo.
-            </p>
           </Reveal>
 
           {/* Stats — one divided strip instead of four identical gradient-number cards.

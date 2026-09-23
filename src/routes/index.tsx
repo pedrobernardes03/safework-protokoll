@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Factory, Building2, Box, Truck, Shield } from "lucide-react";
 import { MarketingHeader } from "@/components/safework/MarketingHeader";
 import { MarketingFooter } from "@/components/safework/MarketingFooter";
+import { HeroVideoLoop } from "@/components/safework/HeroVideoLoop";
+import { GuaranteesShowcase } from "@/components/safework/GuaranteesShowcase";
 import { Reveal } from "@/components/safework/Reveal";
 import { CountUp } from "@/components/safework/CountUp";
 import { Marquee } from "@/components/safework/Marquee";
@@ -10,6 +12,29 @@ import { CharacterShowcase } from "@/components/safework/three/CharacterShowcase
 export const Route = createFileRoute("/")({
   component: Landing,
 });
+
+const guarantees = [
+  {
+    title: "Sem lista genérica",
+    desc: "Cada colaborador só confirma o EPI que a função dele exige — nunca a mesma lista pra todo mundo.",
+    image: "/card-checklist.jpg",
+  },
+  {
+    title: "Estoque sempre atual",
+    desc: "Toda entrega desconta o Almoxarifado na hora; a falta nunca é descoberta tarde demais.",
+    image: "/card-estoque.jpg",
+  },
+  {
+    title: "Vencimento sob aviso",
+    desc: "Nenhum CA vence de surpresa — o sistema cobra a renovação antes do prazo, não depois dele.",
+    image: "/card-vencimento.jpg",
+  },
+  {
+    title: "Rastro completo",
+    desc: "Quem entregou, quem confirmou, quem mudou o quê: auditável a qualquer momento.",
+    image: "/card-rastro.jpg",
+  },
+] as const;
 
 const trustLogos = [
   { icon: Building2, label: "Construtec", tracking: "tracking-wider" },
@@ -51,19 +76,7 @@ function Landing() {
           no desktop) ao mesmo tempo. */}
       <div className="relative shadow-[0_35px_60px_-20px_rgba(15,23,42,0.55)]">
         <section className="relative min-h-[calc(100vh-4.5rem)] w-full overflow-hidden bg-slate-900">
-          <video
-            aria-hidden="true"
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 h-full w-full scale-110 object-contain opacity-90 blur-3xl brightness-75"
-          >
-            <source src="/hero-safety.mp4" type="video/mp4" />
-          </video>
-          <video autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-contain">
-            <source src="/hero-safety.mp4" type="video/mp4" />
-          </video>
+          <HeroVideoLoop />
           {/* A faixa de baixo precisa ficar legível em qualquer frame do vídeo (ele roda em
               loop, o enquadramento muda) — um gradiente suave sozinho não garante isso
               quando a cena atrás do texto clareia. Por isso a faixa embaixo fica bem mais
@@ -122,35 +135,14 @@ function Landing() {
             próprio produto — não os quatro clichês de "tudo em um lugar / equipes
             conectadas" que caberiam em qualquer landing page de SaaS. Cada item nomeia um
             mecanismo real (o checklist por função, o desconto automático de estoque, o
-            aviso de CA, o log de auditoria) em vez de um benefício abstrato. Sem ícone,
-            sem card, sem hover — só uma borda fina marcando cada claim como distinta, e o
-            texto carregando o peso sozinho. */}
+            aviso de CA, o log de auditoria) em vez de um benefício abstrato.
+
+            Quatro faixas coladas, preto-e-branco em repouso: no computador o mouse expande
+            uma (ganha cor, mostra a descrição) e encolhe as outras; no celular, sem hover de
+            verdade, quem manda é o scroll — a faixa ativa avança sozinha conforme a página
+            rola, uma de cada vez. */}
         <section className="mt-24">
-          <div className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                title: "Sem lista genérica",
-                desc: "Cada colaborador só confirma o EPI que a função dele exige — nunca a mesma lista pra todo mundo.",
-              },
-              {
-                title: "Estoque sempre atual",
-                desc: "Toda entrega desconta o Almoxarifado na hora; a falta nunca é descoberta tarde demais.",
-              },
-              {
-                title: "Vencimento sob aviso",
-                desc: "Nenhum CA vence de surpresa — o sistema cobra a renovação antes do prazo, não depois dele.",
-              },
-              {
-                title: "Rastro completo",
-                desc: "Quem entregou, quem confirmou, quem mudou o quê: auditável a qualquer momento.",
-              },
-            ].map((item) => (
-              <div key={item.title} className="border-t border-slate-200 pt-5">
-                <h3 className="text-base font-bold text-slate-900">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-500">{item.desc}</p>
-              </div>
-            ))}
-          </div>
+          <GuaranteesShowcase items={guarantees} />
         </section>
 
         {/* Client Trust Section */}
@@ -166,9 +158,9 @@ function Landing() {
             {trustLogos.map(({ icon: Icon, label, tracking }) => (
               <div
                 key={label}
-                className={`flex shrink-0 items-center gap-2 text-lg font-bold text-slate-700 ${tracking}`}
+                className={`group/logo flex shrink-0 items-center gap-2 text-lg font-bold text-slate-700 ${tracking}`}
               >
-                <Icon className="h-6 w-6 text-slate-500" />
+                <Icon className="h-6 w-6 text-slate-500 transition-transform group-hover/logo:animate-wiggle" />
                 <span>{label}</span>
               </div>
             ))}

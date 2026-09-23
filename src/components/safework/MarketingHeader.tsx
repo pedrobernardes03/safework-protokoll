@@ -36,7 +36,7 @@ export function MarketingHeader() {
               >
                 <span>{item.label}</span>
                 <span
-                  className={`h-1.5 w-1.5 rounded-full bg-primary transition-opacity ${active ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                  className={`h-1.5 w-1.5 rounded-full bg-primary transition-opacity ${active ? "animate-glow-pulse opacity-100" : "opacity-0 group-hover:opacity-100"}`}
                 />
               </Link>
             );
