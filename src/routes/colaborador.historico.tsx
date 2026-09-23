@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { CollaboratorShell } from "@/components/safework/CollaboratorShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -97,6 +97,184 @@ function formatDataCompleta(iso: string) {
   return `${String(dia).padStart(2, "0")}/${String(mes).padStart(2, "0")}/${ano}`;
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Modal de Detalhes do Registro
+// ──────────────────────────────────────────────────────────────────────────────
+function ModalDetalhes({
+  item,
+  onFechar,
+}: {
+  item: ItemHistorico;
+  onFechar: () => void;
+}) {
+  // Fecha com ESC
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onFechar();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onFechar]);
+
+  const titulos: Record<TipoHistorico, string> = {
+    entrega: "Detalhes da entrega",
+    observacao: "Detalhes da observação",
+    confirmacao: "Detalhes da confirmação",
+  };
+
+  const accentClass =
+    item.tipo === "observacao"
+      ? "text-destructive"
+      : item.tipo === "entrega"
+        ? "text-primary"
+        : "text-success";
+
+  const borderAccent =
+    item.tipo === "observacao"
+      ? "border-destructive/20"
+      : item.tipo === "entrega"
+        ? "border-primary/20"
+        : "border-success/20";
+
+  return (
+    /* Backdrop */
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "hsla(0,0%,0%,0.45)", backdropFilter: "blur(4px)" }}
+      onClick={onFechar}
+      aria-modal="true"
+      role="dialog"
+      aria-label={titulos[item.tipo]}
+    >
+      {/* Painel */}
+      <div
+        className={`relative w-full max-w-sm rounded-2xl border bg-card shadow-xl overflow-hidden ${borderAccent}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Cabeçalho */}
+        <div className="flex items-center justify-between gap-3 border-b px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <span
+              className={`grid h-8 w-8 place-items-center rounded-full ${
+                item.tipo === "observacao"
+                  ? "bg-destructive/10"
+                  : item.tipo === "entrega"
+                    ? "bg-primary/10"
+                    : "bg-success/10"
+              } ${accentClass}`}
+            >
+              {item.tipo === "observacao" ? (
+                <MessageSquare className="h-4 w-4" />
+              ) : item.tipo === "entrega" ? (
+                <Package className="h-4 w-4" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" />
+              )}
+            </span>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+              {titulos[item.tipo]}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onFechar}
+            aria-label="Fechar"
+            className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Conteúdo */}
+        <div className="px-5 py-5 space-y-4">
+          {/* ── ENTREGA ── */}
+          {item.tipo === "entrega" && (
+            <>
+              <Campo label="EPI">{item.nomeEpi ?? "—"}</Campo>
+              <Campo label="Data da entrega">{item.dataFmt}</Campo>
+              <Campo label="CA">{item.ca ?? "—"}</Campo>
+              <Campo label="Responsável pela entrega">Almoxarifado</Campo>
+              <Campo label="Status">
+                <span className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                  Entregue
+                </span>
+              </Campo>
+            </>
+          )}
+
+          {/* ── OBSERVAÇÃO ── */}
+          {item.tipo === "observacao" && (
+            <>
+              <Campo label="EPI">{item.nomeEpi ?? item.titulo.replace("Observação sobre ", "")}</Campo>
+              <Campo label="Data">{item.dataFmt}</Campo>
+              <Campo label="Observação">
+                <span className="italic text-foreground/80">
+                  &ldquo;{item.previaObservacao ?? "—"}&rdquo;
+                </span>
+              </Campo>
+              <Campo label="Status">
+                <Badge
+                  variant="outline"
+                  className="border-destructive/30 bg-destructive/10 text-destructive text-[11px]"
+                >
+                  {item.statusObservacao ?? "Registrada"}
+                </Badge>
+              </Campo>
+            </>
+          )}
+
+          {/* ── CONFIRMAÇÃO ── */}
+          {item.tipo === "confirmacao" && (
+            <>
+              <Campo label="Data">{item.dataFmt}</Campo>
+              <Campo label="EPIs confirmados">{item.qtdEquipamentos ?? "—"}</Campo>
+              <Campo label="Status">
+                <span className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                  Confirmação concluída
+                </span>
+              </Campo>
+            </>
+          )}
+        </div>
+
+        {/* Rodapé */}
+        <div className="border-t px-5 py-3.5">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onFechar}
+            className="w-full cursor-pointer text-xs"
+          >
+            Fechar
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Linha de campo rótulo + valor no modal */
+function Campo({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-0.5">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </p>
+      <div className="text-sm font-medium text-foreground">{children}</div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 function Historico() {
   const colaborador = colaboradores.find((c) => c.matricula === MATRICULA_COLABORADOR_ATUAL);
   const nome = colaborador?.nome ?? "";
@@ -106,6 +284,7 @@ function Historico() {
   const [periodoAtivo, setPeriodoAtivo] = useState<PeriodoFiltro>("todos");
   const [dataInicio, setDataInicio] = useState<string>("");
   const [dataFim, setDataFim] = useState<string>("");
+  const [itemSelecionado, setItemSelecionado] = useState<ItemHistorico | null>(null);
 
   // Monta lista completa de registros enriquecida e detalhada
   const todosRegistros = useMemo<ItemHistorico[]>(() => {
@@ -433,7 +612,19 @@ function Historico() {
                       </div>
 
                       {/* Card de Detalhes do Registro */}
-                      <Card className="flex-1 shadow-[var(--shadow-card)] hover:border-primary/30 transition-colors">
+                      <Card
+                        className="flex-1 shadow-[var(--shadow-card)] hover:border-primary/30 hover:shadow-md hover:bg-accent/20 transition-all duration-150 cursor-pointer"
+                        onClick={() => setItemSelecionado(h)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setItemSelecionado(h);
+                          }
+                        }}
+                        aria-label={`Ver detalhes: ${h.titulo}`}
+                      >
                         <CardContent className="p-4 sm:p-5">
                           {/* Cabeçalho do Card: Título + Data à esquerda, Etiqueta à direita */}
                           <div className="flex items-start justify-between gap-3">
@@ -516,6 +707,14 @@ function Historico() {
             </section>
           ))}
         </div>
+      )}
+
+      {/* Modal de detalhes */}
+      {itemSelecionado && (
+        <ModalDetalhes
+          item={itemSelecionado}
+          onFechar={() => setItemSelecionado(null)}
+        />
       )}
     </CollaboratorShell>
   );
