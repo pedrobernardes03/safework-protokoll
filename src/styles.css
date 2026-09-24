@@ -256,6 +256,36 @@
   }
 }
 
+/* Partícula do rastro do CustomCursor — criada via JS (document.createElement), não JSX,
+   porque nasce e morre a cada poucos milissegundos enquanto o mouse se move; usar React pra
+   isso geraria muito mais trabalho de reconciliação do que só mexer no DOM direto. Mesmo
+   truque de mix-blend-difference do cursor principal, pra continuar visível em qualquer
+   fundo. */
+.cursor-trail-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: white;
+  mix-blend-mode: difference;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: cursor-trail-fade 0.65s ease-out forwards;
+}
+
+@keyframes cursor-trail-fade {
+  0% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.15);
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
