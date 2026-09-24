@@ -245,6 +245,17 @@
   }
 }
 
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(160px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -266,6 +277,14 @@
   ::selection {
     background-color: var(--color-primary);
     color: var(--color-primary-foreground);
+  }
+
+  /* Liga junto com o CustomCursor (só nas páginas de marketing, só em dispositivos com
+     ponteiro fino) — sem isso o cursor nativo do sistema ficaria duplicado por cima do
+     anel/ponto customizados. */
+  body.cursor-none-marketing,
+  body.cursor-none-marketing * {
+    cursor: none !important;
   }
 
   /* Global Cursor Pointer & Interactive Rules */

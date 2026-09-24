@@ -7,6 +7,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { MarketingHeader } from "@/components/safework/MarketingHeader";
 import { MarketingFooter } from "@/components/safework/MarketingFooter";
 import { Reveal } from "@/components/safework/Reveal";
+import { Parallax } from "@/components/safework/Parallax";
+import { Magnetic } from "@/components/safework/Magnetic";
 
 export const Route = createFileRoute("/planos")({
   head: () => ({ meta: [{ title: "Planos — SafeWork" }] }),
@@ -124,9 +126,9 @@ function PlanosPage() {
 
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[460px]">
-          <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2">
+          <Parallax speed={0.12} className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2">
             <div className="absolute inset-0 animate-blob rounded-full bg-primary/10 blur-3xl" />
-          </div>
+          </Parallax>
           <div
             className="absolute inset-0 opacity-60"
             style={{
@@ -426,10 +428,12 @@ function PlanosPage() {
             <p className="text-sm text-slate-500">
               14 dias grátis em qualquer plano · sem cartão de crédito · cancele quando quiser
             </p>
-            <Link to="/sobre" className="group inline-flex items-center gap-2 text-sm font-semibold text-primary">
-              Ainda com dúvidas? Fale com o nosso time
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+            <Magnetic>
+              <Link to="/sobre" className="group inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                Ainda com dúvidas? Fale com o nosso time
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Magnetic>
           </div>
         </main>
       </div>
