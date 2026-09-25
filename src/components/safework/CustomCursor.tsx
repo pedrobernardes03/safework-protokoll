@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useRouterState } from "@tanstack/react-router";
 
 // Só nas páginas de marketing — a área logada (gestor/colaborador) é uma ferramenta de
@@ -7,84 +7,120 @@ import { useRouterState } from "@tanstack/react-router";
 // cada rota de marketing separadamente.
 const MARKETING_PATHS = new Set(["/", "/sobre", "/solucoes", "/planos"]);
 
-// Distância mínima (px) entre um rastro e o próximo — evita spawnar uma partícula a cada
-// pixel de movimento (centenas por segundo em mouse rápido), só quando o cursor já andou o
-// suficiente pra valer a pena marcar o caminho.
-const TRAIL_MIN_DISTANCE = 14;
-const TRAIL_LIFETIME_MS = 650;
+// Distância mínima (px) entre uma partícula do rastro e a próxima — controla a densidade.
+const TRAIL_MIN_DISTANCE = 6;
+const TRAIL_LIFETIME_MS = 750;
+// Pool fixo de elementos reaproveitados em vez de criar/destruir um <span> a cada poucos
+// pixels de movimento — era a causa das engasgadas: em um movimento rápido de mouse isso
+// chegava a centenas de createElement/remove por segundo, cada um forçando layout/GC. Com
+// o pool, o número de nós do rastro no DOM é sempre o mesmo (20), só a posição/opacidade
+// deles muda via Web Animations API (roda no compositor, não recalcula layout).
+const TRAIL_POOL_SIZE = 20;
 
 export function CustomCursor() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const active = MARKETING_PATHS.has(pathname);
-  const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const trailLayerRef = useRef<HTMLDivElement>(null);
-  const [hovering, setHovering] = useState(false);
-  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (!active) return;
     // Dispositivo touch não tem "hover" de verdade — não faz sentido substituir o cursor.
     if (!window.matchMedia("(pointer: fine)").matches) return;
 
-    let mouseX = 0;
-    let mouseY = 0;
-    let ringX = 0;
-    let ringY = 0;
-    let lastTrailX = 0;
-    let lastTrailY = 0;
-    let raf = 0;
+    const layer = trailLayerRef.current;
+    if (!layer) return;
 
-    const spawnTrailParticle = (x: number, y: number) => {
-      const layer = trailLayerRef.current;
-      if (!layer) return;
+    const pool: HTMLSpanElement[] = [];
+    for (let i = 0; i < TRAIL_POOL_SIZE; i++) {
       const dot = document.createElement("span");
       dot.className = "cursor-trail-dot";
+      dot.style.opacity = "0";
+      layer.appendChild(dot);
+      pool.push(dot);
+    }
+    let poolIndex = 0;
+
+    // 'dark' = está sobre uma seção marcada com data-cursor-zone="dark" (vídeo do hero,
+    // painel escuro de Soluções) — sem isso, sobre fundo claro o cursor claro sumia e
+    // vice-versa. Fica em variável comum (não state) porque muda pouco e não precisa
+    // re-render do React.
+    let zone: "light" | "dark" = "light";
+    let lastTrailX = 0;
+    let lastTrailY = 0;
+    let visible = false;
+
+    const applyZone = () => {
+      ringRef.current?.classList.toggle("cursor-ring--dark", zone === "dark");
+      trailLayerRef.current?.classList.toggle("cursor-trail--dark", zone === "dark");
+    };
+
+    const spawnTrailParticle = (x: number, y: number) => {
+      const dot = pool[poolIndex];
+      poolIndex = (poolIndex + 1) % pool.length;
+      const size = 10 + Math.random() * 10;
+      dot.style.width = `${size}px`;
+      dot.style.height = `${size}px`;
       dot.style.left = `${x}px`;
       dot.style.top = `${y}px`;
-      layer.appendChild(dot);
-      window.setTimeout(() => dot.remove(), TRAIL_LIFETIME_MS);
+      // getAnimations/animate cancela sozinho qualquer animação anterior nesse elemento ao
+      // chamar animate() de novo — reaproveitar o nó não deixa "sobras" de frames antigos.
+      dot.animate(
+        [
+          { opacity: 0.65, transform: "translate(-50%, -50%) scale(1)" },
+          { opacity: 0, transform: "translate(-50%, -50%) scale(0.2)" },
+        ],
+        { duration: TRAIL_LIFETIME_MS, easing: "ease-out", fill: "forwards" },
+      );
     };
 
     const onMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
-      }
-      setVisible((v) => v || true);
-
-      const dx = mouseX - lastTrailX;
-      const dy = mouseY - lastTrailY;
-      if (dx * dx + dy * dy > TRAIL_MIN_DISTANCE * TRAIL_MIN_DISTANCE) {
-        lastTrailX = mouseX;
-        lastTrailY = mouseY;
-        spawnTrailParticle(mouseX, mouseY);
-      }
-    };
-    // O anel persegue o ponto com atraso (lerp) — o ponto central acompanha o mouse 1:1,
-    // dando a sensação de um cursor "vivo" em vez de travado no pixel exato.
-    const loop = () => {
-      ringX += (mouseX - ringX) * 0.18;
-      ringY += (mouseY - ringY) * 0.18;
+      const x = e.clientX;
+      const y = e.clientY;
       if (ringRef.current) {
-        ringRef.current.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+        ringRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
       }
-      raf = requestAnimationFrame(loop);
+      if (!visible) {
+        visible = true;
+        ringRef.current?.classList.add("cursor-ring--visible");
+        trailLayerRef.current?.classList.add("cursor-trail--visible");
+      }
+
+      const dx = x - lastTrailX;
+      const dy = y - lastTrailY;
+      if (dx * dx + dy * dy > TRAIL_MIN_DISTANCE * TRAIL_MIN_DISTANCE) {
+        lastTrailX = x;
+        lastTrailY = y;
+        spawnTrailParticle(x, y);
+      }
     };
     const onOver = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement | null)?.closest("a, button, [data-cursor='hover']");
-      setHovering(!!target);
-    };
-    const onWindowLeave = () => setVisible(false);
-    const onWindowEnter = () => setVisible(true);
+      const target = e.target as HTMLElement | null;
+      const hoveringInteractive = !!target?.closest("a, button, [data-cursor='hover']");
+      ringRef.current?.classList.toggle("cursor-ring--hover", hoveringInteractive);
 
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseover", onOver);
+      const newZone = target?.closest('[data-cursor-zone="dark"]') ? "dark" : "light";
+      if (newZone !== zone) {
+        zone = newZone;
+        applyZone();
+      }
+    };
+    const onWindowLeave = () => {
+      visible = false;
+      ringRef.current?.classList.remove("cursor-ring--visible");
+      trailLayerRef.current?.classList.remove("cursor-trail--visible");
+    };
+    const onWindowEnter = () => {
+      visible = true;
+      ringRef.current?.classList.add("cursor-ring--visible");
+      trailLayerRef.current?.classList.add("cursor-trail--visible");
+    };
+
+    document.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseover", onOver, { passive: true });
     document.documentElement.addEventListener("mouseleave", onWindowLeave);
     document.documentElement.addEventListener("mouseenter", onWindowEnter);
     document.body.classList.add("cursor-none-marketing");
-    raf = requestAnimationFrame(loop);
 
     return () => {
       document.removeEventListener("mousemove", onMove);
@@ -92,9 +128,7 @@ export function CustomCursor() {
       document.documentElement.removeEventListener("mouseleave", onWindowLeave);
       document.documentElement.removeEventListener("mouseenter", onWindowEnter);
       document.body.classList.remove("cursor-none-marketing");
-      cancelAnimationFrame(raf);
-      setVisible(false);
-      if (trailLayerRef.current) trailLayerRef.current.innerHTML = "";
+      layer.innerHTML = "";
     };
   }, [active]);
 
@@ -102,20 +136,8 @@ export function CustomCursor() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[200]" aria-hidden>
-      {/* mix-blend-difference inverte contra o que está por baixo — por isso o cursor (e o
-          rastro) sempre aparece com contraste, tanto em seção clara quanto no vídeo/painel
-          escuro, sem precisar detectar a cor de fundo de cada trecho da página. */}
-      <div ref={trailLayerRef} className="fixed inset-0" />
-      <div
-        ref={dotRef}
-        className={`fixed left-0 top-0 h-2 w-2 rounded-full bg-white mix-blend-difference transition-opacity duration-200 ${visible ? "opacity-100" : "opacity-0"}`}
-      />
-      <div
-        ref={ringRef}
-        className={`fixed left-0 top-0 rounded-full border border-white bg-white/10 mix-blend-difference transition-[width,height,opacity] duration-200 ease-out ${
-          visible ? "opacity-100" : "opacity-0"
-        } ${hovering ? "h-12 w-12" : "h-7 w-7"}`}
-      />
+      <div ref={trailLayerRef} className="cursor-trail-layer fixed inset-0" />
+      <div ref={ringRef} className="cursor-ring fixed left-0 top-0" />
     </div>
   );
 }

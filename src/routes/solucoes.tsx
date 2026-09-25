@@ -268,7 +268,7 @@ function SolucoesPage() {
               reveal, everything below just appears — scattering fade-ups on every section
               reads as templated rather than designed. */}
           <div className="mt-16">
-            <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[oklch(0.22_0.04_150)] via-[oklch(0.2_0.03_150)] to-[oklch(0.32_0.08_165)] shadow-2xl shadow-slate-900/30">
+            <div data-cursor-zone="dark" className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[oklch(0.22_0.04_150)] via-[oklch(0.2_0.03_150)] to-[oklch(0.32_0.08_165)] shadow-2xl shadow-slate-900/30">
               <div
                 className="pointer-events-none absolute inset-0 animate-spin-slow opacity-[0.05]"
                 style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "22px 22px" }}

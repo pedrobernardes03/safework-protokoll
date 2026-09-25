@@ -115,7 +115,9 @@ function CharacterShowcaseInner() {
 
   useEffect(() => {
     let raf = 0;
-    const tick = () => {
+    let ticking = false;
+    const update = () => {
+      ticking = false;
       const el = sectionRef.current;
       const img = imgRef.current;
       if (el && img) {
@@ -152,10 +154,25 @@ function CharacterShowcaseInner() {
           });
         });
       }
-      raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    // Recalcula só quando a página realmente rola (ou redimensiona), agrupando eventos
+    // rápidos num único frame — antes disso rodava um requestAnimationFrame incondicional
+    // pra sempre, recalculando e escrevendo estilo em 11 elementos 60x/segundo mesmo com a
+    // página parada ou essa seção fora da tela. Essa era a maior causa de travadinha no
+    // site: um loop infinito competindo por frame o tempo todo que a Início ficava aberta.
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

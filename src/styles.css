@@ -256,34 +256,73 @@
   }
 }
 
-/* Partícula do rastro do CustomCursor — criada via JS (document.createElement), não JSX,
-   porque nasce e morre a cada poucos milissegundos enquanto o mouse se move; usar React pra
-   isso geraria muito mais trabalho de reconciliação do que só mexer no DOM direto. Mesmo
-   truque de mix-blend-difference do cursor principal, pra continuar visível em qualquer
-   fundo. */
+/* CustomCursor — um círculo só (sem anel separado perseguindo com atraso) mais um rastro de
+   partículas, criadas via JS (document.createElement) porque nascem e morrem a cada poucos
+   milissegundos enquanto o mouse se move — usar React pra isso geraria muito mais trabalho
+   de reconciliação do que só mexer no DOM direto.
+
+   Duas cores fixas em vez de mix-blend-mode: difference — o blend mode ficava ilegível em
+   fundos de tom médio (bem comuns no site: slate-50, primary/10). --zone-light é a cor
+   sobre fundo claro (a maioria do site); --zone-dark é a cor sobre as seções escuras
+   marcadas com data-cursor-zone="dark" (hero em vídeo, painel escuro de Soluções). A troca
+   entre as duas é animada (transition), não instantânea. */
+.cursor-ring {
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  border: 2px solid var(--color-primary);
+  background: color-mix(in oklab, var(--color-primary) 12%, transparent);
+  opacity: 0;
+  /* Sombra escura fixa, nas duas zonas — sem ela, num trecho claro DENTRO de uma zona
+     marcada como escura (ex: uma parede clara no vídeo do hero), a cor clara da zona
+     escura quase some contra aquele pedaço claro. box-shadow (não filter: drop-shadow) de
+     propósito — drop-shadow força o navegador a re-rasterizar a forma inteira a cada
+     frame que o transform muda, o que pesava bastante com o cursor se movendo a 60fps+. */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  transition:
+    width 0.25s ease-out,
+    height 0.25s ease-out,
+    opacity 0.2s ease-out,
+    border-color 0.4s ease,
+    background-color 0.4s ease;
+}
+.cursor-ring--visible {
+  opacity: 1;
+}
+.cursor-ring--hover {
+  width: 42px;
+  height: 42px;
+}
+.cursor-ring--dark {
+  border-color: oklch(0.8 0.16 150);
+  background: color-mix(in oklab, oklch(0.8 0.16 150) 18%, transparent);
+}
+
+.cursor-trail-layer {
+  --trail-color: var(--color-primary);
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+.cursor-trail--visible {
+  opacity: 1;
+}
+.cursor-trail--dark {
+  --trail-color: oklch(0.8 0.16 150);
+}
+
+/* Sem @keyframes/animation aqui de propósito — o fade+scale de cada partícula é disparado
+   via Element.animate() (Web Animations API) no CustomCursor.tsx, não CSS, porque o pool de
+   nós é reaproveitado (ver TRAIL_POOL_SIZE) e .animate() já cancela a animação anterior do
+   mesmo nó sozinho, sem precisar do truque de remover/re-adicionar a classe pra reiniciar. */
 .cursor-trail-dot {
   position: fixed;
   top: 0;
   left: 0;
-  width: 7px;
-  height: 7px;
   border-radius: 9999px;
-  background: white;
-  mix-blend-mode: difference;
+  background: var(--trail-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   transform: translate(-50%, -50%);
   pointer-events: none;
-  animation: cursor-trail-fade 0.65s ease-out forwards;
-}
-
-@keyframes cursor-trail-fade {
-  0% {
-    opacity: 0.85;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.15);
-  }
 }
 
 @layer base {
