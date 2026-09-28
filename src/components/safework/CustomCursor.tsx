@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useRouterState } from "@tanstack/react-router";
 
-// Só nas páginas de marketing — a área logada (gestor/colaborador) é uma ferramenta de
-// trabalho usada o dia inteiro, um cursor customizado ali seria novidade que cansa, não
-// imersão. Vive no __root.tsx (fora de cada página) pra não precisar ser importado em
-// cada rota de marketing separadamente.
-const MARKETING_PATHS = new Set(["/", "/sobre", "/solucoes", "/planos"]);
+// Páginas de marketing + login — a área logada de verdade (gestor/colaborador) é uma
+// ferramenta de trabalho usada o dia inteiro, um cursor customizado ali seria novidade que
+// cansa, não imersão; login ainda é "porta de entrada" pública, faz sentido ter o mesmo
+// clima. Vive no __root.tsx (fora de cada página) pra não precisar ser importado em cada
+// rota separadamente.
+const MARKETING_PATHS = new Set(["/", "/sobre", "/solucoes", "/planos", "/login"]);
 
 // Distância mínima (px) entre uma partícula do rastro e a próxima — controla a densidade.
 const TRAIL_MIN_DISTANCE = 6;

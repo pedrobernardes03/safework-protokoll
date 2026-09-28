@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Lock, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/safework/Logo";
+import { LoginVideoLoop } from "@/components/safework/LoginVideoLoop";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -79,15 +80,8 @@ function LoginPage() {
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       {/* Painel do vídeo em background cinematográfico full-bleed */}
-      <div className="relative min-h-[260px] sm:min-h-[320px] lg:min-h-screen w-full overflow-hidden bg-slate-950">
-        <video
-          src="/login-showcase.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none"
-        />
+      <div data-cursor-zone="dark" className="relative min-h-[260px] sm:min-h-[320px] lg:min-h-screen w-full overflow-hidden bg-slate-950">
+        <LoginVideoLoop />
         {/* Camada escura sobre o vídeo para contraste, equilíbrio e integração visual */}
         <div className="absolute inset-0 bg-black/45" />
 
