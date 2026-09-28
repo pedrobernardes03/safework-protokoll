@@ -46,6 +46,118 @@ export const Route = createFileRoute("/gestor/epis")({
   component: EpisPage,
 });
 
+function formatPrazo(validade: string) {
+  if (!validade) return "—";
+  if (validade.includes("-")) {
+    const d = new Date(validade);
+    return isNaN(d.getTime()) ? validade : d.toLocaleDateString("pt-BR");
+  }
+  return validade;
+}
+
+const prazosPadrao = [
+  "3 meses",
+  "6 meses",
+  "1 ano",
+  "1 ano e meio",
+  "2 anos",
+  "3 anos",
+  "5 anos",
+];
+
+function PrazoSelect({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const isCustomValue = Boolean(value && !prazosPadrao.includes(value));
+  const [mode, setMode] = useState<"select" | "custom">(isCustomValue ? "custom" : "select");
+
+  useEffect(() => {
+    if (value && !prazosPadrao.includes(value)) {
+      setMode("custom");
+    } else if (value && prazosPadrao.includes(value)) {
+      setMode("select");
+    }
+  }, [value]);
+
+  return (
+    <div className="space-y-1.5">
+      <Label>Prazo de validade do EPI</Label>
+      {mode === "custom" ? (
+        <div className="flex gap-2">
+          <Input
+            required
+            autoFocus
+            placeholder="Ex.: 18 meses, 4 anos..."
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              setMode("select");
+              if (!prazosPadrao.includes(value)) {
+                onChange("1 ano");
+              }
+            }}
+          >
+            Lista
+          </Button>
+        </div>
+      ) : (
+        <Select
+          required
+          value={prazosPadrao.includes(value) ? value : "__custom__"}
+          onValueChange={(v) => {
+            if (v === "__custom__") {
+              setMode("custom");
+            } else {
+              onChange(v);
+            }
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione o prazo..." />
+          </SelectTrigger>
+          <SelectContent>
+            {prazosPadrao.map((p) => (
+              <SelectItem key={p} value={p}>
+                {p}
+              </SelectItem>
+            ))}
+            <SelectItem value="__custom__" className="font-semibold text-primary">
+              + Outro prazo (personalizado)...
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      )}
+      <div className="flex flex-wrap gap-1.5 pt-1">
+        {["6 meses", "1 ano", "2 anos", "3 anos"].map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => {
+              setMode("select");
+              onChange(p);
+            }}
+            className={`rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
+              value === p
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+            }`}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function EpisPage() {
   const [lista, setLista] = useState<Epi[]>(() => [...episIniciais]);
   const [categorias, setCategorias] = useState<string[]>(() => [...categoriasEpi]);
@@ -66,7 +178,9 @@ function EpisPage() {
 
   const list = lista.filter(
     (e) =>
-      (e.nome.toLowerCase().includes(q.toLowerCase()) || e.ca.includes(q)) &&
+      (e.nome.toLowerCase().includes(q.toLowerCase()) ||
+        e.categoria.toLowerCase().includes(q.toLowerCase()) ||
+        (e.ca && e.ca.includes(q))) &&
       (!categoriaAtiva || e.categoria === categoriaAtiva),
   );
 
@@ -172,7 +286,7 @@ function EpisPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <div className="relative w-full max-w-[220px]">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por nome ou CA..." className="pl-9" />
+                  <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por nome ou categoria..." className="pl-9" />
                 </div>
                 {categoriaAtiva && (
                   <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
@@ -192,11 +306,10 @@ function EpisPage() {
                   <TableRow>
                     <TableHead>EPI</TableHead>
                     <TableHead>Categoria</TableHead>
-                    <TableHead>CA</TableHead>
                     <TableHead>Setor</TableHead>
                     <TableHead>Função</TableHead>
                     <TableHead>Estoque</TableHead>
-                    <TableHead>Validade</TableHead>
+                    <TableHead>Prazo de Validade</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -205,7 +318,6 @@ function EpisPage() {
                     <TableRow key={e.id}>
                       <TableCell className="font-medium">{e.nome}</TableCell>
                       <TableCell className="text-muted-foreground">{e.categoria}</TableCell>
-                      <TableCell className="font-mono text-sm">{e.ca}</TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {e.setores.map((s) => (
@@ -219,7 +331,7 @@ function EpisPage() {
                           {e.estoque} un.
                         </span>
                       </TableCell>
-                      <TableCell>{new Date(e.validade).toLocaleDateString("pt-BR")}</TableCell>
+                      <TableCell>{formatPrazo(e.validade)}</TableCell>
                       <TableCell className="text-right">
                         <EpiEditDialog
                           epi={e}
@@ -287,8 +399,7 @@ function EpiForm({
 }) {
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState("");
-  const [ca, setCa] = useState("");
-  const [validade, setValidade] = useState("");
+  const [validade, setValidade] = useState("1 ano");
   const [funcao, setFuncao] = useState("Todos");
   const [setoresSelecionados, setSetoresSelecionados] = useState<string[]>(["Todos"]);
   const [estoque, setEstoque] = useState("");
@@ -296,8 +407,7 @@ function EpiForm({
   const reset = () => {
     setNome("");
     setCategoria("");
-    setCa("");
-    setValidade("");
+    setValidade("1 ano");
     setFuncao("Todos");
     setSetoresSelecionados(["Todos"]);
     setEstoque("");
@@ -307,18 +417,17 @@ function EpiForm({
     <Card className="h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2"><HardHat className="h-5 w-5 text-primary" /> Cadastrar EPI</CardTitle>
-        <CardDescription>Informe os dados do equipamento e do CA.</CardDescription>
+        <CardDescription>Informe os dados do equipamento e o prazo de validade.</CardDescription>
       </CardHeader>
       <CardContent>
         <form
           className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
-            if (setoresSelecionados.length === 0) return;
+            if (setoresSelecionados.length === 0 || !validade.trim()) return;
             onAdd({
               nome,
               categoria,
-              ca,
               funcao,
               setores: setoresSelecionados,
               validade,
@@ -332,16 +441,7 @@ function EpiForm({
             <Input required placeholder="Ex.: Capacete de segurança" value={nome} onChange={(e) => setNome(e.target.value)} />
           </div>
           <CreatableSelect label="Categoria" value={categoria} onChange={setCategoria} options={categorias} onCreate={onCreateCategoria} required />
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>Número do CA</Label>
-              <Input required placeholder="12345" value={ca} onChange={(e) => setCa(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Validade do CA</Label>
-              <Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} />
-            </div>
-          </div>
+          <PrazoSelect value={validade} onChange={setValidade} />
           <CreatableMultiSelect
             label="Setores que usam"
             values={setoresSelecionados}
@@ -356,7 +456,7 @@ function EpiForm({
               <Input required type="number" min={0} placeholder="0" value={estoque} onChange={(e) => setEstoque(e.target.value)} />
             </div>
           </div>
-          <Button type="submit" className="w-full" disabled={setoresSelecionados.length === 0}>Salvar</Button>
+          <Button type="submit" className="w-full" disabled={setoresSelecionados.length === 0 || !validade.trim()}>Salvar</Button>
         </form>
       </CardContent>
     </Card>
@@ -385,8 +485,7 @@ function EpiEditDialog({
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState(epi.nome);
   const [categoria, setCategoria] = useState(epi.categoria);
-  const [ca, setCa] = useState(epi.ca);
-  const [validade, setValidade] = useState(epi.validade);
+  const [validade, setValidade] = useState(epi.validade || "1 ano");
   const [funcao, setFuncao] = useState(epi.funcao);
   const [setoresSelecionados, setSetoresSelecionados] = useState<string[]>(epi.setores);
   const [estoque, setEstoque] = useState(String(epi.estoque));
@@ -395,8 +494,7 @@ function EpiEditDialog({
     if (open) {
       setNome(epi.nome);
       setCategoria(epi.categoria);
-      setCa(epi.ca);
-      setValidade(epi.validade);
+      setValidade(epi.validade || "1 ano");
       setFuncao(epi.funcao);
       setSetoresSelecionados(epi.setores);
       setEstoque(String(epi.estoque));
@@ -417,8 +515,8 @@ function EpiEditDialog({
           className="grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            if (setoresSelecionados.length === 0) return;
-            onSave({ ...epi, nome, categoria, ca, funcao, setores: setoresSelecionados, validade, estoque: Number(estoque) || 0 });
+            if (setoresSelecionados.length === 0 || !validade.trim()) return;
+            onSave({ ...epi, nome, categoria, funcao, setores: setoresSelecionados, validade, estoque: Number(estoque) || 0 });
             setOpen(false);
           }}
         >
@@ -427,16 +525,7 @@ function EpiEditDialog({
             <Input required value={nome} onChange={(e) => setNome(e.target.value)} />
           </div>
           <CreatableSelect label="Categoria" value={categoria} onChange={setCategoria} options={categorias} onCreate={onCreateCategoria} />
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>Número do CA</Label>
-              <Input required value={ca} onChange={(e) => setCa(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Validade do CA</Label>
-              <Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} />
-            </div>
-          </div>
+          <PrazoSelect value={validade} onChange={setValidade} />
           <CreatableMultiSelect
             label="Setores que usam"
             values={setoresSelecionados}
@@ -451,7 +540,7 @@ function EpiEditDialog({
           </div>
           <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button type="submit" disabled={setoresSelecionados.length === 0}>Salvar alterações</Button>
+            <Button type="submit" disabled={setoresSelecionados.length === 0 || !validade.trim()}>Salvar alterações</Button>
           </DialogFooter>
         </form>
       </DialogContent>

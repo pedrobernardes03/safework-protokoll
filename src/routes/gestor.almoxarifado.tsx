@@ -58,7 +58,7 @@ function AlmoxarifadoPage() {
   }
 
   const combina = (e: (typeof epis)[number]) =>
-    (e.nome.toLowerCase().includes(q.toLowerCase()) || e.ca.includes(q)) &&
+    (e.nome.toLowerCase().includes(q.toLowerCase()) || (e.ca && e.ca.includes(q))) &&
     (setorAtivo === "Todos os setores" || e.setores.includes(setorAtivo));
 
   const emFalta = epis.filter((e) => statusDoEstoque(e.estoque) === "falta");
@@ -77,7 +77,7 @@ function AlmoxarifadoPage() {
 
   const handleCopiarLista = () => {
     const linhas = criticos.map(
-      (e) => `- ${e.nome} (CA ${e.ca}): repor ${Math.max(META_REPOSICAO - e.estoque, 0)} un. — atual ${e.estoque} un.`,
+      (e) => `- ${e.nome}${e.ca ? ` (CA ${e.ca})` : ""}: repor ${Math.max(META_REPOSICAO - e.estoque, 0)} un. — atual ${e.estoque} un.`,
     );
     const texto = `Lista de reposição — Almoxarifado\n${linhas.join("\n")}`;
     navigator.clipboard
@@ -96,7 +96,7 @@ function AlmoxarifadoPage() {
       addSolicitacaoCompra({
         epiId: e.id,
         epiNome: e.nome,
-        ca: e.ca,
+        ca: e.ca || "N/A",
         quantidade: Math.max(META_REPOSICAO - e.estoque, 0),
         solicitadoPor: solicitante,
       });

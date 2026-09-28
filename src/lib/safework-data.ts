@@ -21,7 +21,7 @@ export interface Epi {
   id: string;
   nome: string;
   categoria: string;
-  ca: string;
+  ca?: string;
   funcao: string;
   setores: string[];
   validade: string;
@@ -41,12 +41,12 @@ export const categoriasEpi: string[] = [
 export const funcoesEpi: string[] = ["Todos", "Eletricista", "Soldador", "Operador de máquina", "Ajudante geral"];
 
 export const epis: Epi[] = [
-  { id: "1", nome: "Capacete de segurança", categoria: "Proteção da cabeça", ca: "12345", funcao: "Todos", setores: ["Todos"], validade: "2027-08-15", estoque: 42 },
-  { id: "2", nome: "Óculos de proteção", categoria: "Proteção visual", ca: "22987", funcao: "Todos", setores: ["Todos"], validade: "2027-11-02", estoque: 58 },
-  { id: "3", nome: "Luvas isolantes", categoria: "Proteção das mãos", ca: "31402", funcao: "Eletricista", setores: ["Manutenção"], validade: "2026-03-20", estoque: 15 },
-  { id: "4", nome: "Botina de segurança", categoria: "Proteção dos pés", ca: "40551", funcao: "Todos", setores: ["Todos"], validade: "2027-01-10", estoque: 30 },
-  { id: "5", nome: "Máscara de solda", categoria: "Proteção facial", ca: "50213", funcao: "Soldador", setores: ["Produção"], validade: "2026-05-18", estoque: 8 },
-  { id: "6", nome: "Colete refletivo", categoria: "Proteção do corpo", ca: "60112", funcao: "Ajudante geral", setores: ["Logística", "Produção"], validade: "2026-09-01", estoque: 22 },
+  { id: "1", nome: "Capacete de segurança", categoria: "Proteção da cabeça", funcao: "Todos", setores: ["Todos"], validade: "1 ano", estoque: 42 },
+  { id: "2", nome: "Óculos de proteção", categoria: "Proteção visual", funcao: "Todos", setores: ["Todos"], validade: "6 meses", estoque: 58 },
+  { id: "3", nome: "Luvas isolantes", categoria: "Proteção das mãos", funcao: "Eletricista", setores: ["Manutenção"], validade: "6 meses", estoque: 15 },
+  { id: "4", nome: "Botina de segurança", categoria: "Proteção dos pés", funcao: "Todos", setores: ["Todos"], validade: "1 ano", estoque: 30 },
+  { id: "5", nome: "Máscara de solda", categoria: "Proteção facial", funcao: "Soldador", setores: ["Produção"], validade: "2 anos", estoque: 8 },
+  { id: "6", nome: "Colete refletivo", categoria: "Proteção do corpo", funcao: "Ajudante geral", setores: ["Logística", "Produção"], validade: "1 ano", estoque: 22 },
 ];
 
 const iconePorCategoria: Record<string, LucideIcon> = {

@@ -12,13 +12,18 @@ export const Route = createFileRoute("/colaborador/meus-epis")({
   component: MeusEpis,
 });
 
-function formatValidade(iso: string) {
-  const [y, m, d] = iso.split("-");
-  return `${d}/${m}/${y}`;
+function formatValidade(validade: string) {
+  if (!validade) return "—";
+  if (validade.includes("-")) {
+    const [y, m, d] = validade.split("-");
+    return `${d}/${m}/${y}`;
+  }
+  return validade;
 }
 
-function isVencido(iso: string) {
-  const [y, m, d] = iso.split("-").map(Number);
+function isVencido(validade: string) {
+  if (!validade || !validade.includes("-")) return false;
+  const [y, m, d] = validade.split("-").map(Number);
   const dataValidade = new Date(y, m - 1, d);
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -129,7 +134,7 @@ function MeusEpis() {
                       ) : null}
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      CA {epi.ca} · válido até {formatValidade(epi.validade)}
+                      {epi.ca ? `CA ${epi.ca} · ` : ""}Prazo: {formatValidade(epi.validade)}
                     </p>
                   </div>
                   <div

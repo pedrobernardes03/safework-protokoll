@@ -440,7 +440,7 @@ function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Omit<Certificado, "id">
               epi: epiSelecionado.nome,
               epiId: epiSelecionado.id,
               tipoEpi: epiSelecionado.categoria,
-              ca: epiSelecionado.ca,
+              ca: epiSelecionado.ca || "N/A",
               dataEntrega,
               validade,
               status: calcularStatus(validade),
