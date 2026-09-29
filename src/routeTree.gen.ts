@@ -24,7 +24,6 @@ import { Route as ColaboradorPerfilRouteImport } from './routes/colaborador.perf
 import { Route as GestorIndexRouteImport } from './routes/gestor.index'
 import { Route as GestorAlmoxarifadoRouteImport } from './routes/gestor.almoxarifado'
 import { Route as GestorAuditoriaRouteImport } from './routes/gestor.auditoria'
-import { Route as GestorCertificadosRouteImport } from './routes/gestor.certificados'
 import { Route as GestorColaboradoresRouteImport } from './routes/gestor.colaboradores'
 import { Route as GestorComprasRouteImport } from './routes/gestor.compras'
 import { Route as GestorEpisRouteImport } from './routes/gestor.epis'
@@ -33,6 +32,7 @@ import { Route as GestorObservacoesRouteImport } from './routes/gestor.observaco
 import { Route as GestorPerfilRouteImport } from './routes/gestor.perfil'
 import { Route as GestorRhRouteImport } from './routes/gestor.rh'
 import { Route as GestorUsuariosRouteImport } from './routes/gestor.usuarios'
+import { Route as GestorValidadesRouteImport } from './routes/gestor.validades'
 import { Route as GestorObservacoesIdRouteImport } from './routes/gestor.observacoes_.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -110,11 +110,6 @@ const GestorAuditoriaRoute = GestorAuditoriaRouteImport.update({
   path: '/auditoria',
   getParentRoute: () => GestorRoute,
 } as any)
-const GestorCertificadosRoute = GestorCertificadosRouteImport.update({
-  id: '/certificados',
-  path: '/certificados',
-  getParentRoute: () => GestorRoute,
-} as any)
 const GestorColaboradoresRoute = GestorColaboradoresRouteImport.update({
   id: '/colaboradores',
   path: '/colaboradores',
@@ -155,6 +150,11 @@ const GestorUsuariosRoute = GestorUsuariosRouteImport.update({
   path: '/usuarios',
   getParentRoute: () => GestorRoute,
 } as any)
+const GestorValidadesRoute = GestorValidadesRouteImport.update({
+  id: '/validades',
+  path: '/validades',
+  getParentRoute: () => GestorRoute,
+} as any)
 const GestorObservacoesIdRoute = GestorObservacoesIdRouteImport.update({
   id: '/observacoes_/$id',
   path: '/observacoes/$id',
@@ -176,7 +176,6 @@ export interface FileRoutesByFullPath {
   '/colaborador/perfil': typeof ColaboradorPerfilRoute
   '/gestor/almoxarifado': typeof GestorAlmoxarifadoRoute
   '/gestor/auditoria': typeof GestorAuditoriaRoute
-  '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
   '/gestor/compras': typeof GestorComprasRoute
   '/gestor/epis': typeof GestorEpisRoute
@@ -185,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/gestor/perfil': typeof GestorPerfilRoute
   '/gestor/rh': typeof GestorRhRoute
   '/gestor/usuarios': typeof GestorUsuariosRoute
+  '/gestor/validades': typeof GestorValidadesRoute
   '/gestor/': typeof GestorIndexRoute
   '/gestor/observacoes/$id': typeof GestorObservacoesIdRoute
 }
@@ -202,7 +202,6 @@ export interface FileRoutesByTo {
   '/colaborador/perfil': typeof ColaboradorPerfilRoute
   '/gestor/almoxarifado': typeof GestorAlmoxarifadoRoute
   '/gestor/auditoria': typeof GestorAuditoriaRoute
-  '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
   '/gestor/compras': typeof GestorComprasRoute
   '/gestor/epis': typeof GestorEpisRoute
@@ -211,6 +210,7 @@ export interface FileRoutesByTo {
   '/gestor/perfil': typeof GestorPerfilRoute
   '/gestor/rh': typeof GestorRhRoute
   '/gestor/usuarios': typeof GestorUsuariosRoute
+  '/gestor/validades': typeof GestorValidadesRoute
   '/gestor': typeof GestorIndexRoute
   '/gestor/observacoes/$id': typeof GestorObservacoesIdRoute
 }
@@ -230,7 +230,6 @@ export interface FileRoutesById {
   '/colaborador/perfil': typeof ColaboradorPerfilRoute
   '/gestor/almoxarifado': typeof GestorAlmoxarifadoRoute
   '/gestor/auditoria': typeof GestorAuditoriaRoute
-  '/gestor/certificados': typeof GestorCertificadosRoute
   '/gestor/colaboradores': typeof GestorColaboradoresRoute
   '/gestor/compras': typeof GestorComprasRoute
   '/gestor/epis': typeof GestorEpisRoute
@@ -239,6 +238,7 @@ export interface FileRoutesById {
   '/gestor/perfil': typeof GestorPerfilRoute
   '/gestor/rh': typeof GestorRhRoute
   '/gestor/usuarios': typeof GestorUsuariosRoute
+  '/gestor/validades': typeof GestorValidadesRoute
   '/gestor/': typeof GestorIndexRoute
   '/gestor/observacoes_/$id': typeof GestorObservacoesIdRoute
 }
@@ -259,7 +259,6 @@ export interface FileRouteTypes {
     | '/colaborador/perfil'
     | '/gestor/almoxarifado'
     | '/gestor/auditoria'
-    | '/gestor/certificados'
     | '/gestor/colaboradores'
     | '/gestor/compras'
     | '/gestor/epis'
@@ -268,6 +267,7 @@ export interface FileRouteTypes {
     | '/gestor/perfil'
     | '/gestor/rh'
     | '/gestor/usuarios'
+    | '/gestor/validades'
     | '/gestor/'
     | '/gestor/observacoes/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -285,7 +285,6 @@ export interface FileRouteTypes {
     | '/colaborador/perfil'
     | '/gestor/almoxarifado'
     | '/gestor/auditoria'
-    | '/gestor/certificados'
     | '/gestor/colaboradores'
     | '/gestor/compras'
     | '/gestor/epis'
@@ -294,6 +293,7 @@ export interface FileRouteTypes {
     | '/gestor/perfil'
     | '/gestor/rh'
     | '/gestor/usuarios'
+    | '/gestor/validades'
     | '/gestor'
     | '/gestor/observacoes/$id'
   id:
@@ -312,7 +312,6 @@ export interface FileRouteTypes {
     | '/colaborador/perfil'
     | '/gestor/almoxarifado'
     | '/gestor/auditoria'
-    | '/gestor/certificados'
     | '/gestor/colaboradores'
     | '/gestor/compras'
     | '/gestor/epis'
@@ -321,6 +320,7 @@ export interface FileRouteTypes {
     | '/gestor/perfil'
     | '/gestor/rh'
     | '/gestor/usuarios'
+    | '/gestor/validades'
     | '/gestor/'
     | '/gestor/observacoes_/$id'
   fileRoutesById: FileRoutesById
@@ -447,13 +447,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GestorAuditoriaRouteImport
       parentRoute: typeof GestorRoute
     }
-    '/gestor/certificados': {
-      id: '/gestor/certificados'
-      path: '/certificados'
-      fullPath: '/gestor/certificados'
-      preLoaderRoute: typeof GestorCertificadosRouteImport
-      parentRoute: typeof GestorRoute
-    }
     '/gestor/colaboradores': {
       id: '/gestor/colaboradores'
       path: '/colaboradores'
@@ -510,6 +503,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GestorUsuariosRouteImport
       parentRoute: typeof GestorRoute
     }
+    '/gestor/validades': {
+      id: '/gestor/validades'
+      path: '/validades'
+      fullPath: '/gestor/validades'
+      preLoaderRoute: typeof GestorValidadesRouteImport
+      parentRoute: typeof GestorRoute
+    }
     '/gestor/observacoes_/$id': {
       id: '/gestor/observacoes_/$id'
       path: '/observacoes/$id'
@@ -523,7 +523,6 @@ declare module '@tanstack/react-router' {
 interface GestorRouteChildren {
   GestorAlmoxarifadoRoute: typeof GestorAlmoxarifadoRoute
   GestorAuditoriaRoute: typeof GestorAuditoriaRoute
-  GestorCertificadosRoute: typeof GestorCertificadosRoute
   GestorColaboradoresRoute: typeof GestorColaboradoresRoute
   GestorComprasRoute: typeof GestorComprasRoute
   GestorEpisRoute: typeof GestorEpisRoute
@@ -532,6 +531,7 @@ interface GestorRouteChildren {
   GestorPerfilRoute: typeof GestorPerfilRoute
   GestorRhRoute: typeof GestorRhRoute
   GestorUsuariosRoute: typeof GestorUsuariosRoute
+  GestorValidadesRoute: typeof GestorValidadesRoute
   GestorIndexRoute: typeof GestorIndexRoute
   GestorObservacoesIdRoute: typeof GestorObservacoesIdRoute
 }
@@ -539,7 +539,6 @@ interface GestorRouteChildren {
 const GestorRouteChildren: GestorRouteChildren = {
   GestorAlmoxarifadoRoute: GestorAlmoxarifadoRoute,
   GestorAuditoriaRoute: GestorAuditoriaRoute,
-  GestorCertificadosRoute: GestorCertificadosRoute,
   GestorColaboradoresRoute: GestorColaboradoresRoute,
   GestorComprasRoute: GestorComprasRoute,
   GestorEpisRoute: GestorEpisRoute,
@@ -548,6 +547,7 @@ const GestorRouteChildren: GestorRouteChildren = {
   GestorPerfilRoute: GestorPerfilRoute,
   GestorRhRoute: GestorRhRoute,
   GestorUsuariosRoute: GestorUsuariosRoute,
+  GestorValidadesRoute: GestorValidadesRoute,
   GestorIndexRoute: GestorIndexRoute,
   GestorObservacoesIdRoute: GestorObservacoesIdRoute,
 }

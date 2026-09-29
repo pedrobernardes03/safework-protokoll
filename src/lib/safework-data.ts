@@ -586,10 +586,10 @@ export interface ColaboradorAtencao {
 }
 
 export const colaboradoresAtencao: ColaboradorAtencao[] = [
-  { id: "1", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Sem EPI obrigatório (Luva Isolante)", prioridade: "alta", acaoRotulo: "Entregar EPI", acaoHref: "/gestor/certificados" },
-  { id: "2", nome: "Rafael Souza", cargo: "Soldador", motivo: "CA 50213 vencido (Máscara de Solda)", prioridade: "alta", acaoRotulo: "Renovar CA", acaoHref: "/gestor/certificados" },
+  { id: "1", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Sem EPI obrigatório (Luva Isolante)", prioridade: "alta", acaoRotulo: "Entregar EPI", acaoHref: "/gestor/validades" },
+  { id: "2", nome: "Rafael Souza", cargo: "Soldador", motivo: "Máscara de Solda vencida", prioridade: "alta", acaoRotulo: "Renovar EPI", acaoHref: "/gestor/validades" },
   { id: "3", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Observação pendente crítica (Rachadura)", prioridade: "media", acaoRotulo: "Analisar", acaoHref: "/gestor/observacoes" },
-  { id: "4", nome: "Fernando Costa", cargo: "Técnico de Manutenção", motivo: "Pendência de entrega no onboarding", prioridade: "media", acaoRotulo: "Agendar", acaoHref: "/gestor/certificados" },
+  { id: "4", nome: "Fernando Costa", cargo: "Técnico de Manutenção", motivo: "Pendência de entrega no onboarding", prioridade: "media", acaoRotulo: "Agendar", acaoHref: "/gestor/validades" },
 ];
 
 export type TipoNotificacao = "ca_vencido" | "ca_proximo" | "epi_entregue" | "novo_colaborador" | "nova_observacao" | "nova_mensagem";
@@ -610,32 +610,32 @@ export const notificacoes: Notificacao[] = [
   {
     id: "notif-1",
     tipo: "ca_vencido",
-    titulo: "CA Vencido — Luvas Isolantes",
-    descricao: "Luvas isolantes (CA 31402) vencidas para Carlos Menezes. Substituição necessária.",
+    titulo: "EPI Vencido — Luvas Isolantes",
+    descricao: "Luvas isolantes vencidas para Carlos Menezes. Substituição necessária.",
     dataHora: "Há 3 dias",
     lida: false,
     prioridade: "alta",
-    link: "/gestor/certificados",
+    link: "/gestor/validades",
   },
   {
     id: "notif-2",
     tipo: "ca_vencido",
-    titulo: "CA Vencido — Máscara de Solda",
-    descricao: "Máscara de solda (CA 50213) vencida para Rafael Souza. Requer nova emissão.",
+    titulo: "EPI Vencido — Máscara de Solda",
+    descricao: "Máscara de solda vencida para Rafael Souza. Requer nova emissão.",
     dataHora: "Há 3 dias",
     lida: false,
     prioridade: "alta",
-    link: "/gestor/certificados",
+    link: "/gestor/validades",
   },
   {
     id: "notif-3",
     tipo: "ca_proximo",
-    titulo: "CA Próximo do Vencimento",
-    descricao: "Capacete de Segurança (CA 12345) vence amanhã para Carlos Menezes.",
+    titulo: "EPI Próximo do Vencimento",
+    descricao: "Capacete de Segurança vence amanhã para Carlos Menezes.",
     dataHora: "Hoje, 08:00",
     lida: false,
     prioridade: "media",
-    link: "/gestor/certificados",
+    link: "/gestor/validades",
   },
   {
     id: "notif-4",
@@ -655,7 +655,7 @@ export const notificacoes: Notificacao[] = [
     dataHora: "Hoje, 09:30",
     lida: true,
     prioridade: "baixa",
-    link: "/gestor/certificados",
+    link: "/gestor/validades",
   },
   {
     id: "notif-6",

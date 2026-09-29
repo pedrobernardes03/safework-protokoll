@@ -150,7 +150,7 @@ function Dashboard() {
             <FileText className="mr-2 h-4 w-4" /> Exportar
           </Button>
           <Button size="sm" asChild>
-            <Link to="/gestor/certificados">
+            <Link to="/gestor/validades">
               <BadgeCheck className="mr-2 h-4 w-4" /> Nova entrega
             </Link>
           </Button>
@@ -194,17 +194,17 @@ function Dashboard() {
             </div>
           </Link>
           <Link
-            to="/gestor/certificados"
+            to="/gestor/validades"
             className="flex flex-col justify-between rounded-2xl border bg-card p-4 transition hover:border-danger/30"
           >
             <ShieldAlert className="h-4 w-4 text-danger" />
             <div className="mt-3">
               <p className="text-2xl font-extrabold text-danger">{vencidos}</p>
-              <p className="text-xs text-muted-foreground">CAs vencidos</p>
+              <p className="text-xs text-muted-foreground">EPIs vencidos</p>
             </div>
           </Link>
           <Link
-            to="/gestor/certificados"
+            to="/gestor/validades"
             className="flex flex-col justify-between rounded-2xl border bg-card p-4 transition hover:border-warning/40"
           >
             <Clock className="h-4 w-4 text-warning-foreground" />
@@ -235,7 +235,7 @@ function Dashboard() {
               <Clock className="h-4 w-4 text-warning-foreground" />
               Próximos vencimentos
             </div>
-            <Link to="/gestor/certificados" className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+            <Link to="/gestor/validades" className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
               Ver todos <ChevronRight className="h-3 w-3" />
             </Link>
           </div>

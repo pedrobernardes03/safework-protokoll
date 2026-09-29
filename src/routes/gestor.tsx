@@ -29,7 +29,7 @@ const titleMap: Record<string, string> = {
   "/gestor/epis": "Cadastro de EPIs",
   "/gestor/almoxarifado": "Almoxarifado",
   "/gestor/compras": "Compras",
-  "/gestor/certificados": "Monitoramento de Certificados",
+  "/gestor/validades": "Monitoramento de Validades",
   "/gestor/observacoes": "Observações dos EPIs",
   "/gestor/mensagens": "Mensagens",
   "/gestor/auditoria": "Auditoria",

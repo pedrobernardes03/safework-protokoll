@@ -35,8 +35,8 @@ type NavItem = { title: string; to: string; icon: typeof LayoutDashboard; exact?
 const navSST: NavItem[] = [
   { title: "Visão Geral", to: "/gestor", icon: LayoutDashboard, exact: true },
   { title: "EPIs por Colaborador", to: "/gestor/colaboradores", icon: ListChecks },
-  { title: "Equipamento de Proteção Individual", to: "/gestor/epis", icon: HardHat },
-  { title: "Certificado de Aprovação (CA)", to: "/gestor/certificados", icon: BadgeCheck },
+  { title: "Cadastro de EPIs", to: "/gestor/epis", icon: HardHat },
+  { title: "Monitoramento de Validades", to: "/gestor/validades", icon: BadgeCheck },
   { title: "Observações", to: "/gestor/observacoes", icon: MessageSquareWarning },
   { title: "Mensagens", to: "/gestor/mensagens", icon: MessageCircle },
   { title: "Auditoria", to: "/gestor/auditoria", icon: History },

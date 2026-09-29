@@ -39,13 +39,11 @@ import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/gestor/certificados")({
-  head: () => ({ meta: [{ title: "Monitoramento de CAs — SafeWork" }] }),
-  component: CertificadosPage,
+export const Route = createFileRoute("/gestor/validades")({
+  head: () => ({ meta: [{ title: "Monitoramento de Validades — SafeWork" }] }),
+  component: ValidadesPage,
 });
 
-// setor e tipoEpi já vêm prontos no próprio registro de entrega (safework-data.ts) — nada
-// pra enriquecer aqui.
 type Certificado = EntregaEpi;
 
 const setores = setoresCatalogo.filter((s) => s !== "Todos");
@@ -77,7 +75,7 @@ const statusMap: Record<EpiStatus, { label: string; className: string; dot: stri
 
 const statusOrdem: Record<EpiStatus, number> = { vencido: 0, proximo: 1, vigente: 2 };
 
-function CertificadosPage() {
+function ValidadesPage() {
   const [lista, setLista] = useState<Certificado[]>(() => [...entregasIniciais]);
   const [lote, setLote] = useState(() => [...saidasEmLoteIniciais]);
   const [q, setQ] = useState("");
@@ -95,7 +93,7 @@ function CertificadosPage() {
   );
 
   if (!temAcessoGeral(gestorAtual().perfil)) {
-    return <AcessoRestrito mensagem="O monitoramento de certificados é do time de gestão/segurança." />;
+    return <AcessoRestrito mensagem="O monitoramento de validades é do time de gestão/segurança." />;
   }
 
   const list = lista
@@ -118,15 +116,9 @@ function CertificadosPage() {
     tipoAtivo && { label: tipoAtivo, clear: () => setTipoAtivo(null) },
   ].filter(Boolean) as { label: string; clear: () => void }[];
 
-  // Toda mutação passa pelo registro compartilhado (safework-data.ts) — sem isso, sair
-  // desta tela e voltar perdia qualquer entrega/renovação/exclusão feita, porque o
-  // componente reconstruía a lista do zero a partir do estado inicial de novo.
   const handleAdd = (nova: Omit<Certificado, "id">) => {
     const criada = addEntrega(nova);
     setLista([...entregasIniciais]);
-    // A entrega sai do estoque do próprio catálogo de EPIs — sem isso, o Almoxarifado
-    // continuaria mostrando a quantidade de antes mesmo depois do item já estar com o
-    // colaborador.
     if (criada.epiId) {
       const epi = epis.find((e) => e.id === criada.epiId);
       if (epi) updateEpi({ ...epi, estoque: Math.max(0, epi.estoque - 1) });
@@ -140,27 +132,22 @@ function CertificadosPage() {
     if (!alvo) return;
     updateEntrega({ ...alvo, validade: novaValidade, status: calcularStatus(novaValidade) });
     setLista([...entregasIniciais]);
-    addLogAuditoria({ acao: "Renovou certificado", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
-    toast.success("Certificado renovado com sucesso.");
+    addLogAuditoria({ acao: "Renovou entrega de EPI", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
+    toast.success("Entrega de EPI renovada com sucesso.");
   };
 
   const handleDelete = (id: string) => {
     const alvo = lista.find((e) => e.id === id);
     removeEntrega(id);
     setLista([...entregasIniciais]);
-    // Desfaz a baixa dada na hora da entrega — excluir o registro por engano não pode
-    // deixar o estoque permanentemente errado.
     if (alvo?.epiId) {
       const epi = epis.find((e) => e.id === alvo.epiId);
       if (epi) updateEpi({ ...epi, estoque: epi.estoque + 1 });
     }
-    if (alvo) addLogAuditoria({ acao: "Removeu registro de certificado", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
+    if (alvo) addLogAuditoria({ acao: "Removeu registro de entrega de EPI", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
     toast.success("Registro removido.");
   };
 
-  // Saída em lote pra quando um setor inteiro pede uma quantidade de uma vez (ex.: "RH
-  // pediu 20 botinas") — não gera um certificado individual com CA/validade, só desconta
-  // do estoque em nome de quem assinou pela retirada.
   const handleBaixaDemanda = (input: { setor: string; epiId: string; quantidade: number; responsavel: string }) => {
     const criada = addSaidaEmLote(input);
     if (!criada) return;
@@ -184,7 +171,7 @@ function CertificadosPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
-      {/* Cabeçalho — faixa de números clicáveis em vez de três cards com ícone e cor de fundo */}
+      {/* Cabeçalho */}
       <section className="flex flex-wrap items-center justify-between gap-6 border-b pb-6">
         <div className="flex flex-wrap items-center gap-8">
           <StatusStat
@@ -239,7 +226,7 @@ function CertificadosPage() {
         </section>
       )}
 
-      {/* Barra de busca e filtros — sem envelope de card, parte natural do cabeçalho */}
+      {/* Barra de busca e filtros */}
       <section className="flex flex-wrap items-center gap-3">
         <div className="relative w-full max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -287,8 +274,7 @@ function CertificadosPage() {
         ))}
       </section>
 
-      {/* Registros agrupados por status — a urgência organiza a página em vez de ser
-          só mais uma coluna com badge dentro de uma tabela genérica. */}
+      {/* Registros agrupados por status */}
       {grupos.length === 0 && (
         <p className="py-12 text-center text-sm text-muted-foreground">Nenhum registro encontrado.</p>
       )}
@@ -304,13 +290,13 @@ function CertificadosPage() {
               {grupo.itens.map((e) => (
                 <div
                   key={e.id}
-                  className={`flex flex-wrap items-center gap-x-6 gap-y-2 border-l-4 p-4 ${
+                  className={`flex flex-wrap items-center gap-x-6 gap-y-3 border-l-4 p-4 ${
                     grupo.status === "vencido" ? "border-l-danger" : grupo.status === "proximo" ? "border-l-warning" : "border-l-success"
                   }`}
                 >
-                  <div className="min-w-[160px] flex-1">
+                  <div className="min-w-[170px] flex-1">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <p className="font-semibold">{e.colaborador}</p>
+                      <p className="font-semibold text-foreground">{e.colaborador}</p>
                       {colaboradorRemovido(e.matricula) && (
                         <Badge variant="outline" className="shrink-0 border-muted-foreground/30 text-[10px] text-muted-foreground">
                           Usuário removido
@@ -318,32 +304,40 @@ function CertificadosPage() {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">{e.cargo} · {e.setor}</p>
+                    <p className="mt-1 font-mono text-xs font-semibold text-primary/90">Matrícula: {e.matricula}</p>
                   </div>
-                  <div className="min-w-[160px] flex-1">
-                    <p>{e.epi}</p>
+
+                  <div className="min-w-[150px] flex-1">
+                    <p className="font-medium text-foreground">{e.epi}</p>
                     <p className="text-xs text-muted-foreground">{e.tipoEpi}</p>
                   </div>
-                  <div className="min-w-[90px]">
-                    <p className="font-mono text-sm">CA {e.ca}</p>
-                    <p className="text-xs text-muted-foreground">Matr. {e.matricula}</p>
+
+                  <div className="flex flex-col gap-1.5 rounded-xl border bg-muted/40 px-3.5 py-2 text-xs min-w-[210px]">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-medium text-muted-foreground">Data de Entrega:</span>
+                      <span className="font-semibold text-foreground">{new Date(e.dataEntrega).toLocaleDateString("pt-BR")}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-1">
+                      <span className="font-medium text-muted-foreground">Data de Validade:</span>
+                      <span className={`font-bold ${grupo.status === "vencido" ? "text-danger" : grupo.status === "proximo" ? "text-warning-foreground" : "text-success"}`}>
+                        {new Date(e.validade).toLocaleDateString("pt-BR")}
+                      </span>
+                    </div>
                   </div>
-                  <div className="min-w-[110px]">
-                    <p className="text-sm">{new Date(e.validade).toLocaleDateString("pt-BR")}</p>
-                    <p className="text-xs text-muted-foreground">Entrega {new Date(e.dataEntrega).toLocaleDateString("pt-BR")}</p>
-                  </div>
+
                   <div className="ml-auto flex shrink-0 items-center gap-1">
                     <RenovarDialog entrega={e} onRenovar={handleRenovar} />
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button size="icon" variant="ghost" className="text-danger hover:text-danger" title="Excluir certificado">
+                        <Button size="icon" variant="ghost" className="text-danger hover:text-danger" title="Excluir entrega de EPI">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Excluir certificado de "{e.colaborador}"?</AlertDialogTitle>
+                          <AlertDialogTitle>Excluir entrega de "{e.colaborador}"?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Tem certeza de que deseja excluir este certificado? Essa ação não poderá ser desfeita.
+                            Tem certeza de que deseja excluir este registro de entrega de EPI? Essa ação não poderá ser desfeita.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -404,9 +398,6 @@ function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Omit<Certificado, "id">
   const [dataEntrega, setDataEntrega] = useState("");
   const [validade, setValidade] = useState("");
 
-  // Matrícula, cargo e setor não são mais digitados à mão — vêm do cadastro junto com o
-  // colaborador escolhido, então não tem como errar o nome ou divergir do que já existe em
-  // Colaboradores. Mesma ideia pro CA/tipo do EPI, que vem do catálogo.
   const colaboradorSelecionado = colaboradores.find((c) => c.id === colaboradorId);
   const epiSelecionado = epis.find((e) => e.id === epiId);
 
@@ -477,13 +468,13 @@ function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Omit<Certificado, "id">
             </Select>
             {epiSelecionado && (
               <p className="text-xs text-muted-foreground">
-                CA {epiSelecionado.ca} · {epiSelecionado.categoria}
+                {epiSelecionado.categoria}
               </p>
             )}
           </Field>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Data de entrega"><Input required type="date" value={dataEntrega} onChange={(e) => setDataEntrega(e.target.value)} /></Field>
-            <Field label="Validade do CA"><Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} /></Field>
+            <Field label="Data de validade"><Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} /></Field>
           </div>
           <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
@@ -507,8 +498,6 @@ function BaixaPorDemandaDialog({
   const [responsavelId, setResponsavelId] = useState("");
 
   const epiSelecionado = epis.find((e) => e.id === epiId);
-  // O responsável só faz sentido dentro de quem já está no setor que está pedindo — cai
-  // pra lista inteira só se ainda não existir ninguém daquele setor no cadastro.
   const candidatosDoSetor = setor ? colaboradores.filter((c) => c.ativo && c.setor === setor) : [];
   const responsaveis = candidatosDoSetor.length > 0 ? candidatosDoSetor : colaboradores.filter((c) => c.ativo);
   const responsavelSelecionado = colaboradores.find((c) => c.id === responsavelId);
@@ -616,13 +605,13 @@ function RenovarDialog({ entrega, onRenovar }: { entrega: Certificado; onRenovar
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="icon" variant="ghost" title="Renovar certificado"><RefreshCw className="h-4 w-4" /></Button>
+        <Button size="icon" variant="ghost" title="Renovar entrega de EPI"><RefreshCw className="h-4 w-4" /></Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Renovar certificado</DialogTitle>
+          <DialogTitle>Renovar entrega de EPI</DialogTitle>
           <DialogDescription>
-            {entrega.epi} (CA {entrega.ca}) · {entrega.colaborador}
+            {entrega.epi} · {entrega.colaborador} (Matrícula: {entrega.matricula})
           </DialogDescription>
         </DialogHeader>
         <form
@@ -633,7 +622,7 @@ function RenovarDialog({ entrega, onRenovar }: { entrega: Certificado; onRenovar
             setOpen(false);
           }}
         >
-          <Field label="Nova validade">
+          <Field label="Nova data de validade">
             <Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} />
           </Field>
           <DialogFooter className="mt-2">
