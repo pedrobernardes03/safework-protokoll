@@ -192,7 +192,6 @@ function ModalDetalhes({
             <>
               <Campo label="EPI">{item.nomeEpi ?? "—"}</Campo>
               <Campo label="Data da entrega">{item.dataFmt}</Campo>
-              <Campo label="CA">{item.ca ?? "—"}</Campo>
               <Campo label="Responsável pela entrega">Almoxarifado</Campo>
               <Campo label="Status">
                 <span className="flex items-center gap-1.5">
@@ -654,16 +653,11 @@ function Historico() {
                           {/* 1. Detalhes específicos de ENTREGA */}
                           {h.tipo === "entrega" && (
                             <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-2 text-xs">
-                              <div className="flex items-center gap-2">
-                                <span className="font-mono font-semibold text-foreground bg-accent/60 px-2 py-0.5 rounded border border-border/40">
-                                  CA {h.ca}
+                              {h.nomeEpi && (
+                                <span className="font-semibold text-foreground">
+                                  {h.nomeEpi}
                                 </span>
-                                {h.nomeEpi && (
-                                  <span className="text-muted-foreground font-medium">
-                                    {h.nomeEpi}
-                                  </span>
-                                )}
-                              </div>
+                              )}
                               <span className="text-muted-foreground font-medium flex items-center gap-1.5">
                                 <span className="h-1.5 w-1.5 rounded-full bg-success shrink-0" />
                                 {h.statusEntrega || "Entrega registrada"}

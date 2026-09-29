@@ -254,7 +254,7 @@ function Dashboard() {
                   </div>
                   <div className="hidden min-w-0 flex-1 sm:block">
                     <p className="truncate text-xs font-medium">{e.epi}</p>
-                    <span className="font-mono text-[10px] text-muted-foreground">CA {e.ca}</span>
+                    <span className="font-mono text-[10px] font-medium text-primary/90">Matrícula: {e.matricula}</span>
                   </div>
                   <div className="min-w-0 shrink-0 text-right text-xs sm:w-[100px] sm:text-left">
                     {new Date(e.validade).toLocaleDateString("pt-BR")}
