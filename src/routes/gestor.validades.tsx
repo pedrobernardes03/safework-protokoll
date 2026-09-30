@@ -228,7 +228,7 @@ function ValidadesPage() {
 
       {/* Barra de busca e filtros */}
       <section className="flex flex-wrap items-center gap-3">
-        <div className="relative w-full max-w-xs">
+        <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={q}
@@ -238,7 +238,7 @@ function ValidadesPage() {
           />
         </div>
         <Select value={statusAtivo ?? "todos"} onValueChange={(v) => setStatusAtivo(v === "todos" ? null : (v as EpiStatus))}>
-          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[170px]"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
             <SelectItem value="vencido">Vencido</SelectItem>
@@ -247,7 +247,7 @@ function ValidadesPage() {
           </SelectContent>
         </Select>
         <Select value={setorAtivo ?? "todos"} onValueChange={(v) => setSetorAtivo(v === "todos" ? null : v)}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Setor" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[160px]"><SelectValue placeholder="Setor" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os setores</SelectItem>
             {setores.map((s) => (
@@ -256,7 +256,7 @@ function ValidadesPage() {
           </SelectContent>
         </Select>
         <Select value={tipoAtivo ?? "todos"} onValueChange={(v) => setTipoAtivo(v === "todos" ? null : v)}>
-          <SelectTrigger className="w-[190px]"><SelectValue placeholder="Tipo de EPI" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[190px]"><SelectValue placeholder="Tipo de EPI" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os tipos</SelectItem>
             {tiposEpi.map((t) => (
@@ -286,71 +286,96 @@ function ValidadesPage() {
               <h3 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">{grupo.titulo}</h3>
               <span className="text-sm text-muted-foreground">({grupo.itens.length})</span>
             </div>
-            <div className="divide-y divide-border rounded-xl border">
+            <div className="divide-y divide-border rounded-xl border overflow-hidden">
               {grupo.itens.map((e) => (
                 <div
                   key={e.id}
-                  className={`flex flex-wrap items-center gap-x-6 gap-y-3 border-l-4 p-4 ${
-                    grupo.status === "vencido" ? "border-l-danger" : grupo.status === "proximo" ? "border-l-warning" : "border-l-success"
+                  className={`border-l-4 p-3.5 sm:p-4 transition-colors ${
+                    grupo.status === "vencido"
+                      ? "border-l-danger bg-danger/[0.015]"
+                      : grupo.status === "proximo"
+                        ? "border-l-warning bg-warning/[0.015]"
+                        : "border-l-success bg-success/[0.015]"
                   }`}
                 >
-                  <div className="min-w-[170px] flex-1">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <p className="font-semibold text-foreground">{e.colaborador}</p>
-                      {colaboradorRemovido(e.matricula) && (
-                        <Badge variant="outline" className="shrink-0 border-muted-foreground/30 text-[10px] text-muted-foreground">
-                          Usuário removido
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">{e.cargo} · {e.setor}</p>
-                    <p className="mt-1 font-mono text-xs font-semibold text-primary/90">Matrícula: {e.matricula}</p>
-                  </div>
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6">
+                    
+                    {/* Colaborador e EPI Lado a Lado (grid de 2 colunas perfeitamente alinhadas) */}
+                    <div className="grid grid-cols-2 items-start gap-3 min-w-0 md:flex-1 md:gap-6">
+                      
+                      {/* Colaborador */}
+                      <div className="min-w-0 space-y-0.5">
+                        <div className="flex flex-wrap items-center gap-1">
+                          <p className="font-semibold text-foreground text-sm leading-tight truncate">{e.colaborador}</p>
+                          {colaboradorRemovido(e.matricula) && (
+                            <Badge variant="outline" className="shrink-0 border-muted-foreground/30 text-[9px] px-1 py-0 text-muted-foreground">
+                              Removido
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">{e.cargo} · {e.setor}</p>
+                        <p className="font-mono text-[11px] font-semibold text-primary/90 truncate">Matrícula: {e.matricula}</p>
+                      </div>
 
-                  <div className="min-w-[150px] flex-1">
-                    <p className="font-medium text-foreground">{e.epi}</p>
-                    <p className="text-xs text-muted-foreground">{e.tipoEpi}</p>
-                  </div>
+                      {/* EPI Relacionado */}
+                      <div className="min-w-0 space-y-0.5">
+                        <p className="font-semibold text-foreground text-sm leading-tight truncate">{e.epi}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {e.tipoEpi}
+                          <span className="hidden sm:inline">{e.ca && e.ca !== "N/A" ? ` · CA ${e.ca}` : ""}</span>
+                        </p>
+                      </div>
 
-                  <div className="flex flex-col gap-1.5 rounded-xl border bg-muted/40 px-3.5 py-2 text-xs min-w-[210px]">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="font-medium text-muted-foreground">Data de Entrega:</span>
-                      <span className="font-semibold text-foreground">{new Date(e.dataEntrega).toLocaleDateString("pt-BR")}</span>
                     </div>
-                    <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-1">
-                      <span className="font-medium text-muted-foreground">Data de Validade:</span>
-                      <span className={`font-bold ${grupo.status === "vencido" ? "text-danger" : grupo.status === "proximo" ? "text-warning-foreground" : "text-success"}`}>
-                        {new Date(e.validade).toLocaleDateString("pt-BR")}
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="ml-auto flex shrink-0 items-center gap-1">
-                    <RenovarDialog entrega={e} onRenovar={handleRenovar} />
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="icon" variant="ghost" className="text-danger hover:text-danger" title="Excluir entrega de EPI">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Excluir entrega de "{e.colaborador}"?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Tem certeza de que deseja excluir este registro de entrega de EPI? Essa ação não poderá ser desfeita.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDelete(e.id)}
-                            className="bg-danger text-danger-foreground hover:bg-danger/90"
-                          >
-                            Excluir
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    {/* Datas e Ações */}
+                    <div className="flex items-center justify-between gap-3 border-t border-border/40 pt-2.5 sm:border-t-0 sm:pt-0 md:shrink-0 md:justify-end">
+                      
+                      {/* Datas */}
+                      <div className="flex flex-1 flex-col gap-1 rounded-xl border bg-muted/40 px-3.5 py-1.5 text-xs sm:flex-initial sm:min-w-[200px]">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="font-medium text-muted-foreground">Entrega:</span>
+                          <span className="font-semibold text-foreground">{new Date(e.dataEntrega).toLocaleDateString("pt-BR")}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-1">
+                          <span className="font-medium text-muted-foreground">Validade:</span>
+                          <span className={`font-bold ${grupo.status === "vencido" ? "text-danger" : grupo.status === "proximo" ? "text-warning-foreground" : "text-success"}`}>
+                            {new Date(e.validade).toLocaleDateString("pt-BR")}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Ações */}
+                      <div className="flex shrink-0 items-center gap-1">
+                        <RenovarDialog entrega={e} onRenovar={handleRenovar} />
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 text-danger hover:text-danger hover:bg-danger/10" title="Excluir entrega de EPI">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir entrega de "{e.colaborador}"?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza de que deseja excluir este registro de entrega de EPI? Essa ação não poderá ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(e.id)}
+                                className="bg-danger text-danger-foreground hover:bg-danger/90"
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+
+                    </div>
+
                   </div>
                 </div>
               ))}

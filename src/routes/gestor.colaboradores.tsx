@@ -92,41 +92,100 @@ function EpisPorColaboradorPage() {
         )}
       </div>
 
-      {/* Setores — clicar filtra a lista abaixo para aquele setor específico */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <button
-          type="button"
-          onClick={() => setSetorAtivo(null)}
-          className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors ${
-            setorAtivo === null ? "border-primary bg-primary/5" : "hover:border-primary/30"
-          }`}
-        >
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-            <Users className="h-4 w-4" />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold">Todos</p>
-            <p className="text-xs text-muted-foreground">{lista.length} colaboradores</p>
-          </div>
-        </button>
-        {setoresComContagem.map(([setor, count]) => (
+      {/* Setores — no mobile fica um carrossel/barra de chips horizontal bem compacto; no desktop fica em grid */}
+      <div className="space-y-1.5">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-0.5 sm:hidden">
+          Filtrar por Setor
+        </p>
+
+        {/* Mobile: Barra horizontal de pílulas (chips) com rolagem suave */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 sm:hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <button
-            key={setor}
             type="button"
-            onClick={() => setSetorAtivo(setor)}
-            className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors ${
-              setorAtivo === setor ? "border-primary bg-primary/5" : "hover:border-primary/30"
+            onClick={() => setSetorAtivo(null)}
+            className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+              setorAtivo === null
+                ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                : "border-border/80 bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
             }`}
           >
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-              <Building2 className="h-4 w-4" />
+            <Users className="h-3.5 w-3.5" />
+            <span>Todos</span>
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                setorAtivo === null
+                  ? "bg-primary-foreground/20 text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {lista.length}
+            </span>
+          </button>
+          {setoresComContagem.map(([setor, count]) => {
+            const isSelected = setorAtivo === setor;
+            return (
+              <button
+                key={setor}
+                type="button"
+                onClick={() => setSetorAtivo(setor)}
+                className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+                  isSelected
+                    ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                    : "border-border/80 bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                }`}
+              >
+                <Building2 className="h-3.5 w-3.5" />
+                <span>{setor}</span>
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                    isSelected
+                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Desktop (sm+): Grid estruturado e compacto de cards */}
+        <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+          <button
+            type="button"
+            onClick={() => setSetorAtivo(null)}
+            className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
+              setorAtivo === null ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "hover:border-primary/30"
+            }`}
+          >
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+              <Users className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">{setor}</p>
-              <p className="text-xs text-muted-foreground">{count} colaborador{count > 1 ? "es" : ""}</p>
+              <p className="truncate text-sm font-semibold leading-snug">Todos</p>
+              <p className="text-xs text-muted-foreground">{lista.length} colaboradores</p>
             </div>
           </button>
-        ))}
+          {setoresComContagem.map(([setor, count]) => (
+            <button
+              key={setor}
+              type="button"
+              onClick={() => setSetorAtivo(setor)}
+              className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
+                setorAtivo === setor ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "hover:border-primary/30"
+              }`}
+            >
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                <Building2 className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold leading-snug">{setor}</p>
+                <p className="text-xs text-muted-foreground">{count} colaborador{count > 1 ? "es" : ""}</p>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="relative w-full max-w-sm">

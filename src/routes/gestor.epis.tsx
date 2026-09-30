@@ -65,6 +65,40 @@ const prazosPadrao = [
   "5 anos",
 ];
 
+type TimeUnit = "dias" | "meses" | "anos";
+
+function parsePrazoCustom(val: string): { amount: number; unit: TimeUnit } {
+  if (!val) return { amount: 18, unit: "meses" };
+  if (val === "1 ano e meio") return { amount: 18, unit: "meses" };
+
+  const match = val.match(/^(\d+(?:[\.,]\d+)?)\s*(dia|dias|mês|mes|meses|ano|anos)?$/i);
+  if (match) {
+    const rawAmount = parseFloat(match[1].replace(",", "."));
+    const amount = isNaN(rawAmount) || rawAmount <= 0 ? 1 : rawAmount;
+    const unitStr = match[2]?.toLowerCase() || "meses";
+    let unit: TimeUnit = "meses";
+    if (unitStr.startsWith("dia")) unit = "dias";
+    else if (unitStr.startsWith("ano")) unit = "anos";
+    else unit = "meses";
+    return { amount, unit };
+  }
+  return { amount: 18, unit: "meses" };
+}
+
+function buildPrazoString(amount: number, unit: TimeUnit): string {
+  const safeAmount = Math.max(1, amount);
+  if (unit === "dias") {
+    return safeAmount === 1 ? "1 dia" : `${safeAmount} dias`;
+  }
+  if (unit === "meses") {
+    return safeAmount === 1 ? "1 mês" : `${safeAmount} meses`;
+  }
+  if (unit === "anos") {
+    return safeAmount === 1 ? "1 ano" : `${safeAmount} anos`;
+  }
+  return `${safeAmount} ${unit}`;
+}
+
 function PrazoSelect({
   value,
   onChange,
@@ -75,38 +109,87 @@ function PrazoSelect({
   const isCustomValue = Boolean(value && !prazosPadrao.includes(value));
   const [mode, setMode] = useState<"select" | "custom">(isCustomValue ? "custom" : "select");
 
+  const initialParsed = parsePrazoCustom(value);
+  const [customAmount, setCustomAmount] = useState<number>(initialParsed.amount);
+  const [customUnit, setCustomUnit] = useState<TimeUnit>(initialParsed.unit);
+
   useEffect(() => {
     if (value && !prazosPadrao.includes(value)) {
       setMode("custom");
+      const parsed = parsePrazoCustom(value);
+      setCustomAmount(parsed.amount);
+      setCustomUnit(parsed.unit);
     } else if (value && prazosPadrao.includes(value)) {
       setMode("select");
     }
   }, [value]);
 
+  const updateCustomValue = (newAmount: number, newUnit: TimeUnit) => {
+    setCustomAmount(newAmount);
+    setCustomUnit(newUnit);
+    onChange(buildPrazoString(newAmount, newUnit));
+  };
+
   return (
     <div className="space-y-1.5">
       <Label>Prazo de validade do EPI</Label>
       {mode === "custom" ? (
-        <div className="flex gap-2">
-          <Input
-            required
-            autoFocus
-            placeholder="Ex.: 18 meses, 4 anos..."
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              setMode("select");
-              if (!prazosPadrao.includes(value)) {
-                onChange("1 ano");
-              }
-            }}
-          >
-            Lista
-          </Button>
+        <div className="space-y-2 rounded-lg border border-border/80 bg-muted/20 p-2.5">
+          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <span>Prazo personalizado em tempo:</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-xs text-primary hover:text-primary/80"
+              onClick={() => {
+                setMode("select");
+                if (!prazosPadrao.includes(value)) {
+                  onChange("1 ano");
+                }
+              }}
+            >
+              Voltar para lista
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="w-28">
+              <Input
+                type="number"
+                min={1}
+                max={365}
+                required
+                autoFocus
+                className="h-9 font-medium"
+                value={customAmount}
+                onChange={(e) => {
+                  const val = Math.max(1, parseInt(e.target.value, 10) || 1);
+                  updateCustomValue(val, customUnit);
+                }}
+              />
+            </div>
+
+            <Select
+              value={customUnit}
+              onValueChange={(u: TimeUnit) => {
+                updateCustomValue(customAmount, u);
+              }}
+            >
+              <SelectTrigger className="h-9 flex-1 font-medium">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="dias">{customAmount === 1 ? "Dia" : "Dias"}</SelectItem>
+                <SelectItem value="meses">{customAmount === 1 ? "Mês" : "Meses"}</SelectItem>
+                <SelectItem value="anos">{customAmount === 1 ? "Ano" : "Anos"}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="text-[11px] text-muted-foreground">
+            Padrão final: <strong className="font-semibold text-foreground">{buildPrazoString(customAmount, customUnit)}</strong>
+          </div>
         </div>
       ) : (
         <Select
@@ -115,6 +198,10 @@ function PrazoSelect({
           onValueChange={(v) => {
             if (v === "__custom__") {
               setMode("custom");
+              const parsed = parsePrazoCustom(value);
+              const initialAmount = parsed.amount || 18;
+              const initialUnit = parsed.unit || "meses";
+              updateCustomValue(initialAmount, initialUnit);
             } else {
               onChange(v);
             }
@@ -239,41 +326,111 @@ function EpisPage() {
       />
 
       <div className="min-w-0 space-y-6">
-        {/* Categorias — clicar filtra o catálogo abaixo para aquela categoria específica */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => setCategoriaAtiva(null)}
-            className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors ${
-              categoriaAtiva === null ? "border-primary bg-primary/5" : "hover:border-primary/30"
-            }`}
-          >
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-              <Layers className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold leading-snug">Todas</p>
-              <p className="text-xs text-muted-foreground">{lista.length} equipamentos</p>
-            </div>
-          </button>
-          {categoriasComContagem.map(([categoria, count]) => (
+        {/* Categorias — no mobile fica um carrossel/barra de chips horizontal bem compacto; no desktop fica em grid */}
+        <div className="space-y-1.5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-0.5 sm:hidden">
+            Filtrar por Categoria
+          </p>
+
+          {/* Mobile: Barra horizontal de pílulas (chips) com rolagem suave sem quebrar a tela */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 sm:hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <button
-              key={categoria}
               type="button"
-              onClick={() => setCategoriaAtiva(categoria)}
-              className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors ${
-                categoriaAtiva === categoria ? "border-primary bg-primary/5" : "hover:border-primary/30"
+              onClick={() => setCategoriaAtiva(null)}
+              className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+                categoriaAtiva === null
+                  ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                  : "border-border/80 bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
               }`}
             >
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                {(() => { const Icon = iconeParaEpi(categoria); return <Icon className="h-4 w-4" />; })()}
+              <Layers className="h-3.5 w-3.5" />
+              <span>Todas</span>
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                  categoriaAtiva === null
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {lista.length}
+              </span>
+            </button>
+            {categoriasComContagem.map(([categoria, count]) => {
+              const Icon = iconeParaEpi(categoria);
+              const isSelected = categoriaAtiva === categoria;
+              return (
+                <button
+                  key={categoria}
+                  type="button"
+                  onClick={() => setCategoriaAtiva(categoria)}
+                  className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+                    isSelected
+                      ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                      : "border-border/80 bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span>{categoria}</span>
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                      isSelected
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Desktop (sm+): Grid estruturado e compacto de cards */}
+          <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+            <button
+              type="button"
+              onClick={() => setCategoriaAtiva(null)}
+              className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
+                categoriaAtiva === null
+                  ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                  : "hover:border-primary/30"
+              }`}
+            >
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                <Layers className="h-4 w-4" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold leading-snug">{categoria}</p>
-                <p className="text-xs text-muted-foreground">{count} equipamento{count > 1 ? "s" : ""}</p>
+                <p className="text-sm font-semibold leading-snug truncate">Todas</p>
+                <p className="text-xs text-muted-foreground">{lista.length} equipamentos</p>
               </div>
             </button>
-          ))}
+            {categoriasComContagem.map(([categoria, count]) => {
+              const Icon = iconeParaEpi(categoria);
+              const isSelected = categoriaAtiva === categoria;
+              return (
+                <button
+                  key={categoria}
+                  type="button"
+                  onClick={() => setCategoriaAtiva(categoria)}
+                  className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
+                    isSelected
+                      ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                      : "hover:border-primary/30"
+                  }`}
+                >
+                  <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold leading-snug truncate">{categoria}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {count} equipamento{count > 1 ? "s" : ""}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <Card>
