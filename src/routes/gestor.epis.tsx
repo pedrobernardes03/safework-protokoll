@@ -327,26 +327,34 @@ function EpisPage() {
 
       <div className="min-w-0 space-y-6">
         {/* Categorias — no mobile fica um carrossel/barra de chips horizontal bem compacto; no desktop fica em grid */}
-        <div className="space-y-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-0.5 sm:hidden">
-            Filtrar por Categoria
-          </p>
+        {/* Barra de Filtros e Busca Unificada */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border bg-card p-3 shadow-2xs">
+          {/* Campo de Busca */}
+          <div className="relative w-full sm:w-72 shrink-0">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Buscar por nome, CA ou categoria..."
+              className="pl-9 h-9 text-xs sm:text-sm"
+            />
+          </div>
 
-          {/* Mobile: Barra horizontal de pílulas (chips) com rolagem suave sem quebrar a tela */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 sm:hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          {/* Filtros de Categoria */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none]">
             <button
               type="button"
               onClick={() => setCategoriaAtiva(null)}
-              className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all shrink-0 ${
                 categoriaAtiva === null
                   ? "border-primary bg-primary text-primary-foreground shadow-xs"
-                  : "border-border/80 bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
               }`}
             >
               <Layers className="h-3.5 w-3.5" />
               <span>Todas</span>
               <span
-                className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
                   categoriaAtiva === null
                     ? "bg-primary-foreground/20 text-primary-foreground"
                     : "bg-muted text-muted-foreground"
@@ -363,16 +371,16 @@ function EpisPage() {
                   key={categoria}
                   type="button"
                   onClick={() => setCategoriaAtiva(categoria)}
-                  className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+                  className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all shrink-0 ${
                     isSelected
                       ? "border-primary bg-primary text-primary-foreground shadow-xs"
-                      : "border-border/80 bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                      : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
                   <span>{categoria}</span>
                   <span
-                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
                       isSelected
                         ? "bg-primary-foreground/20 text-primary-foreground"
                         : "bg-muted text-muted-foreground"
@@ -384,76 +392,13 @@ function EpisPage() {
               );
             })}
           </div>
-
-          {/* Desktop (sm+): Grid estruturado e compacto de cards */}
-          <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-            <button
-              type="button"
-              onClick={() => setCategoriaAtiva(null)}
-              className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
-                categoriaAtiva === null
-                  ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                  : "hover:border-primary/30"
-              }`}
-            >
-              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                <Layers className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold leading-snug truncate">Todas</p>
-                <p className="text-xs text-muted-foreground">{lista.length} equipamentos</p>
-              </div>
-            </button>
-            {categoriasComContagem.map(([categoria, count]) => {
-              const Icon = iconeParaEpi(categoria);
-              const isSelected = categoriaAtiva === categoria;
-              return (
-                <button
-                  key={categoria}
-                  type="button"
-                  onClick={() => setCategoriaAtiva(categoria)}
-                  className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
-                    isSelected
-                      ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                      : "hover:border-primary/30"
-                  }`}
-                >
-                  <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold leading-snug truncate">{categoria}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {count} equipamento{count > 1 ? "s" : ""}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
         </div>
 
         <Card>
           <CardHeader className="border-b">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <CardTitle>EPIs cadastrados</CardTitle>
-                <CardDescription>{lista.length} equipamentos no catálogo.</CardDescription>
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="relative w-full max-w-[220px]">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por nome ou categoria..." className="pl-9" />
-                </div>
-                {categoriaAtiva && (
-                  <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
-                    {categoriaAtiva}
-                    <button type="button" onClick={() => setCategoriaAtiva(null)} className="font-bold" aria-label="Limpar filtro de categoria">
-                      ×
-                    </button>
-                  </Badge>
-                )}
-              </div>
+            <div>
+              <CardTitle>EPIs cadastrados</CardTitle>
+              <CardDescription>{list.length} equipamentos encontrados no catálogo.</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="p-0">

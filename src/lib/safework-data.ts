@@ -586,10 +586,10 @@ export interface ColaboradorAtencao {
 }
 
 export const colaboradoresAtencao: ColaboradorAtencao[] = [
-  { id: "1", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Sem EPI obrigatório (Luva Isolante)", prioridade: "alta", acaoRotulo: "Entregar EPI", acaoHref: "/gestor/validades" },
+  { id: "1", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Sem EPI obrigatório (Luva Isolante)", prioridade: "alta", acaoRotulo: "Entregar EPI", acaoHref: "/gestor/validades?novaEntrega=true" },
   { id: "2", nome: "Rafael Souza", cargo: "Soldador", motivo: "Máscara de Solda vencida", prioridade: "alta", acaoRotulo: "Renovar EPI", acaoHref: "/gestor/validades" },
   { id: "3", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Observação pendente crítica (Rachadura)", prioridade: "media", acaoRotulo: "Analisar", acaoHref: "/gestor/observacoes" },
-  { id: "4", nome: "Fernando Costa", cargo: "Técnico de Manutenção", motivo: "Pendência de entrega no onboarding", prioridade: "media", acaoRotulo: "Agendar", acaoHref: "/gestor/validades" },
+  { id: "4", nome: "Fernando Costa", cargo: "Técnico de Manutenção", motivo: "Pendência de entrega no onboarding", prioridade: "media", acaoRotulo: "Agendar", acaoHref: "/gestor/validades?novaEntrega=true" },
 ];
 
 export type TipoNotificacao = "ca_vencido" | "ca_proximo" | "epi_entregue" | "novo_colaborador" | "nova_observacao" | "nova_mensagem";

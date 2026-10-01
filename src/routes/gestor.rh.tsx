@@ -178,66 +178,75 @@ function RHPage() {
       {/* Setores — clicar filtra a tabela abaixo para aquele setor específico. Só faz
           sentido pra lista de ativos; desativados costuma ser pouca gente, não precisa
           desse recorte. */}
-      {visualizacao === "ativos" && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <button
-            type="button"
-            onClick={() => setSetorAtivo(null)}
-            className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors ${
-              setorAtivo === null ? "border-primary bg-primary/5" : "hover:border-primary/30"
-            }`}
-          >
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-              <Users className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">Todos</p>
-              <p className="text-xs text-muted-foreground">{ativos.length} colaboradores</p>
-            </div>
-          </button>
-          {setoresComContagem.map(([setor, count]) => (
+      {/* Barra de Filtros e Busca Unificada */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border bg-card p-3 shadow-2xs">
+        {/* Campo de Busca */}
+        <div className="relative w-full sm:w-72 shrink-0">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar por nome ou matrícula..."
+            className="pl-9 h-9 text-xs sm:text-sm"
+          />
+        </div>
+
+        {/* Filtros de Setor */}
+        {visualizacao === "ativos" && (
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none]">
             <button
-              key={setor}
               type="button"
-              onClick={() => setSetorAtivo(setor)}
-              className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors ${
-                setorAtivo === setor ? "border-primary bg-primary/5" : "hover:border-primary/30"
+              onClick={() => setSetorAtivo(null)}
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all shrink-0 ${
+                setorAtivo === null
+                  ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                  : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
               }`}
             >
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                <Building2 className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{setor}</p>
-                <p className="text-xs text-muted-foreground">{count} colaborador{count > 1 ? "es" : ""}</p>
-              </div>
+              <Users className="h-3.5 w-3.5" />
+              <span>Todos</span>
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                  setorAtivo === null
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {ativos.length}
+              </span>
             </button>
-          ))}
-        </div>
-      )}
+            {setoresComContagem.map(([setor, count]) => {
+              const isSelected = setorAtivo === setor;
+              return (
+                <button
+                  key={setor}
+                  type="button"
+                  onClick={() => setSetorAtivo(setor)}
+                  className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all shrink-0 ${
+                    isSelected
+                      ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                      : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  }`}
+                >
+                  <Building2 className="h-3.5 w-3.5" />
+                  <span>{setor}</span>
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                      isSelected
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       <Card>
-        <CardHeader className="border-b">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="relative w-full max-w-sm">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Buscar por nome ou matrícula..."
-                className="pl-9"
-              />
-            </div>
-            {setorAtivo && (
-              <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
-                {setorAtivo}
-                <button type="button" onClick={() => setSetorAtivo(null)} className="font-bold" aria-label="Limpar filtro de setor">
-                  ×
-                </button>
-              </Badge>
-            )}
-          </div>
-        </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>

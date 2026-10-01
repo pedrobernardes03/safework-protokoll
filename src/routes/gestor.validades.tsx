@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Search, Plus, AlertCircle, Clock, ShieldCheck, RefreshCw, Trash2, PackageMinus } from "lucide-react";
+import { Search, Plus, AlertCircle, Clock, ShieldCheck, RefreshCw, Trash2, PackageMinus, Building2, Layers } from "lucide-react";
 import {
   entregas as entregasIniciais,
   setores as setoresCatalogo,
@@ -39,7 +39,16 @@ import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+type ValidadesSearch = {
+  novaEntrega?: boolean;
+};
+
 export const Route = createFileRoute("/gestor/validades")({
+  validateSearch: (search: Record<string, unknown>): ValidadesSearch => {
+    return {
+      novaEntrega: search.novaEntrega === true || search.novaEntrega === "true" || search.openModal === true || search.openModal === "true",
+    };
+  },
   head: () => ({ meta: [{ title: "Monitoramento de Validades — SafeWork" }] }),
   component: ValidadesPage,
 });
@@ -58,10 +67,15 @@ const tiposEpi = [
   "Proteção auditiva",
 ];
 
-const HOJE = new Date("2026-08-14");
+const HOJE_STR = "2026-08-14";
 
 function calcularStatus(validade: string): EpiStatus {
-  const dias = Math.ceil((new Date(validade).getTime() - HOJE.getTime()) / (1000 * 3600 * 24));
+  if (!validade) return "vencido";
+  const [vAno, vMes, vDia] = validade.split("T")[0].split("-").map(Number);
+  const [hAno, hMes, hDia] = HOJE_STR.split("-").map(Number);
+  const dValidade = new Date(vAno, vMes - 1, vDia);
+  const dHoje = new Date(hAno, hMes - 1, hDia);
+  const dias = Math.ceil((dValidade.getTime() - dHoje.getTime()) / (1000 * 3600 * 24));
   if (dias < 0) return "vencido";
   if (dias <= 30) return "proximo";
   return "vigente";
@@ -76,6 +90,7 @@ const statusMap: Record<EpiStatus, { label: string; className: string; dot: stri
 const statusOrdem: Record<EpiStatus, number> = { vencido: 0, proximo: 1, vigente: 2 };
 
 function ValidadesPage() {
+  const { novaEntrega } = Route.useSearch();
   const [lista, setLista] = useState<Certificado[]>(() => [...entregasIniciais]);
   const [lote, setLote] = useState(() => [...saidasEmLoteIniciais]);
   const [q, setQ] = useState("");
@@ -127,11 +142,19 @@ function ValidadesPage() {
     toast.success("Entrega registrada com sucesso — baixa de 1 unidade dada no estoque.");
   };
 
-  const handleRenovar = (id: string, novaValidade: string) => {
+  const handleRenovar = (id: string, novaValidade: string, novaDataEntrega?: string) => {
     const alvo = lista.find((e) => e.id === id);
     if (!alvo) return;
-    updateEntrega({ ...alvo, validade: novaValidade, status: calcularStatus(novaValidade) });
-    setLista([...entregasIniciais]);
+    const dataEntrega = novaDataEntrega || HOJE_STR;
+    const novoStatus = calcularStatus(novaValidade);
+    const itemAtualizado: Certificado = {
+      ...alvo,
+      dataEntrega,
+      validade: novaValidade,
+      status: novoStatus,
+    };
+    updateEntrega(itemAtualizado);
+    setLista((prev) => prev.map((item) => (item.id === id ? itemAtualizado : item)));
     addLogAuditoria({ acao: "Renovou entrega de EPI", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
     toast.success("Entrega de EPI renovada com sucesso.");
   };
@@ -201,7 +224,7 @@ function ValidadesPage() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <BaixaPorDemandaDialog onConfirm={handleBaixaDemanda} />
-          <NovaEntregaDialog onAdd={handleAdd} />
+          <NovaEntregaDialog onAdd={handleAdd} defaultOpen={novaEntrega} />
         </div>
       </section>
 
@@ -226,52 +249,72 @@ function ValidadesPage() {
         </section>
       )}
 
-      {/* Barra de busca e filtros */}
-      <section className="flex flex-wrap items-center gap-3">
-        <div className="relative w-full sm:max-w-xs">
+      {/* Barra de Filtros e Busca Unificada */}
+      <section className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border bg-card p-3 shadow-2xs">
+        <div className="relative w-full sm:w-80 shrink-0">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Buscar por colaborador, matrícula ou EPI..."
-            className="pl-9"
+            className="pl-9 h-9 text-xs sm:text-sm"
           />
         </div>
-        <Select value={statusAtivo ?? "todos"} onValueChange={(v) => setStatusAtivo(v === "todos" ? null : (v as EpiStatus))}>
-          <SelectTrigger className="w-full sm:w-[170px]"><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os status</SelectItem>
-            <SelectItem value="vencido">Vencido</SelectItem>
-            <SelectItem value="proximo">Próximo do vencimento</SelectItem>
-            <SelectItem value="vigente">Vigente</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={setorAtivo ?? "todos"} onValueChange={(v) => setSetorAtivo(v === "todos" ? null : v)}>
-          <SelectTrigger className="w-full sm:w-[160px]"><SelectValue placeholder="Setor" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os setores</SelectItem>
-            {setores.map((s) => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={tipoAtivo ?? "todos"} onValueChange={(v) => setTipoAtivo(v === "todos" ? null : v)}>
-          <SelectTrigger className="w-full sm:w-[190px]"><SelectValue placeholder="Tipo de EPI" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os tipos</SelectItem>
-            {tiposEpi.map((t) => (
-              <SelectItem key={t} value={t}>{t}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {filtrosAtivos.map((f) => (
-          <Badge key={f.label} variant="outline" className="gap-1.5 border-primary/30 text-primary">
-            {f.label}
-            <button type="button" onClick={f.clear} className="font-bold" aria-label={`Limpar filtro ${f.label}`}>
-              ×
-            </button>
-          </Badge>
-        ))}
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={statusAtivo ?? "todos"} onValueChange={(v) => setStatusAtivo(v === "todos" ? null : (v as EpiStatus))}>
+            <SelectTrigger className="w-full sm:w-[170px] h-9 text-xs">
+              <div className="flex items-center gap-1.5 truncate">
+                <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Status" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os status</SelectItem>
+              <SelectItem value="vencido">Vencido</SelectItem>
+              <SelectItem value="proximo">Próximo do vencimento</SelectItem>
+              <SelectItem value="vigente">Vigente</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={setorAtivo ?? "todos"} onValueChange={(v) => setSetorAtivo(v === "todos" ? null : v)}>
+            <SelectTrigger className="w-full sm:w-[160px] h-9 text-xs">
+              <div className="flex items-center gap-1.5 truncate">
+                <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Setor" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os setores</SelectItem>
+              {setores.map((s) => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={tipoAtivo ?? "todos"} onValueChange={(v) => setTipoAtivo(v === "todos" ? null : v)}>
+            <SelectTrigger className="w-full sm:w-[180px] h-9 text-xs">
+              <div className="flex items-center gap-1.5 truncate">
+                <Layers className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Tipo de EPI" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os tipos</SelectItem>
+              {tiposEpi.map((t) => (
+                <SelectItem key={t} value={t}>{t}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {filtrosAtivos.map((f) => (
+            <Badge key={f.label} variant="outline" className="gap-1.5 border-primary/30 text-primary">
+              {f.label}
+              <button type="button" onClick={f.clear} className="font-bold" aria-label={`Limpar filtro ${f.label}`}>
+                ×
+              </button>
+            </Badge>
+          ))}
+        </div>
       </section>
 
       {/* Registros agrupados por status */}
@@ -416,8 +459,15 @@ function StatusStat({
   );
 }
 
-function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Omit<Certificado, "id">) => void }) {
-  const [open, setOpen] = useState(false);
+function NovaEntregaDialog({ onAdd, defaultOpen }: { onAdd: (entrega: Omit<Certificado, "id">) => void; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen ?? false);
+
+  useEffect(() => {
+    if (defaultOpen) {
+      setOpen(true);
+    }
+  }, [defaultOpen]);
+
   const [colaboradorId, setColaboradorId] = useState("");
   const [epiId, setEpiId] = useState("");
   const [dataEntrega, setDataEntrega] = useState("");
@@ -619,13 +669,20 @@ function BaixaPorDemandaDialog({
   );
 }
 
-function RenovarDialog({ entrega, onRenovar }: { entrega: Certificado; onRenovar: (id: string, validade: string) => void }) {
+function RenovarDialog({ entrega, onRenovar }: { entrega: Certificado; onRenovar: (id: string, validade: string, dataEntrega?: string) => void }) {
   const [open, setOpen] = useState(false);
-  const [validade, setValidade] = useState(entrega.validade);
+  const dataHojeStr = HOJE_STR;
+  const defaultNovaValidade = "2027-08-14";
+
+  const [dataEntrega, setDataEntrega] = useState(dataHojeStr);
+  const [validade, setValidade] = useState(defaultNovaValidade);
 
   useEffect(() => {
-    if (open) setValidade(entrega.validade);
-  }, [open, entrega.validade]);
+    if (open) {
+      setDataEntrega(dataHojeStr);
+      setValidade(defaultNovaValidade);
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -643,10 +700,13 @@ function RenovarDialog({ entrega, onRenovar }: { entrega: Certificado; onRenovar
           className="grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            onRenovar(entrega.id, validade);
+            onRenovar(entrega.id, validade, dataEntrega);
             setOpen(false);
           }}
         >
+          <Field label="Data da renovação/entrega">
+            <Input required type="date" value={dataEntrega} onChange={(e) => setDataEntrega(e.target.value)} />
+          </Field>
           <Field label="Nova data de validade">
             <Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} />
           </Field>

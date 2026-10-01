@@ -14,6 +14,8 @@ import {
   Users,
   ShieldAlert,
   MessageSquareWarning,
+  Building2,
+  Calendar,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -100,58 +102,93 @@ function Dashboard() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      {/* Barra de filtros — período + setor recalculam todos os números abaixo em tempo
-          real, em vez de uma lista estática. Estrutura própria desta tela: nenhuma outra
-          página combina um filtro de período com um filtro de setor lado a lado. */}
-      <section className="flex flex-col gap-4 rounded-2xl border bg-muted/30 p-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="inline-flex shrink-0 rounded-full border bg-background p-1 text-xs font-semibold">
-            {periodos.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setPeriodoAtivo(p.id)}
-                className={`rounded-full px-3 py-1.5 transition-colors ${
-                  periodoAtivo === p.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
+      {/* Barra de Filtros e Busca Unificada */}
+      <section className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between rounded-2xl border bg-card p-3 shadow-2xs">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center min-w-0 flex-1">
+          {/* Período */}
+          <div className="flex items-center gap-1 shrink-0 rounded-xl border bg-muted/40 p-1">
+            {periodos.map((p) => {
+              const isSelected = periodoAtivo === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setPeriodoAtivo(p.id)}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
+                    isSelected
+                      ? "bg-background text-foreground shadow-2xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Calendar className="h-3 w-3" />
+                  <span>{p.label}</span>
+                </button>
+              );
+            })}
           </div>
 
-          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+          {/* Setores */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none]">
             <button
               type="button"
               onClick={() => setSetorAtivo(null)}
-              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                setorAtivo === null ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:border-primary/30"
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all shrink-0 ${
+                setorAtivo === null
+                  ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                  : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
               }`}
             >
-              Todos os setores
-            </button>
-            {setores.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setSetorAtivo(s)}
-                className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  setorAtivo === s ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:border-primary/30"
+              <Users className="h-3.5 w-3.5" />
+              <span>Todos os setores</span>
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                  setorAtivo === null
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
                 }`}
               >
-                {s}
-              </button>
-            ))}
+                {colaboradores.length}
+              </span>
+            </button>
+            {setores.map((s) => {
+              const count = colaboradores.filter((c) => c.setor === s).length;
+              const isSelected = setorAtivo === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSetorAtivo(s)}
+                  className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all shrink-0 ${
+                    isSelected
+                      ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                      : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  }`}
+                >
+                  <Building2 className="h-3.5 w-3.5" />
+                  <span>{s}</span>
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                      isSelected
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast.success("Relatório sintético gerado com sucesso!")}>
-            <FileText className="mr-2 h-4 w-4" /> Exportar
+        {/* Ações */}
+        <div className="flex shrink-0 items-center gap-2 pt-1 sm:pt-0 border-t sm:border-t-0 border-border/40">
+          <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => toast.success("Relatório sintético gerado com sucesso!")}>
+            <FileText className="mr-1.5 h-3.5 w-3.5" /> Exportar
           </Button>
-          <Button size="sm" asChild>
-            <Link to="/gestor/validades">
-              <BadgeCheck className="mr-2 h-4 w-4" /> Nova entrega
+          <Button size="sm" className="h-9 text-xs" asChild>
+            <Link to="/gestor/validades" search={{ novaEntrega: true }}>
+              <BadgeCheck className="mr-1.5 h-3.5 w-3.5" /> Nova entrega
             </Link>
           </Button>
         </div>
