@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollableFilterBar } from "@/components/safework/ScrollableFilterBar";
 import { toast } from "sonner";
 import {
   colaboradores,
@@ -128,7 +129,7 @@ function Dashboard() {
           </div>
 
           {/* Setores */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none]">
+          <ScrollableFilterBar>
             <button
               type="button"
               onClick={() => setSetorAtivo(null)}
@@ -178,7 +179,7 @@ function Dashboard() {
                 </button>
               );
             })}
-          </div>
+          </ScrollableFilterBar>
         </div>
 
         {/* Ações */}

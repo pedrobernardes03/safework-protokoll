@@ -722,3 +722,59 @@ export function limparNotificacoes() {
   avisarOuvintesNotificacoes();
 }
 
+// Persistência do estado de confirmação diária de EPIs do colaborador.
+// Mantém os EPIs marcados e a confirmação concluída salvos durante a navegação,
+// redefinindo automaticamente no próximo dia ou em um novo login (logout).
+export interface StatusConfirmacaoDiaria {
+  data: string;
+  checked: Record<string, boolean>;
+  submitted: boolean;
+}
+
+export function getTodayString(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function getConfirmacaoDiaria(matricula: string): StatusConfirmacaoDiaria {
+  if (typeof window === "undefined") {
+    return { data: getTodayString(), checked: {}, submitted: false };
+  }
+  try {
+    const raw = window.localStorage.getItem(`safework:confirmacao:${matricula}`);
+    if (!raw) return { data: getTodayString(), checked: {}, submitted: false };
+    const parsed = JSON.parse(raw) as StatusConfirmacaoDiaria;
+    const hoje = getTodayString();
+    if (parsed && parsed.data === hoje) {
+      return parsed;
+    }
+    // Novo dia: limpa confirmações do dia anterior
+    window.localStorage.removeItem(`safework:confirmacao:${matricula}`);
+    return { data: hoje, checked: {}, submitted: false };
+  } catch {
+    return { data: getTodayString(), checked: {}, submitted: false };
+  }
+}
+
+export function salvarConfirmacaoDiaria(
+  matricula: string,
+  checked: Record<string, boolean>,
+  submitted: boolean
+) {
+  if (typeof window === "undefined") return;
+  try {
+    const status: StatusConfirmacaoDiaria = {
+      data: getTodayString(),
+      checked,
+      submitted,
+    };
+    window.localStorage.setItem(`safework:confirmacao:${matricula}`, JSON.stringify(status));
+  } catch (err) {
+    console.error("Erro ao salvar confirmação diária:", err);
+  }
+}
+
+

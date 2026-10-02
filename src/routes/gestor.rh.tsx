@@ -20,6 +20,7 @@ import {
 import { Plus, Pencil, Search, Building2, Users, Lock, IdCard, UserX, UserCheck, UserRoundX } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CreatableSelect } from "@/components/safework/CreatableSelect";
+import { ScrollableFilterBar } from "@/components/safework/ScrollableFilterBar";
 import {
   colaboradores,
   gestorAtual,
@@ -193,7 +194,7 @@ function RHPage() {
 
         {/* Filtros de Setor */}
         {visualizacao === "ativos" && (
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none]">
+          <ScrollableFilterBar>
             <button
               type="button"
               onClick={() => setSetorAtivo(null)}
@@ -242,7 +243,7 @@ function RHPage() {
                 </button>
               );
             })}
-          </div>
+          </ScrollableFilterBar>
         )}
       </div>
 

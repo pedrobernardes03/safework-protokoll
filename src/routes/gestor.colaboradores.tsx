@@ -20,6 +20,7 @@ import {
   type Colaborador,
 } from "@/lib/safework-data";
 import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
+import { ScrollableFilterBar } from "@/components/safework/ScrollableFilterBar";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
@@ -106,7 +107,7 @@ function EpisPorColaboradorPage() {
         </div>
 
         {/* Filtros de Setor */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none]">
+        <ScrollableFilterBar>
           <button
             type="button"
             onClick={() => setSetorAtivo(null)}
@@ -155,7 +156,7 @@ function EpisPorColaboradorPage() {
               </button>
             );
           })}
-        </div>
+        </ScrollableFilterBar>
       </div>
 
       {/* Lista de Colaboradores Estruturada */}

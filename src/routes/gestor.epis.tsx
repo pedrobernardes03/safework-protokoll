@@ -40,6 +40,7 @@ import {
   type Epi,
 } from "@/lib/safework-data";
 import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
+import { ScrollableFilterBar } from "@/components/safework/ScrollableFilterBar";
 
 export const Route = createFileRoute("/gestor/epis")({
   head: () => ({ meta: [{ title: "Cadastro de EPIs — SafeWork" }] }),
@@ -341,7 +342,7 @@ function EpisPage() {
           </div>
 
           {/* Filtros de Categoria */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none]">
+          <ScrollableFilterBar>
             <button
               type="button"
               onClick={() => setCategoriaAtiva(null)}
@@ -391,7 +392,7 @@ function EpisPage() {
                 </button>
               );
             })}
-          </div>
+          </ScrollableFilterBar>
         </div>
 
         <Card>

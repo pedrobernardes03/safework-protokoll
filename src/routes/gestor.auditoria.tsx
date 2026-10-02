@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { logsAuditoria, gestorAtual, temAcessoGeral, type CategoriaAuditoria } from "@/lib/safework-data";
 import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
+import { ScrollableFilterBar } from "@/components/safework/ScrollableFilterBar";
 
 const POR_PAGINA = 15;
 
@@ -78,7 +79,7 @@ function AuditoriaPage() {
         </div>
 
         {/* Filtros de Categoria */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none]">
+        <ScrollableFilterBar>
           <button
             type="button"
             onClick={() => filtrarPor(() => setCategoriaAtiva(null))}
@@ -129,7 +130,7 @@ function AuditoriaPage() {
               </button>
             );
           })}
-        </div>
+        </ScrollableFilterBar>
       </div>
 
       <div>
