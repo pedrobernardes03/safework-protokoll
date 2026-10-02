@@ -35,23 +35,26 @@ export const Route = createFileRoute("/colaborador/perfil")({
   component: ColaboradorPerfilPage,
 });
 
-function formatValidade(iso: string) {
-  if (!iso) return "—";
-  const [y, m, d] = iso.split("-");
-  return `${d}/${m}/${y}`;
+function formatValidade(validade: string) {
+  if (!validade) return "—";
+  if (validade.includes("-")) {
+    const [y, m, d] = validade.split("-");
+    return `${d}/${m}/${y}`;
+  }
+  return validade;
 }
 
 function calcularStatusEpi(epi: Epi, entregasColaborador: typeof entregas): EpiStatus {
   // Se houver registro formal em `entregas` com status específico para esse equipamento, prioriza
   const entregaCorrespondente = entregasColaborador.find(
-    (ent) => ent.ca === epi.ca || ent.epi.toLowerCase().includes(epi.nome.toLowerCase().slice(0, 5)),
+    (ent) => (epi.ca && ent.ca === epi.ca) || ent.epi.toLowerCase().includes(epi.nome.toLowerCase().slice(0, 5)),
   );
   if (entregaCorrespondente?.status) {
     return entregaCorrespondente.status;
   }
 
   // Cálculo por data de validade do catálogo
-  if (!epi.validade) return "vigente";
+  if (!epi.validade || !epi.validade.includes("-")) return "vigente";
   const [y, m, d] = epi.validade.split("-").map(Number);
   const dataValidade = new Date(y, m - 1, d);
   const hoje = new Date();
@@ -390,7 +393,7 @@ function ColaboradorPerfilPage() {
                           )}
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          CA {epi.ca} · Válido até {formatValidade(epi.validade)}
+                          {epi.ca ? `CA ${epi.ca} · ` : ""}Prazo: {formatValidade(epi.validade)}
                         </p>
                         <p className="mt-0.5 text-[11px] text-muted-foreground/80">
                           {epi.categoria}

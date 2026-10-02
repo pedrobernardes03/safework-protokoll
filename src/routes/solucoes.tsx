@@ -16,6 +16,8 @@ import { MarketingHeader } from "@/components/safework/MarketingHeader";
 import { MarketingFooter } from "@/components/safework/MarketingFooter";
 import { Reveal } from "@/components/safework/Reveal";
 import { CountUp } from "@/components/safework/CountUp";
+import { Parallax } from "@/components/safework/Parallax";
+import { Magnetic } from "@/components/safework/Magnetic";
 
 export const Route = createFileRoute("/solucoes")({
   head: () => ({ meta: [{ title: "Soluções — SafeWork" }] }),
@@ -239,9 +241,9 @@ function SolucoesPage() {
 
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[460px]">
-          <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2">
+          <Parallax speed={0.12} className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2">
             <div className="absolute inset-0 animate-blob rounded-full bg-primary/10 blur-3xl" />
-          </div>
+          </Parallax>
         </div>
 
         <main className="mx-auto max-w-6xl px-6 pb-28 pt-8">
@@ -266,7 +268,7 @@ function SolucoesPage() {
               reveal, everything below just appears — scattering fade-ups on every section
               reads as templated rather than designed. */}
           <div className="mt-16">
-            <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[oklch(0.22_0.04_150)] via-[oklch(0.2_0.03_150)] to-[oklch(0.32_0.08_165)] shadow-2xl shadow-slate-900/30">
+            <div data-cursor-zone="dark" className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[oklch(0.22_0.04_150)] via-[oklch(0.2_0.03_150)] to-[oklch(0.32_0.08_165)] shadow-2xl shadow-slate-900/30">
               <div
                 className="pointer-events-none absolute inset-0 animate-spin-slow opacity-[0.05]"
                 style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "22px 22px" }}
@@ -327,10 +329,12 @@ function SolucoesPage() {
               used on the other marketing pages. */}
           <div className="mt-16 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-bold tracking-tight text-slate-900">Pronta para ver na prática?</h2>
-            <Link to="/gestor" className="group inline-flex items-center gap-2 text-sm font-semibold text-primary">
-              Explorar a plataforma
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+            <Magnetic>
+              <Link to="/gestor" className="group inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                Explorar a plataforma
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Magnetic>
           </div>
         </main>
       </div>

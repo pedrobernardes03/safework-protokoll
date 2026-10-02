@@ -75,7 +75,7 @@ function Landing() {
           porcentagem não conseguia acertar nos dois formatos (retrato no celular, paisagem
           no desktop) ao mesmo tempo. */}
       <div className="relative shadow-[0_35px_60px_-20px_rgba(15,23,42,0.55)]">
-        <section className="relative min-h-[calc(100vh-4.5rem)] w-full overflow-hidden bg-slate-900">
+        <section data-cursor-zone="dark" className="relative min-h-[calc(100vh-4.5rem)] w-full overflow-hidden bg-slate-900">
           <HeroVideoLoop />
           {/* A faixa de baixo precisa ficar legível em qualquer frame do vídeo (ele roda em
               loop, o enquadramento muda) — um gradiente suave sozinho não garante isso

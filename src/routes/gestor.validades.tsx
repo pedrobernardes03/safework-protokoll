@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Search, Plus, AlertCircle, Clock, ShieldCheck, RefreshCw, Trash2, PackageMinus } from "lucide-react";
+import { Search, Plus, AlertCircle, Clock, ShieldCheck, RefreshCw, Trash2, PackageMinus, Building2, Layers } from "lucide-react";
 import {
   entregas as entregasIniciais,
   setores as setoresCatalogo,
@@ -39,13 +39,20 @@ import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/gestor/certificados")({
-  head: () => ({ meta: [{ title: "Monitoramento de CAs — SafeWork" }] }),
-  component: CertificadosPage,
+type ValidadesSearch = {
+  novaEntrega?: boolean;
+};
+
+export const Route = createFileRoute("/gestor/validades")({
+  validateSearch: (search: Record<string, unknown>): ValidadesSearch => {
+    return {
+      novaEntrega: search.novaEntrega === true || search.novaEntrega === "true" || search.openModal === true || search.openModal === "true",
+    };
+  },
+  head: () => ({ meta: [{ title: "Monitoramento de Validades — SafeWork" }] }),
+  component: ValidadesPage,
 });
 
-// setor e tipoEpi já vêm prontos no próprio registro de entrega (safework-data.ts) — nada
-// pra enriquecer aqui.
 type Certificado = EntregaEpi;
 
 const setores = setoresCatalogo.filter((s) => s !== "Todos");
@@ -60,10 +67,15 @@ const tiposEpi = [
   "Proteção auditiva",
 ];
 
-const HOJE = new Date("2026-08-14");
+const HOJE_STR = "2026-08-14";
 
 function calcularStatus(validade: string): EpiStatus {
-  const dias = Math.ceil((new Date(validade).getTime() - HOJE.getTime()) / (1000 * 3600 * 24));
+  if (!validade) return "vencido";
+  const [vAno, vMes, vDia] = validade.split("T")[0].split("-").map(Number);
+  const [hAno, hMes, hDia] = HOJE_STR.split("-").map(Number);
+  const dValidade = new Date(vAno, vMes - 1, vDia);
+  const dHoje = new Date(hAno, hMes - 1, hDia);
+  const dias = Math.ceil((dValidade.getTime() - dHoje.getTime()) / (1000 * 3600 * 24));
   if (dias < 0) return "vencido";
   if (dias <= 30) return "proximo";
   return "vigente";
@@ -77,7 +89,8 @@ const statusMap: Record<EpiStatus, { label: string; className: string; dot: stri
 
 const statusOrdem: Record<EpiStatus, number> = { vencido: 0, proximo: 1, vigente: 2 };
 
-function CertificadosPage() {
+function ValidadesPage() {
+  const { novaEntrega } = Route.useSearch();
   const [lista, setLista] = useState<Certificado[]>(() => [...entregasIniciais]);
   const [lote, setLote] = useState(() => [...saidasEmLoteIniciais]);
   const [q, setQ] = useState("");
@@ -95,7 +108,7 @@ function CertificadosPage() {
   );
 
   if (!temAcessoGeral(gestorAtual().perfil)) {
-    return <AcessoRestrito mensagem="O monitoramento de certificados é do time de gestão/segurança." />;
+    return <AcessoRestrito mensagem="O monitoramento de validades é do time de gestão/segurança." />;
   }
 
   const list = lista
@@ -118,15 +131,9 @@ function CertificadosPage() {
     tipoAtivo && { label: tipoAtivo, clear: () => setTipoAtivo(null) },
   ].filter(Boolean) as { label: string; clear: () => void }[];
 
-  // Toda mutação passa pelo registro compartilhado (safework-data.ts) — sem isso, sair
-  // desta tela e voltar perdia qualquer entrega/renovação/exclusão feita, porque o
-  // componente reconstruía a lista do zero a partir do estado inicial de novo.
   const handleAdd = (nova: Omit<Certificado, "id">) => {
     const criada = addEntrega(nova);
     setLista([...entregasIniciais]);
-    // A entrega sai do estoque do próprio catálogo de EPIs — sem isso, o Almoxarifado
-    // continuaria mostrando a quantidade de antes mesmo depois do item já estar com o
-    // colaborador.
     if (criada.epiId) {
       const epi = epis.find((e) => e.id === criada.epiId);
       if (epi) updateEpi({ ...epi, estoque: Math.max(0, epi.estoque - 1) });
@@ -135,32 +142,35 @@ function CertificadosPage() {
     toast.success("Entrega registrada com sucesso — baixa de 1 unidade dada no estoque.");
   };
 
-  const handleRenovar = (id: string, novaValidade: string) => {
+  const handleRenovar = (id: string, novaValidade: string, novaDataEntrega?: string) => {
     const alvo = lista.find((e) => e.id === id);
     if (!alvo) return;
-    updateEntrega({ ...alvo, validade: novaValidade, status: calcularStatus(novaValidade) });
-    setLista([...entregasIniciais]);
-    addLogAuditoria({ acao: "Renovou certificado", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
-    toast.success("Certificado renovado com sucesso.");
+    const dataEntrega = novaDataEntrega || HOJE_STR;
+    const novoStatus = calcularStatus(novaValidade);
+    const itemAtualizado: Certificado = {
+      ...alvo,
+      dataEntrega,
+      validade: novaValidade,
+      status: novoStatus,
+    };
+    updateEntrega(itemAtualizado);
+    setLista((prev) => prev.map((item) => (item.id === id ? itemAtualizado : item)));
+    addLogAuditoria({ acao: "Renovou entrega de EPI", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
+    toast.success("Entrega de EPI renovada com sucesso.");
   };
 
   const handleDelete = (id: string) => {
     const alvo = lista.find((e) => e.id === id);
     removeEntrega(id);
     setLista([...entregasIniciais]);
-    // Desfaz a baixa dada na hora da entrega — excluir o registro por engano não pode
-    // deixar o estoque permanentemente errado.
     if (alvo?.epiId) {
       const epi = epis.find((e) => e.id === alvo.epiId);
       if (epi) updateEpi({ ...epi, estoque: epi.estoque + 1 });
     }
-    if (alvo) addLogAuditoria({ acao: "Removeu registro de certificado", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
+    if (alvo) addLogAuditoria({ acao: "Removeu registro de entrega de EPI", alvo: `${alvo.epi} — ${alvo.colaborador}`, categoria: "certificado" });
     toast.success("Registro removido.");
   };
 
-  // Saída em lote pra quando um setor inteiro pede uma quantidade de uma vez (ex.: "RH
-  // pediu 20 botinas") — não gera um certificado individual com CA/validade, só desconta
-  // do estoque em nome de quem assinou pela retirada.
   const handleBaixaDemanda = (input: { setor: string; epiId: string; quantidade: number; responsavel: string }) => {
     const criada = addSaidaEmLote(input);
     if (!criada) return;
@@ -184,7 +194,7 @@ function CertificadosPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
-      {/* Cabeçalho — faixa de números clicáveis em vez de três cards com ícone e cor de fundo */}
+      {/* Cabeçalho */}
       <section className="flex flex-wrap items-center justify-between gap-6 border-b pb-6">
         <div className="flex flex-wrap items-center gap-8">
           <StatusStat
@@ -214,7 +224,7 @@ function CertificadosPage() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <BaixaPorDemandaDialog onConfirm={handleBaixaDemanda} />
-          <NovaEntregaDialog onAdd={handleAdd} />
+          <NovaEntregaDialog onAdd={handleAdd} defaultOpen={novaEntrega} />
         </div>
       </section>
 
@@ -239,56 +249,75 @@ function CertificadosPage() {
         </section>
       )}
 
-      {/* Barra de busca e filtros — sem envelope de card, parte natural do cabeçalho */}
-      <section className="flex flex-wrap items-center gap-3">
-        <div className="relative w-full max-w-xs">
+      {/* Barra de Filtros e Busca Unificada */}
+      <section className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border bg-card p-3 shadow-2xs">
+        <div className="relative w-full sm:w-80 shrink-0">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Buscar por colaborador, matrícula ou EPI..."
-            className="pl-9"
+            className="pl-9 h-9 text-xs sm:text-sm"
           />
         </div>
-        <Select value={statusAtivo ?? "todos"} onValueChange={(v) => setStatusAtivo(v === "todos" ? null : (v as EpiStatus))}>
-          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os status</SelectItem>
-            <SelectItem value="vencido">Vencido</SelectItem>
-            <SelectItem value="proximo">Próximo do vencimento</SelectItem>
-            <SelectItem value="vigente">Vigente</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={setorAtivo ?? "todos"} onValueChange={(v) => setSetorAtivo(v === "todos" ? null : v)}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Setor" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os setores</SelectItem>
-            {setores.map((s) => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={tipoAtivo ?? "todos"} onValueChange={(v) => setTipoAtivo(v === "todos" ? null : v)}>
-          <SelectTrigger className="w-[190px]"><SelectValue placeholder="Tipo de EPI" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os tipos</SelectItem>
-            {tiposEpi.map((t) => (
-              <SelectItem key={t} value={t}>{t}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {filtrosAtivos.map((f) => (
-          <Badge key={f.label} variant="outline" className="gap-1.5 border-primary/30 text-primary">
-            {f.label}
-            <button type="button" onClick={f.clear} className="font-bold" aria-label={`Limpar filtro ${f.label}`}>
-              ×
-            </button>
-          </Badge>
-        ))}
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={statusAtivo ?? "todos"} onValueChange={(v) => setStatusAtivo(v === "todos" ? null : (v as EpiStatus))}>
+            <SelectTrigger className="w-full sm:w-[170px] h-9 text-xs">
+              <div className="flex items-center gap-1.5 truncate">
+                <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Status" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os status</SelectItem>
+              <SelectItem value="vencido">Vencido</SelectItem>
+              <SelectItem value="proximo">Próximo do vencimento</SelectItem>
+              <SelectItem value="vigente">Vigente</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={setorAtivo ?? "todos"} onValueChange={(v) => setSetorAtivo(v === "todos" ? null : v)}>
+            <SelectTrigger className="w-full sm:w-[160px] h-9 text-xs">
+              <div className="flex items-center gap-1.5 truncate">
+                <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Setor" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os setores</SelectItem>
+              {setores.map((s) => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={tipoAtivo ?? "todos"} onValueChange={(v) => setTipoAtivo(v === "todos" ? null : v)}>
+            <SelectTrigger className="w-full sm:w-[180px] h-9 text-xs">
+              <div className="flex items-center gap-1.5 truncate">
+                <Layers className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Tipo de EPI" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os tipos</SelectItem>
+              {tiposEpi.map((t) => (
+                <SelectItem key={t} value={t}>{t}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {filtrosAtivos.map((f) => (
+            <Badge key={f.label} variant="outline" className="gap-1.5 border-primary/30 text-primary">
+              {f.label}
+              <button type="button" onClick={f.clear} className="font-bold" aria-label={`Limpar filtro ${f.label}`}>
+                ×
+              </button>
+            </Badge>
+          ))}
+        </div>
       </section>
 
-      {/* Registros agrupados por status — a urgência organiza a página em vez de ser
-          só mais uma coluna com badge dentro de uma tabela genérica. */}
+      {/* Registros agrupados por status */}
       {grupos.length === 0 && (
         <p className="py-12 text-center text-sm text-muted-foreground">Nenhum registro encontrado.</p>
       )}
@@ -300,63 +329,96 @@ function CertificadosPage() {
               <h3 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">{grupo.titulo}</h3>
               <span className="text-sm text-muted-foreground">({grupo.itens.length})</span>
             </div>
-            <div className="divide-y divide-border rounded-xl border">
+            <div className="divide-y divide-border rounded-xl border overflow-hidden">
               {grupo.itens.map((e) => (
                 <div
                   key={e.id}
-                  className={`flex flex-wrap items-center gap-x-6 gap-y-2 border-l-4 p-4 ${
-                    grupo.status === "vencido" ? "border-l-danger" : grupo.status === "proximo" ? "border-l-warning" : "border-l-success"
+                  className={`border-l-4 p-3.5 sm:p-4 transition-colors ${
+                    grupo.status === "vencido"
+                      ? "border-l-danger bg-danger/[0.015]"
+                      : grupo.status === "proximo"
+                        ? "border-l-warning bg-warning/[0.015]"
+                        : "border-l-success bg-success/[0.015]"
                   }`}
                 >
-                  <div className="min-w-[160px] flex-1">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <p className="font-semibold">{e.colaborador}</p>
-                      {colaboradorRemovido(e.matricula) && (
-                        <Badge variant="outline" className="shrink-0 border-muted-foreground/30 text-[10px] text-muted-foreground">
-                          Usuário removido
-                        </Badge>
-                      )}
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6">
+                    
+                    {/* Colaborador e EPI Lado a Lado (grid de 2 colunas perfeitamente alinhadas) */}
+                    <div className="grid grid-cols-2 items-start gap-3 min-w-0 md:flex-1 md:gap-6">
+                      
+                      {/* Colaborador */}
+                      <div className="min-w-0 space-y-0.5">
+                        <div className="flex flex-wrap items-center gap-1">
+                          <p className="font-semibold text-foreground text-sm leading-tight truncate">{e.colaborador}</p>
+                          {colaboradorRemovido(e.matricula) && (
+                            <Badge variant="outline" className="shrink-0 border-muted-foreground/30 text-[9px] px-1 py-0 text-muted-foreground">
+                              Removido
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">{e.cargo} · {e.setor}</p>
+                        <p className="font-mono text-[11px] font-semibold text-primary/90 truncate">Matrícula: {e.matricula}</p>
+                      </div>
+
+                      {/* EPI Relacionado */}
+                      <div className="min-w-0 space-y-0.5">
+                        <p className="font-semibold text-foreground text-sm leading-tight truncate">{e.epi}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {e.tipoEpi}
+                          <span className="hidden sm:inline">{e.ca && e.ca !== "N/A" ? ` · CA ${e.ca}` : ""}</span>
+                        </p>
+                      </div>
+
                     </div>
-                    <p className="text-xs text-muted-foreground">{e.cargo} · {e.setor}</p>
-                  </div>
-                  <div className="min-w-[160px] flex-1">
-                    <p>{e.epi}</p>
-                    <p className="text-xs text-muted-foreground">{e.tipoEpi}</p>
-                  </div>
-                  <div className="min-w-[90px]">
-                    <p className="font-mono text-sm">CA {e.ca}</p>
-                    <p className="text-xs text-muted-foreground">Matr. {e.matricula}</p>
-                  </div>
-                  <div className="min-w-[110px]">
-                    <p className="text-sm">{new Date(e.validade).toLocaleDateString("pt-BR")}</p>
-                    <p className="text-xs text-muted-foreground">Entrega {new Date(e.dataEntrega).toLocaleDateString("pt-BR")}</p>
-                  </div>
-                  <div className="ml-auto flex shrink-0 items-center gap-1">
-                    <RenovarDialog entrega={e} onRenovar={handleRenovar} />
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="icon" variant="ghost" className="text-danger hover:text-danger" title="Excluir certificado">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Excluir certificado de "{e.colaborador}"?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Tem certeza de que deseja excluir este certificado? Essa ação não poderá ser desfeita.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDelete(e.id)}
-                            className="bg-danger text-danger-foreground hover:bg-danger/90"
-                          >
-                            Excluir
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+
+                    {/* Datas e Ações */}
+                    <div className="flex items-center justify-between gap-3 border-t border-border/40 pt-2.5 sm:border-t-0 sm:pt-0 md:shrink-0 md:justify-end">
+                      
+                      {/* Datas */}
+                      <div className="flex flex-1 flex-col gap-1 rounded-xl border bg-muted/40 px-3.5 py-1.5 text-xs sm:flex-initial sm:min-w-[200px]">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="font-medium text-muted-foreground">Entrega:</span>
+                          <span className="font-semibold text-foreground">{new Date(e.dataEntrega).toLocaleDateString("pt-BR")}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-1">
+                          <span className="font-medium text-muted-foreground">Validade:</span>
+                          <span className={`font-bold ${grupo.status === "vencido" ? "text-danger" : grupo.status === "proximo" ? "text-warning-foreground" : "text-success"}`}>
+                            {new Date(e.validade).toLocaleDateString("pt-BR")}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Ações */}
+                      <div className="flex shrink-0 items-center gap-1">
+                        <RenovarDialog entrega={e} onRenovar={handleRenovar} />
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 text-danger hover:text-danger hover:bg-danger/10" title="Excluir entrega de EPI">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir entrega de "{e.colaborador}"?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza de que deseja excluir este registro de entrega de EPI? Essa ação não poderá ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(e.id)}
+                                className="bg-danger text-danger-foreground hover:bg-danger/90"
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+
+                    </div>
+
                   </div>
                 </div>
               ))}
@@ -397,16 +459,20 @@ function StatusStat({
   );
 }
 
-function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Omit<Certificado, "id">) => void }) {
-  const [open, setOpen] = useState(false);
+function NovaEntregaDialog({ onAdd, defaultOpen }: { onAdd: (entrega: Omit<Certificado, "id">) => void; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen ?? false);
+
+  useEffect(() => {
+    if (defaultOpen) {
+      setOpen(true);
+    }
+  }, [defaultOpen]);
+
   const [colaboradorId, setColaboradorId] = useState("");
   const [epiId, setEpiId] = useState("");
   const [dataEntrega, setDataEntrega] = useState("");
   const [validade, setValidade] = useState("");
 
-  // Matrícula, cargo e setor não são mais digitados à mão — vêm do cadastro junto com o
-  // colaborador escolhido, então não tem como errar o nome ou divergir do que já existe em
-  // Colaboradores. Mesma ideia pro CA/tipo do EPI, que vem do catálogo.
   const colaboradorSelecionado = colaboradores.find((c) => c.id === colaboradorId);
   const epiSelecionado = epis.find((e) => e.id === epiId);
 
@@ -440,7 +506,7 @@ function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Omit<Certificado, "id">
               epi: epiSelecionado.nome,
               epiId: epiSelecionado.id,
               tipoEpi: epiSelecionado.categoria,
-              ca: epiSelecionado.ca,
+              ca: epiSelecionado.ca || "N/A",
               dataEntrega,
               validade,
               status: calcularStatus(validade),
@@ -477,13 +543,13 @@ function NovaEntregaDialog({ onAdd }: { onAdd: (entrega: Omit<Certificado, "id">
             </Select>
             {epiSelecionado && (
               <p className="text-xs text-muted-foreground">
-                CA {epiSelecionado.ca} · {epiSelecionado.categoria}
+                {epiSelecionado.categoria}
               </p>
             )}
           </Field>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Data de entrega"><Input required type="date" value={dataEntrega} onChange={(e) => setDataEntrega(e.target.value)} /></Field>
-            <Field label="Validade do CA"><Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} /></Field>
+            <Field label="Data de validade"><Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} /></Field>
           </div>
           <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
@@ -507,8 +573,6 @@ function BaixaPorDemandaDialog({
   const [responsavelId, setResponsavelId] = useState("");
 
   const epiSelecionado = epis.find((e) => e.id === epiId);
-  // O responsável só faz sentido dentro de quem já está no setor que está pedindo — cai
-  // pra lista inteira só se ainda não existir ninguém daquele setor no cadastro.
   const candidatosDoSetor = setor ? colaboradores.filter((c) => c.ativo && c.setor === setor) : [];
   const responsaveis = candidatosDoSetor.length > 0 ? candidatosDoSetor : colaboradores.filter((c) => c.ativo);
   const responsavelSelecionado = colaboradores.find((c) => c.id === responsavelId);
@@ -605,35 +669,45 @@ function BaixaPorDemandaDialog({
   );
 }
 
-function RenovarDialog({ entrega, onRenovar }: { entrega: Certificado; onRenovar: (id: string, validade: string) => void }) {
+function RenovarDialog({ entrega, onRenovar }: { entrega: Certificado; onRenovar: (id: string, validade: string, dataEntrega?: string) => void }) {
   const [open, setOpen] = useState(false);
-  const [validade, setValidade] = useState(entrega.validade);
+  const dataHojeStr = HOJE_STR;
+  const defaultNovaValidade = "2027-08-14";
+
+  const [dataEntrega, setDataEntrega] = useState(dataHojeStr);
+  const [validade, setValidade] = useState(defaultNovaValidade);
 
   useEffect(() => {
-    if (open) setValidade(entrega.validade);
-  }, [open, entrega.validade]);
+    if (open) {
+      setDataEntrega(dataHojeStr);
+      setValidade(defaultNovaValidade);
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="icon" variant="ghost" title="Renovar certificado"><RefreshCw className="h-4 w-4" /></Button>
+        <Button size="icon" variant="ghost" title="Renovar entrega de EPI"><RefreshCw className="h-4 w-4" /></Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Renovar certificado</DialogTitle>
+          <DialogTitle>Renovar entrega de EPI</DialogTitle>
           <DialogDescription>
-            {entrega.epi} (CA {entrega.ca}) · {entrega.colaborador}
+            {entrega.epi} · {entrega.colaborador} (Matrícula: {entrega.matricula})
           </DialogDescription>
         </DialogHeader>
         <form
           className="grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            onRenovar(entrega.id, validade);
+            onRenovar(entrega.id, validade, dataEntrega);
             setOpen(false);
           }}
         >
-          <Field label="Nova validade">
+          <Field label="Data da renovação/entrega">
+            <Input required type="date" value={dataEntrega} onChange={(e) => setDataEntrega(e.target.value)} />
+          </Field>
+          <Field label="Nova data de validade">
             <Input required type="date" value={validade} onChange={(e) => setValidade(e.target.value)} />
           </Field>
           <DialogFooter className="mt-2">

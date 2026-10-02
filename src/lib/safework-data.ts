@@ -21,7 +21,7 @@ export interface Epi {
   id: string;
   nome: string;
   categoria: string;
-  ca: string;
+  ca?: string;
   funcao: string;
   setores: string[];
   validade: string;
@@ -41,12 +41,12 @@ export const categoriasEpi: string[] = [
 export const funcoesEpi: string[] = ["Todos", "Eletricista", "Soldador", "Operador de máquina", "Ajudante geral"];
 
 export const epis: Epi[] = [
-  { id: "1", nome: "Capacete de segurança", categoria: "Proteção da cabeça", ca: "12345", funcao: "Todos", setores: ["Todos"], validade: "2027-08-15", estoque: 42 },
-  { id: "2", nome: "Óculos de proteção", categoria: "Proteção visual", ca: "22987", funcao: "Todos", setores: ["Todos"], validade: "2027-11-02", estoque: 58 },
-  { id: "3", nome: "Luvas isolantes", categoria: "Proteção das mãos", ca: "31402", funcao: "Eletricista", setores: ["Manutenção"], validade: "2026-03-20", estoque: 15 },
-  { id: "4", nome: "Botina de segurança", categoria: "Proteção dos pés", ca: "40551", funcao: "Todos", setores: ["Todos"], validade: "2027-01-10", estoque: 30 },
-  { id: "5", nome: "Máscara de solda", categoria: "Proteção facial", ca: "50213", funcao: "Soldador", setores: ["Produção"], validade: "2026-05-18", estoque: 8 },
-  { id: "6", nome: "Colete refletivo", categoria: "Proteção do corpo", ca: "60112", funcao: "Ajudante geral", setores: ["Logística", "Produção"], validade: "2026-09-01", estoque: 22 },
+  { id: "1", nome: "Capacete de segurança", categoria: "Proteção da cabeça", funcao: "Todos", setores: ["Todos"], validade: "1 ano", estoque: 42 },
+  { id: "2", nome: "Óculos de proteção", categoria: "Proteção visual", funcao: "Todos", setores: ["Todos"], validade: "6 meses", estoque: 58 },
+  { id: "3", nome: "Luvas isolantes", categoria: "Proteção das mãos", funcao: "Eletricista", setores: ["Manutenção"], validade: "6 meses", estoque: 15 },
+  { id: "4", nome: "Botina de segurança", categoria: "Proteção dos pés", funcao: "Todos", setores: ["Todos"], validade: "1 ano", estoque: 30 },
+  { id: "5", nome: "Máscara de solda", categoria: "Proteção facial", funcao: "Soldador", setores: ["Produção"], validade: "2 anos", estoque: 8 },
+  { id: "6", nome: "Colete refletivo", categoria: "Proteção do corpo", funcao: "Ajudante geral", setores: ["Logística", "Produção"], validade: "1 ano", estoque: 22 },
 ];
 
 const iconePorCategoria: Record<string, LucideIcon> = {
@@ -586,10 +586,10 @@ export interface ColaboradorAtencao {
 }
 
 export const colaboradoresAtencao: ColaboradorAtencao[] = [
-  { id: "1", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Sem EPI obrigatório (Luva Isolante)", prioridade: "alta", acaoRotulo: "Entregar EPI", acaoHref: "/gestor/certificados" },
-  { id: "2", nome: "Rafael Souza", cargo: "Soldador", motivo: "CA 50213 vencido (Máscara de Solda)", prioridade: "alta", acaoRotulo: "Renovar CA", acaoHref: "/gestor/certificados" },
+  { id: "1", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Sem EPI obrigatório (Luva Isolante)", prioridade: "alta", acaoRotulo: "Entregar EPI", acaoHref: "/gestor/validades?novaEntrega=true" },
+  { id: "2", nome: "Rafael Souza", cargo: "Soldador", motivo: "Máscara de Solda vencida", prioridade: "alta", acaoRotulo: "Renovar EPI", acaoHref: "/gestor/validades" },
   { id: "3", nome: "Carlos Menezes", cargo: "Eletricista", motivo: "Observação pendente crítica (Rachadura)", prioridade: "media", acaoRotulo: "Analisar", acaoHref: "/gestor/observacoes" },
-  { id: "4", nome: "Fernando Costa", cargo: "Técnico de Manutenção", motivo: "Pendência de entrega no onboarding", prioridade: "media", acaoRotulo: "Agendar", acaoHref: "/gestor/certificados" },
+  { id: "4", nome: "Fernando Costa", cargo: "Técnico de Manutenção", motivo: "Pendência de entrega no onboarding", prioridade: "media", acaoRotulo: "Agendar", acaoHref: "/gestor/validades?novaEntrega=true" },
 ];
 
 export type TipoNotificacao = "ca_vencido" | "ca_proximo" | "epi_entregue" | "novo_colaborador" | "nova_observacao" | "nova_mensagem";
@@ -610,32 +610,32 @@ export const notificacoes: Notificacao[] = [
   {
     id: "notif-1",
     tipo: "ca_vencido",
-    titulo: "CA Vencido — Luvas Isolantes",
-    descricao: "Luvas isolantes (CA 31402) vencidas para Carlos Menezes. Substituição necessária.",
+    titulo: "EPI Vencido — Luvas Isolantes",
+    descricao: "Luvas isolantes vencidas para Carlos Menezes. Substituição necessária.",
     dataHora: "Há 3 dias",
     lida: false,
     prioridade: "alta",
-    link: "/gestor/certificados",
+    link: "/gestor/validades",
   },
   {
     id: "notif-2",
     tipo: "ca_vencido",
-    titulo: "CA Vencido — Máscara de Solda",
-    descricao: "Máscara de solda (CA 50213) vencida para Rafael Souza. Requer nova emissão.",
+    titulo: "EPI Vencido — Máscara de Solda",
+    descricao: "Máscara de solda vencida para Rafael Souza. Requer nova emissão.",
     dataHora: "Há 3 dias",
     lida: false,
     prioridade: "alta",
-    link: "/gestor/certificados",
+    link: "/gestor/validades",
   },
   {
     id: "notif-3",
     tipo: "ca_proximo",
-    titulo: "CA Próximo do Vencimento",
-    descricao: "Capacete de Segurança (CA 12345) vence amanhã para Carlos Menezes.",
+    titulo: "EPI Próximo do Vencimento",
+    descricao: "Capacete de Segurança vence amanhã para Carlos Menezes.",
     dataHora: "Hoje, 08:00",
     lida: false,
     prioridade: "media",
-    link: "/gestor/certificados",
+    link: "/gestor/validades",
   },
   {
     id: "notif-4",
@@ -655,7 +655,7 @@ export const notificacoes: Notificacao[] = [
     dataHora: "Hoje, 09:30",
     lida: true,
     prioridade: "baixa",
-    link: "/gestor/certificados",
+    link: "/gestor/validades",
   },
   {
     id: "notif-6",
@@ -721,4 +721,60 @@ export function limparNotificacoes() {
   notificacoes.splice(0, notificacoes.length);
   avisarOuvintesNotificacoes();
 }
+
+// Persistência do estado de confirmação diária de EPIs do colaborador.
+// Mantém os EPIs marcados e a confirmação concluída salvos durante a navegação,
+// redefinindo automaticamente no próximo dia ou em um novo login (logout).
+export interface StatusConfirmacaoDiaria {
+  data: string;
+  checked: Record<string, boolean>;
+  submitted: boolean;
+}
+
+export function getTodayString(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function getConfirmacaoDiaria(matricula: string): StatusConfirmacaoDiaria {
+  if (typeof window === "undefined") {
+    return { data: getTodayString(), checked: {}, submitted: false };
+  }
+  try {
+    const raw = window.localStorage.getItem(`safework:confirmacao:${matricula}`);
+    if (!raw) return { data: getTodayString(), checked: {}, submitted: false };
+    const parsed = JSON.parse(raw) as StatusConfirmacaoDiaria;
+    const hoje = getTodayString();
+    if (parsed && parsed.data === hoje) {
+      return parsed;
+    }
+    // Novo dia: limpa confirmações do dia anterior
+    window.localStorage.removeItem(`safework:confirmacao:${matricula}`);
+    return { data: hoje, checked: {}, submitted: false };
+  } catch {
+    return { data: getTodayString(), checked: {}, submitted: false };
+  }
+}
+
+export function salvarConfirmacaoDiaria(
+  matricula: string,
+  checked: Record<string, boolean>,
+  submitted: boolean
+) {
+  if (typeof window === "undefined") return;
+  try {
+    const status: StatusConfirmacaoDiaria = {
+      data: getTodayString(),
+      checked,
+      submitted,
+    };
+    window.localStorage.setItem(`safework:confirmacao:${matricula}`, JSON.stringify(status));
+  } catch (err) {
+    console.error("Erro ao salvar confirmação diária:", err);
+  }
+}
+
 

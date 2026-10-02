@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarketingHeader } from "@/components/safework/MarketingHeader";
 import { MarketingFooter } from "@/components/safework/MarketingFooter";
 import { Reveal } from "@/components/safework/Reveal";
 import { CountUp } from "@/components/safework/CountUp";
+import { HowItWorksOverlay } from "@/components/safework/HowItWorksOverlay";
+import { Parallax } from "@/components/safework/Parallax";
+import { Magnetic } from "@/components/safework/Magnetic";
 
 export const Route = createFileRoute("/sobre")({
   head: () => ({ meta: [{ title: "Sobre nós — SafeWork" }] }),
@@ -40,6 +43,7 @@ const values = [
 
 function SobrePage() {
   const [activeValue, setActiveValue] = useState(0);
+  const [howItWorksOpen, setHowItWorksOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50/80 via-white to-slate-50/50 text-slate-800 font-sans">
@@ -47,9 +51,9 @@ function SobrePage() {
 
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[460px]">
-          <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2">
+          <Parallax speed={0.12} className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2">
             <div className="absolute inset-0 animate-blob rounded-full bg-primary/10 blur-3xl" />
-          </div>
+          </Parallax>
         </div>
 
         <main className="mx-auto max-w-7xl px-6 pb-28 pt-8">
@@ -60,6 +64,19 @@ function SobrePage() {
               Segurança do trabalho,{" "}
               <span className="text-primary">levada a sério.</span>
             </h1>
+          </Reveal>
+
+          <Reveal delay={80}>
+            <Magnetic>
+              <button
+                type="button"
+                onClick={() => setHowItWorksOpen(true)}
+                className="mt-6 inline-flex items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-5 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+              >
+                <PlayCircle className="h-5 w-5" />
+                Ver como funciona
+              </button>
+            </Magnetic>
           </Reveal>
 
           {/* Stats — one divided strip instead of four identical gradient-number cards.
@@ -152,16 +169,20 @@ function SobrePage() {
             <p className="max-w-md text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
               Quer ver a SafeWork rodando com o seu time?
             </p>
-            <Button asChild size="lg" className="rounded-xl bg-primary px-7 py-6 text-base font-semibold text-primary-foreground hover:bg-primary/90">
-              <Link to="/planos" className="flex items-center gap-2">
-                Ver planos <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
+            <Magnetic>
+              <Button asChild size="lg" className="rounded-xl bg-primary px-7 py-6 text-base font-semibold text-primary-foreground hover:bg-primary/90">
+                <Link to="/planos" className="flex items-center gap-2">
+                  Ver planos <ArrowRight className="h-5 w-5" />
+                </Link>
+              </Button>
+            </Magnetic>
           </div>
         </main>
       </div>
 
       <MarketingFooter />
+
+      <HowItWorksOverlay open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
     </div>
   );
 }

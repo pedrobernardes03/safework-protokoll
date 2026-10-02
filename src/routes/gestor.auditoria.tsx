@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { logsAuditoria, gestorAtual, temAcessoGeral, type CategoriaAuditoria } from "@/lib/safework-data";
 import { AcessoRestrito } from "@/components/safework/AcessoRestrito";
+import { ScrollableFilterBar } from "@/components/safework/ScrollableFilterBar";
 
 const POR_PAGINA = 15;
 
@@ -64,39 +65,72 @@ function AuditoriaPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
+      {/* Barra de Filtros e Busca Unificada */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border bg-card p-3 shadow-2xs">
+        {/* Campo de Busca */}
+        <div className="relative w-full sm:w-72 shrink-0">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={q}
             onChange={(e) => filtrarPor(() => setQ(e.target.value))}
             placeholder="Buscar por pessoa ou ação..."
-            className="pl-9"
+            className="pl-9 h-9 text-xs sm:text-sm"
           />
         </div>
-        <div className="flex flex-wrap items-center gap-1.5">
+
+        {/* Filtros de Categoria */}
+        <ScrollableFilterBar>
           <button
             type="button"
             onClick={() => filtrarPor(() => setCategoriaAtiva(null))}
-            className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-              categoriaAtiva === null ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:border-primary/30"
+            className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all shrink-0 ${
+              categoriaAtiva === null
+                ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
             }`}
           >
-            Todos
-          </button>
-          {categorias.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => filtrarPor(() => setCategoriaAtiva(c.id))}
-              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                categoriaAtiva === c.id ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:border-primary/30"
+            <History className="h-3.5 w-3.5" />
+            <span>Todos</span>
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                categoriaAtiva === null
+                  ? "bg-primary-foreground/20 text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
               }`}
             >
-              {c.label}
-            </button>
-          ))}
-        </div>
+              {logsAuditoria.length}
+            </span>
+          </button>
+          {categorias.map((c) => {
+            const isSelected = categoriaAtiva === c.id;
+            const count = logsAuditoria.filter((l) => l.categoria === c.id).length;
+            const Icon = c.icon;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => filtrarPor(() => setCategoriaAtiva(c.id))}
+                className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all shrink-0 ${
+                  isSelected
+                    ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                    : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                <span>{c.label}</span>
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                    isSelected
+                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </ScrollableFilterBar>
       </div>
 
       <div>

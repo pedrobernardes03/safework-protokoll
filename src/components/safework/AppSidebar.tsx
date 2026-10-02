@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Logo } from "@/components/safework/Logo";
 import {
@@ -25,6 +26,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { gestorAtual } from "@/lib/safework-data";
 
@@ -35,8 +37,8 @@ type NavItem = { title: string; to: string; icon: typeof LayoutDashboard; exact?
 const navSST: NavItem[] = [
   { title: "Visão Geral", to: "/gestor", icon: LayoutDashboard, exact: true },
   { title: "EPIs por Colaborador", to: "/gestor/colaboradores", icon: ListChecks },
-  { title: "Equipamento de Proteção Individual", to: "/gestor/epis", icon: HardHat },
-  { title: "Certificado de Aprovação (CA)", to: "/gestor/certificados", icon: BadgeCheck },
+  { title: "Cadastro de EPIs", to: "/gestor/epis", icon: HardHat },
+  { title: "Monitoramento de Validades", to: "/gestor/validades", icon: BadgeCheck },
   { title: "Observações", to: "/gestor/observacoes", icon: MessageSquareWarning },
   { title: "Mensagens", to: "/gestor/mensagens", icon: MessageCircle },
   { title: "Auditoria", to: "/gestor/auditoria", icon: History },
@@ -48,12 +50,17 @@ const navRH: NavItem = { title: "Colaboradores", to: "/gestor/rh", icon: Users }
 const navAlmoxarifado: NavItem = { title: "Almoxarifado", to: "/gestor/almoxarifado", icon: Boxes };
 
 export function AppSidebar() {
+  const { setOpenMobile } = useSidebar();
   const path = useRouterState({ select: (r) => r.location.pathname });
+
+  // Fecha o menu de navegação no mobile automaticamente quando a rota muda
+  useEffect(() => {
+    setOpenMobile(false);
+  }, [path, setOpenMobile]);
+
   const isActive = (to: string, exact?: boolean) =>
     exact ? path === to : path === to || path.startsWith(to + "/");
   const perfil = gestorAtual().perfil;
-  // Cada perfil vê só a(s) tela(s) do próprio trabalho — nada do resto do painel.
-  // Administrador é o único que enxerga tudo (acesso de exceção).
   const items: NavItem[] =
     perfil === "Compras"
       ? [navCompras]
@@ -67,11 +74,14 @@ export function AppSidebar() {
               ? [...navSST, navAlmoxarifado, navRH, navCompras, navTI]
               : navSST;
 
+  const closeMobile = () => setOpenMobile(false);
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <Link
           to="/gestor"
+          onClick={closeMobile}
           className="flex items-center gap-2.5 rounded-lg px-2 py-2 transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 hover:bg-sidebar-accent/50"
         >
           <Logo
@@ -93,7 +103,7 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.to}>
                   <SidebarMenuButton asChild isActive={isActive(item.to, item.exact)} tooltip={item.title}>
-                    <Link to={item.to}>
+                    <Link to={item.to} onClick={closeMobile}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
@@ -108,7 +118,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Sair">
-              <Link to="/login">
+              <Link to="/login" onClick={closeMobile}>
                 <LogOut className="h-4 w-4" /> <span>Sair</span>
               </Link>
             </SidebarMenuButton>

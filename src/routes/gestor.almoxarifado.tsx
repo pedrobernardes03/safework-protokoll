@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, ClipboardCopy, CircleCheck, TriangleAlert, ShoppingCart, Check } from "lucide-react";
+import { Search, ClipboardCopy, CircleCheck, TriangleAlert, ShoppingCart, Check, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -58,7 +58,7 @@ function AlmoxarifadoPage() {
   }
 
   const combina = (e: (typeof epis)[number]) =>
-    (e.nome.toLowerCase().includes(q.toLowerCase()) || e.ca.includes(q)) &&
+    (e.nome.toLowerCase().includes(q.toLowerCase()) || (e.ca && e.ca.includes(q))) &&
     (setorAtivo === "Todos os setores" || e.setores.includes(setorAtivo));
 
   const emFalta = epis.filter((e) => statusDoEstoque(e.estoque) === "falta");
@@ -77,7 +77,7 @@ function AlmoxarifadoPage() {
 
   const handleCopiarLista = () => {
     const linhas = criticos.map(
-      (e) => `- ${e.nome} (CA ${e.ca}): repor ${Math.max(META_REPOSICAO - e.estoque, 0)} un. — atual ${e.estoque} un.`,
+      (e) => `- ${e.nome}${e.ca ? ` (CA ${e.ca})` : ""}: repor ${Math.max(META_REPOSICAO - e.estoque, 0)} un. — atual ${e.estoque} un.`,
     );
     const texto = `Lista de reposição — Almoxarifado\n${linhas.join("\n")}`;
     navigator.clipboard
@@ -96,7 +96,7 @@ function AlmoxarifadoPage() {
       addSolicitacaoCompra({
         epiId: e.id,
         epiNome: e.nome,
-        ca: e.ca,
+        ca: e.ca || "N/A",
         quantidade: Math.max(META_REPOSICAO - e.estoque, 0),
         solicitadoPor: solicitante,
       });
@@ -166,14 +166,23 @@ function AlmoxarifadoPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full sm:max-w-[260px]">
+      {/* Barra de Filtros e Busca Unificada */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border bg-card p-3 shadow-2xs">
+        <div className="relative w-full sm:w-72 shrink-0">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por nome ou CA..." className="pl-9" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar por nome ou CA..."
+            className="pl-9 h-9 text-xs sm:text-sm"
+          />
         </div>
         <Select value={setorAtivo} onValueChange={setSetorAtivo}>
-          <SelectTrigger className="w-full sm:w-[170px]">
-            <SelectValue />
+          <SelectTrigger className="w-full sm:w-[170px] h-9 text-xs">
+            <div className="flex items-center gap-1.5 truncate">
+              <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <SelectValue />
+            </div>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="Todos os setores">Todos os setores</SelectItem>
