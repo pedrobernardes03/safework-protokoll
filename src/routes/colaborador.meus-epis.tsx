@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { CheckCircle2, Check, MessageSquarePlus, History, ShieldCheck, MessageCircle } from "lucide-react";
+import { CheckCircle2, Check, MessageSquarePlus, History, ShieldCheck, MessageCircle, Clock } from "lucide-react";
 import { CollaboratorShell } from "@/components/safework/CollaboratorShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { colaboradores, epis, iconeParaEpi, addLogAuditoria, MATRICULA_COLABORADOR_ATUAL, type Epi } from "@/lib/safework-data";
+import { useEpiSession } from "@/hooks/useEpiSession";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/colaborador/meus-epis")({
@@ -31,8 +31,10 @@ function MeusEpis() {
   // que evita, por exemplo, pedir confirmação de colete para quem não usa colete.
   const meusEpis: Epi[] = epis.filter((e) => colaborador.episObrigatorios.includes(e.id));
 
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const [submitted, setSubmitted] = useState(false);
+  // Sessão persistida em localStorage por 12 horas — mantém as marcações ao trocar de tela
+  const { checked, submitted, setChecked, setSubmitted, timeRemaining } = useEpiSession(
+    colaborador.matricula,
+  );
 
   const checkedCount = meusEpis.filter((e) => checked[e.id]).length;
   const allChecked = meusEpis.length > 0 && checkedCount === meusEpis.length;
@@ -50,11 +52,33 @@ function MeusEpis() {
               <h1 className="mt-1 text-2xl font-bold tracking-tight">{colaborador.nome}</h1>
               <p className="mt-0.5 text-sm text-muted-foreground">{colaborador.cargo} · {colaborador.setor}</p>
             </div>
-            <Badge className="shrink-0 bg-success text-success-foreground hover:bg-success">
-              <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Em dia
-            </Badge>
+            <div className="flex flex-col items-end gap-2">
+              <Badge className="shrink-0 bg-success text-success-foreground hover:bg-success">
+                <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Em dia
+              </Badge>
+              {/* Indicador de sessão ativa de 12h */}
+              {timeRemaining && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] font-medium text-primary/80">
+                  <Clock className="h-3 w-3" />
+                  Sessão válida por {timeRemaining}
+                </span>
+              )}
+            </div>
           </div>
         </section>
+
+        {/* Faixa de confirmação já realizada */}
+        {submitted && (
+          <div className="flex items-center gap-3 rounded-2xl border border-success/30 bg-success/10 p-4 text-success">
+            <CheckCircle2 className="h-5 w-5 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">EPIs confirmados nesta sessão</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Suas marcações estão salvas e se mantêm enquanto a sessão estiver ativa ({timeRemaining} restantes).
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* EPIs Obrigatórios e Progresso */}
         <section>
