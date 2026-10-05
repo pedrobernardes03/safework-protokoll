@@ -33,7 +33,7 @@ export function MarketingFooter() {
               textClassName="text-lg font-bold text-slate-900"
             />
             <p className="mt-4 max-w-xs text-sm text-slate-500">
-              Plataforma de gestão de segurança do trabalho para equipes que levam EPIs, CAs e
+              Plataforma de gestão de segurança do trabalho para equipes que levam EPIs, validade dos EPIs e
               conformidade a sério.
             </p>
           </div>

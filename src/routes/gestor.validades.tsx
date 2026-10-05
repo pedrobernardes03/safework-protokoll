@@ -344,7 +344,7 @@ function ValidadesPage() {
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6">
                     
                     {/* Colaborador e EPI Lado a Lado (grid de 2 colunas perfeitamente alinhadas) */}
-                    <div className="grid grid-cols-2 items-start gap-3 min-w-0 md:flex-1 md:gap-6">
+                    <div className="grid grid-cols-2 items-center gap-3 min-w-0 md:flex-1 md:gap-6">
                       
                       {/* Colaborador */}
                       <div className="min-w-0 space-y-0.5">
@@ -361,12 +361,11 @@ function ValidadesPage() {
                       </div>
 
                       {/* EPI Relacionado */}
-                      <div className="min-w-0 space-y-0.5">
+                      <div className="min-w-0 space-y-1">
                         <p className="font-semibold text-foreground text-sm leading-tight truncate">{e.epi}</p>
-                        <p className="text-xs text-muted-foreground truncate">
+                        <Badge variant="secondary" className="font-medium text-[11px] px-2 py-0.5 bg-muted/60 text-muted-foreground border-border/40">
                           {e.tipoEpi}
-                          <span className="hidden sm:inline">{e.ca && e.ca !== "N/A" ? ` · CA ${e.ca}` : ""}</span>
-                        </p>
+                        </Badge>
                       </div>
 
                     </div>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 // Três cenas em sequência com crossfade, contando uma história com sentido em vez de só
-// alternar clipes aleatórios: equipar o EPI → estar em campo com ele, já registrado (CA à
+// alternar clipes aleatórios: equipar o EPI → estar em campo com ele, já registrado (validade dos EPIs à
 // mão) → conferir/assinar o checklist. Cada vídeo toca até o fim natural (sem `loop`, pra
 // o evento `ended` disparar) e aí avança pro próximo, voltando ao primeiro depois do
 // terceiro — um ciclo contínuo.

@@ -53,24 +53,24 @@ const modules = [
   },
   {
     icon: BadgeCheck,
-    name: "Certificados de Aprovação",
-    desc: "Monitoramento automático de validade de CAs, com alertas antes do vencimento e histórico completo de cada substituição.",
+    name: "Monitoramento de Vencimentos",
+    desc: "Monitoramento automático da validade dos EPIs, com alertas antes do vencimento e histórico completo de cada substituição.",
     widget: (
       <div>
         <div className="flex items-end gap-3">
           <p className="text-5xl font-extrabold text-white">
             <CountUp value={24} />
           </p>
-          <p className="pb-1.5 text-sm text-white/50">certificados monitorados</p>
+          <p className="pb-1.5 text-sm text-white/50">EPIs monitorados</p>
         </div>
         <div className="mt-5 flex items-center gap-2.5 rounded-xl bg-amber-400/10 px-4 py-3">
           <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
-          <p className="text-xs font-semibold text-amber-300">3 certificados vencendo esta semana</p>
+          <p className="text-xs font-semibold text-amber-300">3 EPIs vencendo esta semana</p>
         </div>
         <div className="mt-5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
           <div className="h-full w-[87%] rounded-full bg-primary" />
         </div>
-        <p className="mt-2 text-xs text-white/40">87% dos CAs válidos por mais de 30 dias</p>
+        <p className="mt-2 text-xs text-white/40">87% dos EPIs com validade em dia por mais de 30 dias</p>
       </div>
     ),
   },
@@ -166,7 +166,7 @@ const modules = [
   {
     icon: ShoppingCart,
     name: "Compras",
-    desc: "O pedido de reposição chega do Almoxarifado pronto, com item, quantidade e CA. Marcar como comprado já dá entrada automática no estoque — sem lançamento manual.",
+    desc: "O pedido de reposição chega do Almoxarifado pronto, com item, quantidade e validade dos EPIs. Marcar como comprado já dá entrada automática no estoque — sem lançamento manual.",
     widget: (
       <div className="divide-y divide-white/10 border-t border-white/10">
         {[
@@ -216,7 +216,7 @@ const modules = [
         {[
           { linha: "Solicitou compra · Luva de proteção", autor: "Ana Ferreira", quando: "há 8 min" },
           { linha: "Confirmou uso de EPIs obrigatórios", autor: "João Silva", quando: "há 41 min" },
-          { linha: "Aprovou certificado renovado · CA 34521", autor: "Bruno Alves", quando: "há 2h" },
+          { linha: "Aprovou renovação de EPI · Validade dos EPIs", autor: "Bruno Alves", quando: "há 2h" },
         ].map((log) => (
           <div key={log.linha} className="flex items-center justify-between gap-3 py-3.5">
             <div className="min-w-0">

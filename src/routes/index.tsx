@@ -26,7 +26,7 @@ const guarantees = [
   },
   {
     title: "Vencimento sob aviso",
-    desc: "Nenhum CA vence de surpresa — o sistema cobra a renovação antes do prazo, não depois dele.",
+    desc: "Nenhum EPI vence de surpresa — o sistema cobra a renovação da validade dos EPIs antes do prazo, não depois dele.",
     image: "/card-vencimento.jpg",
   },
   {
@@ -135,7 +135,7 @@ function Landing() {
             próprio produto — não os quatro clichês de "tudo em um lugar / equipes
             conectadas" que caberiam em qualquer landing page de SaaS. Cada item nomeia um
             mecanismo real (o checklist por função, o desconto automático de estoque, o
-            aviso de CA, o log de auditoria) em vez de um benefício abstrato.
+            aviso de validade dos EPIs, o log de auditoria) em vez de um benefício abstrato.
 
             Quatro faixas coladas, preto-e-branco em repouso: no computador o mouse expande
             uma (ganha cor, mostra a descrição) e encolhe as outras; no celular, sem hover de

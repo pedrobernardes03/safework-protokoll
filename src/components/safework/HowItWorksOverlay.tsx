@@ -484,8 +484,8 @@ const steps: Step[] = [
     icon: BadgeCheck,
     theme: "teal",
     label: "Certificados",
-    title: "Em paralelo, o vencimento dos CAs fica sob controle",
-    desc: "A Segurança do Trabalho acompanha o vencimento dos Certificados de Aprovação separado por status — nenhum CA vence de surpresa.",
+    title: "Em paralelo, a validade dos EPIs fica sob controle",
+    desc: "A Segurança do Trabalho acompanha a validade dos EPIs separada por status — nenhum EPI vence de surpresa.",
     render: () => (
       <div className="space-y-3">
         <div className="grid grid-cols-3 gap-2">

@@ -58,7 +58,7 @@ const featureGroups = [
     title: "Gestão de EPIs",
     rows: [
       { label: "Entrega, troca e devolução", values: [true, true, true], essential: false },
-      { label: "Alertas de vencimento de CA", values: [true, true, true], essential: false },
+      { label: "Alertas de validade dos EPIs", values: [true, true, true], essential: false },
       { label: "Observações e ocorrências", values: [false, true, true], essential: true },
     ],
   },

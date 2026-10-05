@@ -83,18 +83,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Plataforma corporativa para gestão de EPIs, monitoramento de CAs e comunicação entre colaboradores e gestores.",
+          "Plataforma corporativa para gestão de EPIs, monitoramento da validade dos EPIs e comunicação entre colaboradores e gestores.",
       },
       { property: "og:title", content: "SafeWork — Gestão de Segurança do Trabalho" },
       {
         property: "og:description",
         content:
-          "Plataforma corporativa para gestão de EPIs, monitoramento de CAs e comunicação entre colaboradores e gestores.",
+          "Plataforma corporativa para gestão de EPIs, monitoramento da validade dos EPIs e comunicação entre colaboradores e gestores.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "SafeWork — Gestão de Segurança do Trabalho" },
-      { name: "twitter:description", content: "Plataforma corporativa para gestão de EPIs, monitoramento de CAs e comunicação entre colaboradores e gestores." },
+      { name: "twitter:description", content: "Plataforma corporativa para gestão de EPIs, monitoramento da validade dos EPIs e comunicação entre colaboradores e gestores." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
